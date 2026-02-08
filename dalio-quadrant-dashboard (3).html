@@ -1,0 +1,993 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dalio Quadrant — Macro Regime Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700;800&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg-primary: #0a0e17;
+  --bg-secondary: #111827;
+  --bg-card: #151d2e;
+  --bg-card-hover: #1c2740;
+  --border: #1e2a3d;
+  --border-accent: #2d3a4f;
+  --text-primary: #e8eaed;
+  --text-secondary: #a0a8b8;
+  --text-muted: #6b7280;
+  --gold: #d4a843;
+  --gold-dim: #b8922e;
+  --green: #10b981;
+  --green-dim: rgba(16, 185, 129, 0.12);
+  --red: #ef4444;
+  --red-dim: rgba(239, 68, 68, 0.12);
+  --blue: #3b82f6;
+  --blue-dim: rgba(59, 130, 246, 0.12);
+  --orange: #f59e0b;
+  --orange-dim: rgba(245, 158, 11, 0.12);
+  --q-goldilocks: #10b981;
+  --q-overheating: #f59e0b;
+  --q-stagflation: #ef4444;
+  --q-deflation: #3b82f6;
+  --font-mono: 'JetBrains Mono', monospace;
+  --font-sans: 'DM Sans', sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:15px}
+body{font-family:var(--font-sans);background:var(--bg-primary);color:var(--text-primary);min-height:100vh}
+::-webkit-scrollbar{width:7px}
+::-webkit-scrollbar-track{background:var(--bg-primary)}
+::-webkit-scrollbar-thumb{background:var(--border-accent);border-radius:4px}
+
+/* ═══════ HEADER ═══════ */
+.header{
+  background:linear-gradient(180deg,rgba(212,168,67,0.07) 0%,transparent 100%);
+  border-bottom:1px solid var(--border);padding:1.1rem 2rem;
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.8rem;
+}
+.header-left{display:flex;align-items:center;gap:0.85rem}
+.logo{
+  width:42px;height:42px;background:linear-gradient(135deg,var(--gold),var(--gold-dim));
+  border-radius:9px;display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-mono);font-weight:800;font-size:1.1rem;color:var(--bg-primary);
+}
+.header h1{font-family:var(--font-mono);font-size:1.2rem;font-weight:700;letter-spacing:-0.02em}
+.header h1 span{color:var(--gold)}
+.header-sub{font-size:0.78rem;color:var(--text-muted);font-family:var(--font-mono);margin-top:2px}
+.header-sub a{color:var(--gold);text-decoration:none}
+.header-sub a:hover{text-decoration:underline}
+.header-right{display:flex;align-items:center;gap:0.6rem;flex-wrap:wrap}
+.fred-grp{
+  display:flex;align-items:center;gap:0.4rem;background:var(--bg-card);
+  border:1px solid var(--border);border-radius:6px;padding:0.35rem 0.7rem;
+}
+.fred-grp label{font-family:var(--font-mono);font-size:0.72rem;color:var(--text-muted);white-space:nowrap}
+.fred-grp input{background:transparent;border:none;color:var(--gold);font-family:var(--font-mono);font-size:0.78rem;width:190px;outline:none}
+.btn{
+  font-family:var(--font-mono);font-size:0.72rem;font-weight:600;padding:0.45rem 0.9rem;
+  border-radius:5px;border:1px solid var(--border);cursor:pointer;transition:all 0.2s;
+  text-transform:uppercase;letter-spacing:0.04em;
+}
+.btn-gold{background:linear-gradient(135deg,var(--gold),var(--gold-dim));color:var(--bg-primary);border-color:var(--gold)}
+.btn-gold:hover{filter:brightness(1.15)}
+.btn-calc{
+  background:linear-gradient(135deg,#10b981,#059669);color:#fff;border-color:#10b981;
+  font-size:0.82rem;padding:0.55rem 1.6rem;letter-spacing:0.06em;
+}
+.btn-calc:hover{filter:brightness(1.15)}
+.btn-outline{background:transparent;color:var(--text-secondary)}
+.btn-outline:hover{background:var(--bg-card);color:var(--text-primary)}
+
+/* ═══════ TABS ═══════ */
+.tab-bar{display:flex;border-bottom:1px solid var(--border);background:var(--bg-secondary);padding:0 2rem}
+.tab-btn{
+  font-family:var(--font-mono);font-size:0.78rem;font-weight:500;padding:0.8rem 1.4rem;
+  cursor:pointer;border:none;background:none;color:var(--text-muted);
+  border-bottom:2px solid transparent;transition:all 0.2s;text-transform:uppercase;letter-spacing:0.06em;
+}
+.tab-btn:hover{color:var(--text-secondary)}
+.tab-btn.active{color:var(--gold);border-bottom-color:var(--gold)}
+.tab-content{display:none}
+.tab-content.active{display:block}
+
+/* ═══════ RECESSION BANNER ═══════ */
+.recession-banner{
+  display:none;background:linear-gradient(90deg,rgba(239,68,68,0.15),rgba(239,68,68,0.05));
+  border-bottom:1px solid rgba(239,68,68,0.3);padding:0.5rem 2rem;
+  font-family:var(--font-mono);font-size:0.78rem;color:var(--red);text-align:center;
+  animation:pulsebg 3s ease-in-out infinite;
+}
+.recession-banner.active{display:block}
+@keyframes pulsebg{
+  0%,100%{background:linear-gradient(90deg,rgba(239,68,68,0.15),rgba(239,68,68,0.05))}
+  50%{background:linear-gradient(90deg,rgba(239,68,68,0.25),rgba(239,68,68,0.1))}
+}
+
+/* ═══════ MAIN ═══════ */
+.main{
+  display:grid;grid-template-columns:1fr 440px 1fr;
+  gap:1.1rem;padding:1.1rem 2rem 2rem;max-width:1900px;margin:0 auto;
+}
+@media(max-width:1400px){.main{grid-template-columns:1fr 400px 1fr;padding:1rem 1rem;gap:0.9rem}}
+@media(max-width:1100px){.main{grid-template-columns:1fr}}
+
+/* ═══════ PANEL ═══════ */
+.panel{background:var(--bg-card);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.panel-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0.8rem 1rem;border-bottom:1px solid var(--border);background:rgba(255,255,255,0.015);
+}
+.panel-title{
+  font-family:var(--font-mono);font-size:0.82rem;font-weight:600;
+  text-transform:uppercase;letter-spacing:0.06em;display:flex;align-items:center;gap:0.45rem;
+}
+.panel-title .dot{width:8px;height:8px;border-radius:50%}
+.panel-score{font-family:var(--font-mono);font-size:0.92rem;font-weight:700;padding:0.2rem 0.6rem;border-radius:4px}
+.panel-body{padding:0.6rem 0.7rem}
+
+/* ═══════ INDICATOR ═══════ */
+.indicator{
+  display:grid;grid-template-columns:1fr 44px 88px 56px 32px;
+  align-items:center;gap:0.4rem;padding:0.55rem 0.6rem;border-radius:6px;
+  transition:background 0.15s;border:1px solid transparent;
+}
+.indicator:hover{background:var(--bg-card-hover);border-color:var(--border-accent)}
+.ind-name{font-size:0.85rem;color:var(--text-primary);font-weight:500;line-height:1.3}
+.ind-name .sub{
+  display:block;font-family:var(--font-mono);font-size:0.65rem;
+  color:var(--text-muted);margin-top:2px;font-weight:400;
+}
+
+/* Heatbar */
+.heatbar-wrap{width:100%;height:22px;display:flex;align-items:center;justify-content:center}
+.heatbar{
+  width:36px;height:8px;border-radius:4px;position:relative;overflow:visible;
+}
+.heatbar.growth-bar{background:linear-gradient(90deg,#ef4444 0%,#f59e0b 50%,#10b981 100%)}
+.heatbar.infl-bar{background:linear-gradient(90deg,#3b82f6 0%,#f59e0b 50%,#ef4444 100%)}
+.heatbar-thumb{
+  position:absolute;top:50%;width:5px;height:14px;
+  background:#fff;border-radius:2px;transform:translate(-50%,-50%);
+  box-shadow:0 0 5px rgba(255,255,255,0.5);transition:left 0.3s ease;
+}
+
+.indicator input[type="number"]{
+  background:var(--bg-secondary);border:1px solid var(--border);border-radius:5px;
+  color:var(--text-primary);font-family:var(--font-mono);font-size:0.88rem;font-weight:500;
+  padding:0.3rem 0.4rem;text-align:right;width:100%;outline:none;transition:border-color 0.2s;
+}
+.indicator input:focus{border-color:var(--gold)}
+.indicator input.overridden{border-color:var(--orange);background:rgba(245,158,11,0.08)}
+
+.signal-badge{
+  font-family:var(--font-mono);font-size:0.68rem;font-weight:700;text-align:center;
+  padding:0.2rem 0.25rem;border-radius:3px;text-transform:uppercase;letter-spacing:0.03em;
+}
+.signal-badge.bullish{background:var(--green-dim);color:var(--green)}
+.signal-badge.bearish{background:var(--red-dim);color:var(--red)}
+.signal-badge.neutral{background:rgba(156,163,175,0.08);color:var(--text-muted)}
+.signal-badge.warn{background:var(--orange-dim);color:var(--orange)}
+
+.ovr-btn{
+  width:28px;height:28px;background:transparent;border:1px solid var(--border);border-radius:4px;
+  color:var(--text-muted);cursor:pointer;font-size:0.72rem;
+  display:flex;align-items:center;justify-content:center;transition:all 0.15s;
+}
+.ovr-btn:hover{background:var(--bg-card-hover);color:var(--text-primary)}
+.ovr-btn.active{border-color:var(--orange);color:var(--orange);background:rgba(245,158,11,0.1)}
+
+/* ═══════ QUADRANT CENTER ═══════ */
+.quadrant-center{grid-row:1/3}
+.quadrant-viz{position:relative;width:100%;aspect-ratio:1;max-width:420px;margin:0 auto}
+.quadrant-canvas{width:100%;height:100%;border-radius:8px}
+
+.current-quadrant{
+  text-align:center;margin-top:0.85rem;padding:0.9rem;
+  border-radius:8px;border:1px solid var(--border);background:var(--bg-secondary);
+}
+.cq-label{font-family:var(--font-mono);font-size:0.7rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.4rem}
+.cq-name{font-family:var(--font-mono);font-size:1.6rem;font-weight:800;letter-spacing:-0.02em}
+.cq-scores{margin-top:0.4rem;display:flex;justify-content:center;gap:1.5rem}
+.cq-score-item{font-family:var(--font-mono);font-size:0.78rem}
+.cq-score-item .label{color:var(--text-muted)}
+.cq-score-item .val{font-weight:700;font-size:0.95rem}
+
+.quadrant-info-grid{display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;margin-top:0.85rem}
+.q-info-card{
+  padding:0.6rem 0.7rem;border-radius:6px;border:1px solid var(--border);
+  background:var(--bg-secondary);transition:all 0.3s;
+}
+.q-info-card.active{border-width:2px}
+.q-info-card .q-name{font-family:var(--font-mono);font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:0.2rem}
+.q-info-card .q-assets{font-size:0.72rem;color:var(--text-muted);line-height:1.4}
+.q-info-card.q-gold .q-name{color:var(--q-goldilocks)}
+.q-info-card.q-gold.active{border-color:var(--q-goldilocks);background:rgba(16,185,129,0.06)}
+.q-info-card.q-over .q-name{color:var(--q-overheating)}
+.q-info-card.q-over.active{border-color:var(--q-overheating);background:rgba(245,158,11,0.06)}
+.q-info-card.q-stag .q-name{color:var(--q-stagflation)}
+.q-info-card.q-stag.active{border-color:var(--q-stagflation);background:rgba(239,68,68,0.06)}
+.q-info-card.q-defl .q-name{color:var(--q-deflation)}
+.q-info-card.q-defl.active{border-color:var(--q-deflation);background:rgba(59,130,246,0.06)}
+
+/* ═══════ WARNINGS ═══════ */
+.warnings-row{grid-column:1/-1}
+.warnings-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:0.65rem}
+.warning-card{
+  display:flex;align-items:center;gap:0.7rem;padding:0.65rem 0.85rem;
+  border-radius:6px;background:var(--bg-secondary);border:1px solid var(--border);transition:all 0.3s;
+}
+.warning-card.triggered{border-color:rgba(239,68,68,0.4);background:rgba(239,68,68,0.05)}
+.warning-card.safe{border-color:rgba(16,185,129,0.2)}
+.warning-light{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.warning-card.triggered .warning-light{background:var(--red);box-shadow:0 0 8px rgba(239,68,68,0.5);animation:blink 2s ease-in-out infinite}
+.warning-card.safe .warning-light{background:var(--green)}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.4}}
+.warning-info .w-name{font-family:var(--font-mono);font-size:0.78rem;font-weight:600}
+.warning-info .w-val{font-family:var(--font-mono);font-size:0.68rem;color:var(--text-muted);margin-top:2px}
+.warning-card .w-input{
+  margin-left:auto;width:72px;background:var(--bg-card);border:1px solid var(--border);
+  border-radius:5px;color:var(--text-primary);font-family:var(--font-mono);
+  font-size:0.82rem;padding:0.25rem 0.35rem;text-align:right;outline:none;
+}
+.warning-card .w-input:focus{border-color:var(--gold)}
+
+/* ═══════ CALC ROW ═══════ */
+.calc-row{grid-column:1/-1;display:flex;align-items:center;justify-content:center;gap:1rem;padding:0.3rem 0}
+
+/* ═══════ HISTORY ═══════ */
+.history-table-wrap{max-height:400px;overflow-y:auto}
+.history-table{width:100%;border-collapse:collapse;font-family:var(--font-mono);font-size:0.78rem}
+.history-table th{
+  text-align:left;padding:0.5rem 0.6rem;background:var(--bg-secondary);
+  color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:0.05em;
+  font-size:0.7rem;border-bottom:1px solid var(--border);position:sticky;top:0;
+}
+.history-table td{padding:0.45rem 0.6rem;border-bottom:1px solid rgba(255,255,255,0.03);color:var(--text-secondary)}
+.history-table tr:hover td{background:var(--bg-card-hover)}
+.history-table .q-dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:0.4rem}
+
+/* ═══════ INSTRUCTIONS ═══════ */
+.instructions{max-width:1000px;margin:0 auto;padding:2rem;color:var(--text-secondary);line-height:1.75}
+.instructions h2{font-family:var(--font-mono);font-size:1.15rem;font-weight:700;color:var(--gold);margin:2.5rem 0 0.85rem 0}
+.instructions h2:first-child{margin-top:0}
+.instructions h3{font-family:var(--font-mono);font-size:0.95rem;font-weight:600;color:var(--text-primary);margin:1.5rem 0 0.6rem 0}
+.instructions p{margin-bottom:0.85rem;font-size:0.95rem}
+.instructions code{background:var(--bg-card);padding:0.15rem 0.45rem;border-radius:3px;font-family:var(--font-mono);font-size:0.85rem;color:var(--gold)}
+.instructions .formula-box{
+  background:var(--bg-card);border:1px solid var(--border);border-radius:8px;
+  padding:1.1rem 1.3rem;margin:0.85rem 0;font-family:var(--font-mono);
+  font-size:0.85rem;color:var(--text-primary);line-height:1.9;
+}
+.instructions .quad-table{width:100%;border-collapse:collapse;margin:0.85rem 0;font-family:var(--font-mono);font-size:0.82rem}
+.instructions .quad-table th,.instructions .quad-table td{border:1px solid var(--border);padding:0.7rem 0.9rem;text-align:center}
+.instructions .quad-table th{background:var(--bg-card);color:var(--gold);font-weight:600}
+.instructions .q-cell-gold{background:rgba(16,185,129,0.08);color:var(--q-goldilocks)}
+.instructions .q-cell-over{background:rgba(245,158,11,0.08);color:var(--q-overheating)}
+.instructions .q-cell-stag{background:rgba(239,68,68,0.08);color:var(--q-stagflation)}
+.instructions .q-cell-defl{background:rgba(59,130,246,0.08);color:var(--q-deflation)}
+.instructions .note-box{
+  background:rgba(212,168,67,0.08);border-left:3px solid var(--gold);
+  padding:0.85rem 1.1rem;margin:0.85rem 0;border-radius:0 6px 6px 0;font-size:0.88rem;
+}
+.instructions table.ind-table{width:100%;border-collapse:collapse;margin:0.5rem 0;font-size:0.8rem}
+.instructions table.ind-table th{background:var(--bg-card);color:var(--gold);text-align:left;padding:0.45rem 0.6rem;border:1px solid var(--border);font-weight:600}
+.instructions table.ind-table td{padding:0.4rem 0.6rem;border:1px solid var(--border);color:var(--text-secondary)}
+
+/* ═══════ FOOTER ═══════ */
+.footer-bar{
+  grid-column:1/-1;text-align:center;padding:0.6rem;
+  font-family:var(--font-mono);font-size:0.68rem;color:var(--text-muted);border-top:1px solid var(--border);
+}
+.footer-bar a{color:var(--gold);text-decoration:none}
+
+/* ═══════ LOADING ═══════ */
+.loading-overlay{
+  display:none;position:fixed;inset:0;background:rgba(10,14,23,0.85);z-index:1000;
+  justify-content:center;align-items:center;font-family:var(--font-mono);color:var(--gold);font-size:1rem;
+}
+.loading-overlay.active{display:flex}
+.spinner{width:30px;height:30px;border:3px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:spin 0.8s linear infinite;margin-right:0.8rem}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+
+<div class="loading-overlay" id="loadingOverlay"><div class="spinner"></div><span>Fetching FRED data (trying direct + proxy)...</span></div>
+
+<header class="header">
+  <div class="header-left">
+    <div class="logo">DQ</div>
+    <div>
+      <h1>Dalio <span>Quadrant</span> Dashboard</h1>
+      <div class="header-sub">Growth × Inflation Regime · Data: <a href="https://macro.disciplinefunds.com" target="_blank">Discipline Funds Macro Dashboard ↗</a></div>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="fred-grp">
+      <label>FRED API:</label>
+      <input type="text" id="fredApiKey" placeholder="Enter key for live data..." />
+    </div>
+    <button class="btn btn-gold" onclick="fetchAllFRED()">⟳ Fetch</button>
+    <button class="btn btn-outline" onclick="exportState()">Export</button>
+    <button class="btn btn-outline" onclick="document.getElementById('importFile').click()">Import</button>
+    <input type="file" id="importFile" style="display:none" accept=".json" onchange="importState(event)">
+    <button class="btn btn-outline" onclick="resetDefaults()">Reset</button>
+  </div>
+</header>
+
+<div class="tab-bar">
+  <button class="tab-btn active" data-tab="dashboard">◉ Dashboard</button>
+  <button class="tab-btn" data-tab="history">◷ History</button>
+  <button class="tab-btn" data-tab="instructions">ℹ Instructions</button>
+</div>
+
+<div class="recession-banner" id="recessionBanner">⚠ RECESSION WARNING — Multiple recession indicators triggered. Elevated probability of economic contraction.</div>
+
+<!-- ══════════ TAB: DASHBOARD ══════════ -->
+<div class="tab-content active" id="tab-dashboard">
+<main class="main">
+  <div class="calc-row">
+    <button class="btn btn-calc" onclick="doCalculate()">▶ CALCULATE & LOG</button>
+    <span style="font-family:var(--font-mono);font-size:0.72rem;color:var(--text-muted)">Enter values → press Calculate → result saved to History</span>
+  </div>
+
+  <div class="panel" id="growthPanel">
+    <div class="panel-header">
+      <div class="panel-title" style="color:var(--green)"><span class="dot" style="background:var(--green)"></span>Growth Indicators</div>
+      <div class="panel-score" id="growthScore" style="background:var(--green-dim);color:var(--green)">—</div>
+    </div>
+    <div class="panel-body" id="growthBody"></div>
+  </div>
+
+  <div class="quadrant-center">
+    <div class="panel" style="padding:1rem">
+      <div class="quadrant-viz"><canvas class="quadrant-canvas" id="quadrantCanvas"></canvas></div>
+      <div class="current-quadrant">
+        <div class="cq-label">Current Regime</div>
+        <div class="cq-name" id="cqName">Press Calculate</div>
+        <div class="cq-scores">
+          <div class="cq-score-item"><span class="label">Growth: </span><span class="val" id="cqGrowth">—</span></div>
+          <div class="cq-score-item"><span class="label">Inflation: </span><span class="val" id="cqInflation">—</span></div>
+        </div>
+      </div>
+      <div class="quadrant-info-grid">
+        <div class="q-info-card q-stag" id="qCardStag"><div class="q-name">↙ Stagflation</div><div class="q-assets">Gold, TIPS, Commodities, Cash</div></div>
+        <div class="q-info-card q-over" id="qCardOver"><div class="q-name">↗ Overheating</div><div class="q-assets">Commodities, TIPS, EM, Real Assets</div></div>
+        <div class="q-info-card q-defl" id="qCardDefl"><div class="q-name">↘ Deflation</div><div class="q-assets">Long Treasuries, Nom. Bonds, USD</div></div>
+        <div class="q-info-card q-gold" id="qCardGold"><div class="q-name">↗ Goldilocks</div><div class="q-assets">Equities, Corp Bonds, Growth, EM</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel" id="inflationPanel">
+    <div class="panel-header">
+      <div class="panel-title" style="color:var(--orange)"><span class="dot" style="background:var(--orange)"></span>Inflation Indicators</div>
+      <div class="panel-score" id="inflationScore" style="background:var(--orange-dim);color:var(--orange)">—</div>
+    </div>
+    <div class="panel-body" id="inflationBody"></div>
+  </div>
+
+  <div class="warnings-row panel">
+    <div class="panel-header">
+      <div class="panel-title" style="color:var(--red)"><span class="dot" style="background:var(--red)"></span>Recession & Financial Stress</div>
+      <div class="panel-score" id="warningCount" style="background:var(--red-dim);color:var(--red)">—</div>
+    </div>
+    <div class="panel-body"><div class="warnings-grid" id="warningsGrid"></div></div>
+  </div>
+
+  <div class="footer-bar">
+    Dalio Quadrant Framework · <a href="https://macro.disciplinefunds.com" target="_blank">Discipline Funds Macro Dashboard</a> ·
+    Last calc: <span id="lastUpdate">—</span> · <span style="color:var(--orange)">⬤ Override</span> values shown in amber
+  </div>
+</main>
+</div>
+
+<!-- ══════════ TAB: HISTORY ══════════ -->
+<div class="tab-content" id="tab-history">
+  <div style="max-width:1300px;margin:0 auto;padding:2rem">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
+      <h2 style="font-family:var(--font-mono);font-size:1.1rem;color:var(--gold)">Calculation History</h2>
+      <button class="btn btn-outline" style="color:var(--red);border-color:rgba(239,68,68,0.3)" onclick="clearHistory()">Clear History</button>
+    </div>
+    <div class="panel"><div class="panel-body">
+      <div class="history-table-wrap" id="historyWrap">
+        <table class="history-table"><thead><tr>
+          <th>#</th><th>Date</th><th>Growth</th><th>Inflation</th><th>Quadrant</th><th>Warnings</th><th>Action</th>
+        </tr></thead><tbody id="historyBody"></tbody></table>
+      </div>
+      <div id="historyEmpty" style="text-align:center;padding:2.5rem;font-family:var(--font-mono);font-size:0.82rem;color:var(--text-muted)">
+        No entries yet. Enter values and press "Calculate & Log".
+      </div>
+    </div></div>
+  </div>
+</div>
+
+<!-- ══════════ TAB: INSTRUCTIONS ══════════ -->
+<div class="tab-content" id="tab-instructions">
+<div class="instructions">
+
+<h2>Dalio's All Weather Framework</h2>
+<p>This dashboard implements Ray Dalio's "All Weather" framework, which divides the macroeconomic environment into <strong>4 quadrants</strong> along two fundamental axes: <strong>Growth</strong> (rising vs. falling) and <strong>Inflation</strong> (rising vs. falling). Each quadrant represents a unique regime where different asset classes outperform.</p>
+
+<table class="quad-table">
+  <tr><th></th><th>Growth Falling ↓</th><th>Growth Rising ↑</th></tr>
+  <tr><th>Inflation Rising ↑</th>
+    <td class="q-cell-stag"><strong>STAGFLATION</strong><br>Gold, TIPS, Commodities, Cash</td>
+    <td class="q-cell-over"><strong>OVERHEATING</strong><br>Commodities, TIPS, EM, Real Assets</td></tr>
+  <tr><th>Inflation Falling ↓</th>
+    <td class="q-cell-defl"><strong>DEFLATION / RECESSION</strong><br>Long Treasuries, Nominal Bonds, USD</td>
+    <td class="q-cell-gold"><strong>GOLDILOCKS</strong><br>Equities, Corp Bonds, Growth Stocks</td></tr>
+</table>
+
+<div class="note-box">
+  <strong>Data Source:</strong> Most indicator values can be transcribed from the
+  <a href="https://macro.disciplinefunds.com" target="_blank" style="color:var(--gold)">Discipline Funds Macro Dashboard</a>
+  (Brian Massaro / Cullen Roche framework), which pulls data from FRED and related sources. Alternatively, enter a FRED API key for automated fetching.
+</div>
+
+<h2>Suggested All Weather Allocation Tilt</h2>
+<p>Dalio's base All Weather allocation is: 30% Equities, 40% Long-Term Treasuries, 15% Intermediate Bonds, 7.5% Gold, 7.5% Commodities. The idea is to tilt away from this base depending on the active quadrant:</p>
+<table class="quad-table">
+  <tr><th>Regime</th><th>Overweight</th><th>Underweight</th></tr>
+  <tr><td class="q-cell-gold">Goldilocks</td><td>Equities, Corp Bonds</td><td>Gold, Commodities</td></tr>
+  <tr><td class="q-cell-over">Overheating</td><td>Commodities, TIPS, Gold, EM</td><td>Long Treasuries</td></tr>
+  <tr><td class="q-cell-stag">Stagflation</td><td>Gold, TIPS, Cash</td><td>Equities, Long Bonds</td></tr>
+  <tr><td class="q-cell-defl">Deflation</td><td>Long Treasuries, Nominal Bonds</td><td>Equities, Commodities</td></tr>
+</table>
+
+<h2>Growth Score — Calculation</h2>
+<p>Each growth indicator produces a score from <code>-1</code> (deep contraction) to <code>+1</code> (strong expansion), using linear interpolation between historical thresholds:</p>
+<div class="formula-box">
+  score = (value − bearishThreshold) / (bullishThreshold − bearishThreshold) × 2 − 1<br><br>
+  If value ≥ bullishThreshold → score = +1<br>
+  If value ≤ bearishThreshold → score = −1<br><br>
+  Weighted Growth Score = Σ(score_i × weight_i) / Σ(weight_i)
+</div>
+
+<h3>Growth Indicators — Thresholds & Weights</h3>
+<table class="ind-table">
+  <tr><th>Indicator</th><th>Unit</th><th>Bearish ≤</th><th>Bullish ≥</th><th>Weight</th><th>Source</th></tr>
+  <tr><td>Real GDP</td><td>% YoY</td><td>1.0%</td><td>2.5%</td><td>1.2</td><td>FRED: A191RL1Q225SBEA</td></tr>
+  <tr><td>Nominal GDP</td><td>% YoY</td><td>3.0%</td><td>5.0%</td><td>0.8</td><td>FRED: GDP</td></tr>
+  <tr><td>ISM Manufacturing PMI</td><td>Index</td><td>47.0</td><td>53.0</td><td>1.0</td><td>Manual (ISM Report)</td></tr>
+  <tr><td>Industrial Production</td><td>% YoY</td><td>-1.0%</td><td>2.0%</td><td>0.9</td><td>FRED: INDPRO</td></tr>
+  <tr><td>New Mfg Orders</td><td>% YoY</td><td>-3.0%</td><td>3.0%</td><td>0.9</td><td>FRED: AMTMNO</td></tr>
+  <tr><td>Payroll Growth</td><td>% YoY</td><td>0.5%</td><td>2.0%</td><td>1.1</td><td>FRED: PAYEMS</td></tr>
+  <tr><td>Temp Help Services</td><td>% YoY</td><td>-4.0%</td><td>2.0%</td><td>1.0</td><td>FRED: TEMPHELPS</td></tr>
+  <tr><td>Total Loan Growth</td><td>% YoY</td><td>0.0%</td><td>5.0%</td><td>0.8</td><td>FRED: TOTLL</td></tr>
+  <tr><td>NFCI</td><td>Index</td><td>+0.0 (tight)</td><td>-0.50 (loose)</td><td>0.9</td><td>FRED: NFCI (inverted)</td></tr>
+  <tr><td>Fed Net Liquidity Δ</td><td>% YoY</td><td>-10%</td><td>+10%</td><td>0.7</td><td>Manual: WALCL−TGA−RRP</td></tr>
+</table>
+
+<h2>Inflation Score — Calculation</h2>
+<p>Each inflation indicator produces a score from <code>-1</code> (strong disinflation) to <code>+1</code> (hot inflation):</p>
+<div class="formula-box">
+  score = (value − fallingThreshold) / (risingThreshold − fallingThreshold) × 2 − 1<br><br>
+  If value ≥ risingThreshold → score = +1 (inflation rising)<br>
+  If value ≤ fallingThreshold → score = −1 (inflation falling)
+</div>
+
+<h3>Inflation Indicators — Thresholds & Weights</h3>
+<table class="ind-table">
+  <tr><th>Indicator</th><th>Unit</th><th>Falling ≤</th><th>Rising ≥</th><th>Weight</th><th>Source</th></tr>
+  <tr><td>Core PCE</td><td>% YoY</td><td>2.0%</td><td>3.0%</td><td>1.3</td><td>FRED: PCEPILFE</td></tr>
+  <tr><td>CPI</td><td>% YoY</td><td>2.0%</td><td>3.5%</td><td>1.1</td><td>FRED: CPIAUCSL</td></tr>
+  <tr><td>Roche Leading Inflation</td><td>%</td><td>1.8%</td><td>3.0%</td><td>1.2</td><td>Manual (Discipline Funds)</td></tr>
+  <tr><td>Avg Hourly Earnings</td><td>% YoY</td><td>3.0%</td><td>4.5%</td><td>0.9</td><td>FRED: CES0500000003</td></tr>
+  <tr><td>Shelter CPI</td><td>% YoY</td><td>3.0%</td><td>5.5%</td><td>0.8</td><td>FRED: CUSR0000SAH1</td></tr>
+  <tr><td>Misery Index</td><td>UE+CPI</td><td>5.5</td><td>9.0</td><td>0.7</td><td>Manual (UE Rate + CPI YoY)</td></tr>
+  <tr><td>Federal Funds Rate</td><td>%</td><td>2.0%</td><td>4.5%</td><td>0.6</td><td>FRED: FEDFUNDS</td></tr>
+</table>
+
+<h2>Fed Net Liquidity</h2>
+<p>Based on Max Anderson's methodology. Fed Net Liquidity = Federal Reserve Balance Sheet (WALCL) − Treasury General Account (WTREGEN) − Overnight Reverse Repo (RRPONTSYD). All three FRED series are updated weekly. For this dashboard, enter the <strong>YoY % change</strong> in net liquidity. Current level is approximately $5.7T. Track it on <a href="https://streetstats.finance/liquidity/fed-balance-sheet" target="_blank" style="color:var(--gold)">StreetStats</a> or via TradingView formula: <code>WALCL-WTREGEN-RRPONTSYD</code>.</p>
+
+<h2>Quadrant Determination</h2>
+<div class="formula-box">
+  Growth ≥ 0 AND Inflation &lt; 0 → <span style="color:var(--q-goldilocks)">GOLDILOCKS</span><br>
+  Growth ≥ 0 AND Inflation ≥ 0 → <span style="color:var(--q-overheating)">OVERHEATING</span><br>
+  Growth &lt; 0 AND Inflation ≥ 0 → <span style="color:var(--q-stagflation)">STAGFLATION</span><br>
+  Growth &lt; 0 AND Inflation &lt; 0 → <span style="color:var(--q-deflation)">DEFLATION</span>
+</div>
+
+<h2>Recession Warnings</h2>
+<p>Seven binary/threshold indicators that flag recession risk. If <strong>3 or more</strong> are triggered, a recession warning banner appears.</p>
+<table class="ind-table">
+  <tr><th>Indicator</th><th>Trigger</th><th>Description</th></tr>
+  <tr><td>Sahm Rule</td><td>≥ 0.50</td><td>3-month avg UE rate rises ≥ 0.5pp above 12-month low</td></tr>
+  <tr><td>10Y-2Y Yield Curve</td><td>&lt; 0</td><td>Yield curve inversion — historically precedes recessions</td></tr>
+  <tr><td>HY Credit Spreads</td><td>≥ 5.0%</td><td>High-yield OAS indicates financial stress</td></tr>
+  <tr><td>Roche Recession Rule</td><td>= 1</td><td>Cullen Roche composite recession indicator</td></tr>
+  <tr><td>Unemployment Rate</td><td>≥ 5.0%</td><td>Elevated unemployment vs. post-2010 average ~4-5%</td></tr>
+  <tr><td>NFCI Stress</td><td>≥ 0</td><td>Chicago Fed NFCI positive = tighter-than-average conditions</td></tr>
+  <tr><td>Temp Help Decline</td><td>≤ -5.0%</td><td>Leading indicator — temp layoffs precede broad layoffs</td></tr>
+</table>
+
+<h2>Mini Heatbar</h2>
+<p>Each indicator has a mini gradient bar. <strong>Growth indicators:</strong> red (bearish) → yellow → green (bullish). <strong>Inflation indicators:</strong> blue (cool/disinflation) → yellow → red (hot/inflation). The white thumb shows where the current value sits within the scoring range.</p>
+
+<h2>Workflow</h2>
+<p>1. Open <a href="https://macro.disciplinefunds.com" target="_blank" style="color:var(--gold)">Discipline Funds Macro Dashboard</a> and/or FRED</p>
+<p>2. Enter current values for each indicator (or use FRED API Fetch)</p>
+<p>3. Toggle manual overrides (✎) for indicators requiring manual input</p>
+<p>4. Press <strong>"Calculate & Log"</strong> — result is saved to History tab with full snapshot</p>
+<p>5. Track regime changes over time in the History tab and canvas trail</p>
+
+</div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+//  DATA MODEL — Historically calibrated thresholds
+// ═══════════════════════════════════════════════════════
+
+const G_IND = [
+  {id:'real_gdp',name:'Real GDP',unit:'% YoY',fred:'A191RL1Q225SBEA',def:2.4,
+   th:{bull:2.5,bear:1.0},desc:'BEA Quarterly',dir:'hb',w:1.2},
+  {id:'nominal_gdp',name:'Nominal GDP',unit:'% YoY',fred:'GDP',def:5.1,
+   th:{bull:5.0,bear:3.0},desc:'FRED GDP',dir:'hb',w:0.8},
+  {id:'ism_pmi',name:'ISM Manufacturing PMI',unit:'Index',fred:null,def:52.6,
+   th:{bull:53.0,bear:47.0},desc:'Manual — ISM Report',dir:'hb',w:1.0},
+  {id:'ind_prod',name:'Industrial Production',unit:'% YoY',fred:'INDPRO',def:0.8,
+   th:{bull:2.0,bear:-1.0},desc:'Fed Ind. Production',dir:'hb',w:0.9},
+  {id:'new_orders',name:'New Mfg Orders',unit:'% YoY',fred:'AMTMNO',def:1.5,
+   th:{bull:3.0,bear:-3.0},desc:'Census Bureau',dir:'hb',w:0.9},
+  {id:'payrolls',name:'Payroll Growth',unit:'% YoY',fred:'PAYEMS',def:1.4,
+   th:{bull:2.0,bear:0.5},desc:'BLS Nonfarm Payrolls',dir:'hb',w:1.1},
+  {id:'temp_help',name:'Temp Help Services',unit:'% YoY',fred:'TEMPHELPS',def:-3.5,
+   th:{bull:2.0,bear:-4.0},desc:'Leading employment',dir:'hb',w:1.0},
+  {id:'loans',name:'Total Loan Growth',unit:'% YoY',fred:'TOTLL',def:2.0,
+   th:{bull:5.0,bear:0.0},desc:'Fed H.8 Bank Credit',dir:'hb',w:0.8},
+  {id:'nfci',name:'NFCI',unit:'Index',fred:'NFCI',def:-0.56,
+   th:{bull:-0.50,bear:0.0},desc:'Chicago Fed (neg = loose)',dir:'lb',w:0.9},
+  {id:'fed_liq',name:'Fed Net Liquidity Δ',unit:'% YoY',fred:null,def:-6.0,
+   th:{bull:10.0,bear:-10.0},desc:'WALCL−TGA−RRP YoY%',dir:'hb',w:0.7},
+];
+
+const I_IND = [
+  {id:'core_pce',name:'Core PCE',unit:'% YoY',fred:'PCEPILFE',def:2.6,
+   th:{rise:3.0,fall:2.0},desc:'Fed preferred measure',w:1.3},
+  {id:'cpi',name:'CPI',unit:'% YoY',fred:'CPIAUCSL',def:2.8,
+   th:{rise:3.5,fall:2.0},desc:'BLS Consumer Prices',w:1.1},
+  {id:'roche_lii',name:'Roche Leading Inflation',unit:'%',fred:null,def:2.35,
+   th:{rise:3.0,fall:1.8},desc:'Discipline Funds LII (manual)',w:1.2},
+  {id:'wages',name:'Avg Hourly Earnings',unit:'% YoY',fred:'CES0500000003',def:3.8,
+   th:{rise:4.5,fall:3.0},desc:'BLS Wage Growth',w:0.9},
+  {id:'shelter',name:'Shelter CPI',unit:'% YoY',fred:'CUSR0000SAH1',def:4.0,
+   th:{rise:5.5,fall:3.0},desc:'Lagging, persistent',w:0.8},
+  {id:'misery',name:'Misery Index',unit:'UE+CPI',fred:null,def:6.8,
+   th:{rise:9.0,fall:5.5},desc:'Unemployment + CPI YoY',w:0.7},
+  {id:'ffr',name:'Federal Funds Rate',unit:'%',fred:'FEDFUNDS',def:4.50,
+   th:{rise:4.5,fall:2.0},desc:'Fed policy rate',w:0.6},
+];
+
+const W_IND = [
+  {id:'sahm',name:'Sahm Rule',fred:'SAHMREALTIME',def:0.43,thr:0.5,dir:'above',desc:'Trigger ≥ 0.50'},
+  {id:'yc',name:'10Y-2Y Yield Curve',fred:'T10Y2Y',def:0.15,thr:0,dir:'below',desc:'Inverted < 0'},
+  {id:'hy',name:'HY Credit Spreads',fred:'BAMLH0A0HYM2',def:3.4,thr:5.0,dir:'above',desc:'Stress > 5.0%'},
+  {id:'roche_rec',name:'Roche Recession Rule',fred:null,def:0,thr:1,dir:'above',desc:'1 = triggered'},
+  {id:'ue',name:'Unemployment Rate',fred:'UNRATE',def:4.0,thr:5.0,dir:'above',desc:'UE > 5%'},
+  {id:'nfci_w',name:'NFCI Stress',fred:'NFCI',def:-0.56,thr:0,dir:'above',desc:'Tightening > 0'},
+  {id:'temp_w',name:'Temp Help Decline',fred:'TEMPHELPS',def:-3.5,thr:-5.0,dir:'below',desc:'Layoff signal < -5%'},
+];
+
+let state={values:{},overrides:{},fredKey:''};
+let hist=[];
+let lastRes=null;
+
+// ═══════ TABS ═══════
+document.querySelectorAll('.tab-btn').forEach(b=>{
+  b.addEventListener('click',()=>{
+    document.querySelectorAll('.tab-btn').forEach(x=>x.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+    document.getElementById('tab-'+b.dataset.tab).classList.add('active');
+    if(b.dataset.tab==='history')renderHistory();
+  });
+});
+
+// ═══════ INIT ═══════
+function init(){
+  const s=localStorage.getItem('dq3_state');
+  if(s)try{state=JSON.parse(s)}catch(e){}
+  const h=localStorage.getItem('dq3_hist');
+  if(h)try{hist=JSON.parse(h)}catch(e){}
+  [...G_IND,...I_IND].forEach(i=>{if(state.values[i.id]===undefined)state.values[i.id]=i.def});
+  W_IND.forEach(w=>{if(state.values[w.id]===undefined)state.values[w.id]=w.def});
+  if(state.fredKey)document.getElementById('fredApiKey').value=state.fredKey;
+  renderG();renderI();renderW();
+  if(hist.length>0){const l=hist[hist.length-1];drawQ(l.g,l.i,l.q);updateDisp(l.g,l.i,l.q,l.w)}
+  else drawQ(0,0,null);
+}
+
+// ═══════ RENDER ═══════
+function renderG(){
+  const c=document.getElementById('growthBody');c.innerHTML='';
+  G_IND.forEach(i=>c.appendChild(mkRow(i,'growth')));
+}
+function renderI(){
+  const c=document.getElementById('inflationBody');c.innerHTML='';
+  I_IND.forEach(i=>c.appendChild(mkRow(i,'inflation')));
+}
+
+function mkRow(ind,type){
+  const r=document.createElement('div');r.className='indicator';
+  const isO=state.overrides[ind.id]!==undefined;
+  const v=isO?state.overrides[ind.id]:(state.values[ind.id]??ind.def);
+  const hp=heatPct(ind,v,type);
+  const barClass=type==='growth'?'growth-bar':'infl-bar';
+  r.innerHTML=`
+    <div class="ind-name">${ind.name} <span style="color:var(--text-muted);font-size:0.72rem">(${ind.unit})</span>
+      <span class="sub">${ind.desc} · ${ind.fred||'MANUAL'}</span></div>
+    <div class="heatbar-wrap"><div class="heatbar ${barClass}"><div class="heatbar-thumb" id="ht_${ind.id}" style="left:${hp}%"></div></div></div>
+    <input type="number" step="0.01" value="${v}" id="in_${ind.id}" class="${isO?'overridden':''}" oninput="onIn('${ind.id}','${type}',this)"/>
+    <div class="signal-badge neutral" id="sig_${ind.id}">—</div>
+    <button class="ovr-btn ${isO?'active':''}" id="ob_${ind.id}" onclick="togOvr('${ind.id}')" title="Override">✎</button>`;
+  return r;
+}
+
+function heatPct(ind,v,type){
+  let lo,hi;
+  if(type==='growth'){
+    if(ind.dir==='lb'){lo=ind.th.bull;hi=ind.th.bear;const p=(v-lo)/(hi-lo);return clamp((1-p)*100)}
+    lo=ind.th.bear;hi=ind.th.bull;
+  }else{
+    lo=ind.th.fall;hi=ind.th.rise;
+  }
+  return clamp(((v-lo)/(hi-lo))*100);
+}
+function clamp(v){return Math.max(0,Math.min(100,v))}
+
+function onIn(id,type,el){
+  const v=parseFloat(el.value);if(isNaN(v))return;
+  if(state.overrides[id]!==undefined)state.overrides[id]=v;else state.values[id]=v;
+  const ind=[...G_IND,...I_IND].find(x=>x.id===id);
+  if(ind){const t=document.getElementById('ht_'+id);if(t)t.style.left=heatPct(ind,v,type)+'%'}
+  save();
+}
+
+function renderW(){
+  const g=document.getElementById('warningsGrid');g.innerHTML='';
+  W_IND.forEach(w=>{
+    const v=state.overrides[w.id]!==undefined?state.overrides[w.id]:(state.values[w.id]??w.def);
+    const t=w.dir==='above'?v>=w.thr:v<=w.thr;
+    const c=document.createElement('div');
+    c.className=`warning-card ${t?'triggered':'safe'}`;c.id=`wc_${w.id}`;
+    c.innerHTML=`<div class="warning-light"></div>
+      <div class="warning-info"><div class="w-name">${w.name}</div><div class="w-val">${w.desc}</div></div>
+      <input type="number" step="0.01" class="w-input" value="${v}" id="wi_${w.id}" onchange="updW('${w.id}',this.value)"/>`;
+    g.appendChild(c);
+  });
+}
+
+// ═══════ SCORING ═══════
+function gv(id){return state.overrides[id]!==undefined?state.overrides[id]:(state.values[id]??0)}
+
+function sG(ind){
+  const v=gv(ind.id),{bull,bear}=ind.th;
+  if(ind.dir==='lb'){if(v<=bull)return 1;if(v>=bear)return -1;return(bear-v)/(bear-bull)*2-1}
+  if(v>=bull)return 1;if(v<=bear)return -1;return(v-bear)/(bull-bear)*2-1;
+}
+function sI(ind){
+  const v=gv(ind.id),{rise,fall}=ind.th;
+  if(v>=rise)return 1;if(v<=fall)return -1;return(v-fall)/(rise-fall)*2-1;
+}
+
+// ═══════ CALCULATE ═══════
+function doCalculate(){
+  let gws=0,gss=0;
+  G_IND.forEach(i=>{const s=sG(i);gss+=s*i.w;gws+=i.w;updBadge(i.id,s,'g')});
+  const gs=gws?gss/gws:0;
+
+  let iws=0,iss=0;
+  I_IND.forEach(i=>{const s=sI(i);iss+=s*i.w;iws+=i.w;updBadge(i.id,s,'i')});
+  const is_=iws?iss/iws:0;
+
+  let q;
+  if(gs>=0&&is_<0)q='goldilocks';
+  else if(gs>=0&&is_>=0)q='overheating';
+  else if(gs<0&&is_>=0)q='stagflation';
+  else q='deflation';
+
+  let wc=0;
+  W_IND.forEach(w=>{
+    const v=gv(w.id);const t=w.dir==='above'?v>=w.thr:v<=w.thr;if(t)wc++;
+    const el=document.getElementById(`wc_${w.id}`);if(el)el.className=`warning-card ${t?'triggered':'safe'}`;
+  });
+
+  updateDisp(gs,is_,q,wc);drawQ(gs,is_,q);
+
+  hist.push({
+    date:new Date().toISOString(),
+    g:Math.round(gs*1000)/1000,i:Math.round(is_*1000)/1000,
+    q,w:wc,vals:{...state.values},ovrs:{...state.overrides}
+  });
+  localStorage.setItem('dq3_hist',JSON.stringify(hist));
+  lastRes={g:gs,i:is_,q,w:wc};
+  document.getElementById('lastUpdate').textContent=new Date().toLocaleString('en-GB');
+  save();
+}
+
+function updateDisp(gs,is_,q,wc){
+  document.getElementById('growthScore').textContent=gs.toFixed(2);
+  const ge=document.getElementById('growthScore');
+  if(gs>0.15){ge.style.background='var(--green-dim)';ge.style.color='var(--green)'}
+  else if(gs<-0.15){ge.style.background='var(--red-dim)';ge.style.color='var(--red)'}
+  else{ge.style.background='rgba(156,163,175,0.08)';ge.style.color='var(--text-muted)'}
+
+  document.getElementById('inflationScore').textContent=is_.toFixed(2);
+  const ie=document.getElementById('inflationScore');
+  if(is_>0.15){ie.style.background='var(--orange-dim)';ie.style.color='var(--orange)'}
+  else if(is_<-0.15){ie.style.background='var(--blue-dim)';ie.style.color='var(--blue)'}
+  else{ie.style.background='rgba(156,163,175,0.08)';ie.style.color='var(--text-muted)'}
+
+  const qm={goldilocks:{c:'var(--q-goldilocks)',n:'↗ GOLDILOCKS'},overheating:{c:'var(--q-overheating)',n:'↗ OVERHEATING'},
+    stagflation:{c:'var(--q-stagflation)',n:'↙ STAGFLATION'},deflation:{c:'var(--q-deflation)',n:'↘ DEFLATION'}};
+  const qi=qm[q];
+  document.getElementById('cqName').textContent=qi.n;
+  document.getElementById('cqName').style.color=qi.c;
+  document.getElementById('cqGrowth').textContent=gs.toFixed(2);
+  document.getElementById('cqGrowth').style.color=gs>=0?'var(--green)':'var(--red)';
+  document.getElementById('cqInflation').textContent=is_.toFixed(2);
+  document.getElementById('cqInflation').style.color=is_>=0?'var(--orange)':'var(--blue)';
+
+  const km={Gold:'goldilocks',Over:'overheating',Stag:'stagflation',Defl:'deflation'};
+  Object.entries(km).forEach(([k,v])=>document.getElementById('qCard'+k).classList.toggle('active',v===q));
+
+  document.getElementById('warningCount').textContent=`${wc}/${W_IND.length}`;
+  document.getElementById('recessionBanner').classList.toggle('active',wc>=3);
+}
+
+function updBadge(id,s,t){
+  const e=document.getElementById('sig_'+id);if(!e)return;
+  if(t==='g'){
+    if(s>0.3){e.className='signal-badge bullish';e.textContent='↑ Bull'}
+    else if(s<-0.3){e.className='signal-badge bearish';e.textContent='↓ Bear'}
+    else{e.className='signal-badge neutral';e.textContent='— Neut'}
+  }else{
+    if(s>0.3){e.className='signal-badge warn';e.textContent='↑ Hot'}
+    else if(s<-0.3){e.className='signal-badge bullish';e.textContent='↓ Cool'}
+    else{e.className='signal-badge neutral';e.textContent='— Neut'}
+  }
+}
+
+// ═══════ QUADRANT CANVAS ═══════
+// TL=Stagflation TR=Overheating BL=Deflation BR=Goldilocks
+function drawQ(gs,is_,aq){
+  const cv=document.getElementById('quadrantCanvas');
+  const dpr=window.devicePixelRatio||1;
+  const r=cv.getBoundingClientRect();
+  cv.width=r.width*dpr;cv.height=r.height*dpr;
+  const ctx=cv.getContext('2d');ctx.scale(dpr,dpr);
+  const w=r.width,h=r.height,cx=w/2,cy=h/2;
+
+  ctx.fillStyle='#0c1220';ctx.beginPath();ctx.roundRect(0,0,w,h,8);ctx.fill();
+
+  // Quadrant fills
+  [{x:0,y:0,w:cx,h:cy,q:'stagflation',c:[239,68,68]},
+   {x:cx,y:0,w:cx,h:cy,q:'overheating',c:[245,158,11]},
+   {x:0,y:cy,w:cx,h:cy,q:'deflation',c:[59,130,246]},
+   {x:cx,y:cy,w:cx,h:cy,q:'goldilocks',c:[16,185,129]}
+  ].forEach(q=>{
+    ctx.fillStyle=`rgba(${q.c.join(',')},${q.q===aq?0.20:0.05})`;
+    ctx.fillRect(q.x,q.y,q.w,q.h);
+  });
+
+  // Grid
+  ctx.strokeStyle='rgba(255,255,255,0.035)';ctx.lineWidth=1;
+  for(let i=1;i<8;i++){
+    ctx.beginPath();ctx.moveTo(w*i/8,0);ctx.lineTo(w*i/8,h);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(0,h*i/8);ctx.lineTo(w,h*i/8);ctx.stroke();
+  }
+
+  // Axes
+  ctx.strokeStyle='rgba(255,255,255,0.15)';ctx.lineWidth=1;ctx.setLineDash([4,4]);
+  ctx.beginPath();ctx.moveTo(cx,0);ctx.lineTo(cx,h);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(0,cy);ctx.lineTo(w,cy);ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Labels
+  ctx.font='700 11px JetBrains Mono';
+  ctx.textAlign='left';ctx.fillStyle='rgba(239,68,68,0.50)';ctx.fillText('STAGFLATION',10,22);
+  ctx.textAlign='right';ctx.fillStyle='rgba(245,158,11,0.50)';ctx.fillText('OVERHEATING',w-10,22);
+  ctx.textAlign='left';ctx.fillStyle='rgba(59,130,246,0.50)';ctx.fillText('DEFLATION',10,h-10);
+  ctx.textAlign='right';ctx.fillStyle='rgba(16,185,129,0.50)';ctx.fillText('GOLDILOCKS',w-10,h-10);
+
+  ctx.font='500 9px JetBrains Mono';ctx.fillStyle='rgba(255,255,255,0.22)';
+  ctx.textAlign='right';ctx.fillText('GROWTH →',w-10,cy-8);
+  ctx.textAlign='left';ctx.fillText('← CONTRACTION',10,cy-8);
+  ctx.textAlign='center';ctx.fillText('INFLATION ↑',cx,15);ctx.fillText('DISINFLATION ↓',cx,h-6);
+
+  // Trail
+  if(hist.length>1){
+    const pts=hist.slice(-15);
+    ctx.strokeStyle='rgba(212,168,67,0.22)';ctx.lineWidth=1.5;ctx.beginPath();
+    pts.forEach((p,i)=>{
+      const px=cx+(p.g*cx*0.85),py=cy-(p.i*cy*0.85);
+      if(i===0)ctx.moveTo(px,py);else ctx.lineTo(px,py);
+    });ctx.stroke();
+    pts.slice(0,-1).forEach((p,i)=>{
+      const px=cx+(p.g*cx*0.85),py=cy-(p.i*cy*0.85);
+      ctx.fillStyle=`rgba(212,168,67,${0.12+(i/pts.length)*0.3})`;
+      ctx.beginPath();ctx.arc(px,py,3,0,Math.PI*2);ctx.fill();
+    });
+  }
+
+  // Current dot
+  const dx=cx+(gs*cx*0.85),dy=cy-(is_*cy*0.85);
+  const gl=ctx.createRadialGradient(dx,dy,0,dx,dy,30);
+  gl.addColorStop(0,'rgba(212,168,67,0.35)');gl.addColorStop(1,'rgba(212,168,67,0)');
+  ctx.fillStyle=gl;ctx.beginPath();ctx.arc(dx,dy,30,0,Math.PI*2);ctx.fill();
+  ctx.strokeStyle='rgba(212,168,67,0.6)';ctx.lineWidth=2;
+  ctx.beginPath();ctx.arc(dx,dy,10,0,Math.PI*2);ctx.stroke();
+  ctx.fillStyle='#d4a843';ctx.beginPath();ctx.arc(dx,dy,5,0,Math.PI*2);ctx.fill();
+
+  // Crosshair
+  ctx.strokeStyle='rgba(212,168,67,0.12)';ctx.lineWidth=1;ctx.setLineDash([2,4]);
+  ctx.beginPath();ctx.moveTo(dx,0);ctx.lineTo(dx,h);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(0,dy);ctx.lineTo(w,dy);ctx.stroke();ctx.setLineDash([]);
+
+  // Label
+  ctx.font='700 12px JetBrains Mono';ctx.fillStyle='#d4a843';
+  ctx.textAlign=dx+14>w-90?'right':'left';
+  ctx.fillText(`(${gs.toFixed(2)}, ${is_.toFixed(2)})`,dx+14>w-90?dx-14:dx+14,dy-12);
+}
+
+// ═══════ HISTORY ═══════
+function renderHistory(){
+  const b=document.getElementById('historyBody');
+  const e=document.getElementById('historyEmpty');
+  const wr=document.getElementById('historyWrap');
+  b.innerHTML='';
+  if(!hist.length){e.style.display='block';wr.style.display='none';return}
+  e.style.display='none';wr.style.display='block';
+  const qc={goldilocks:'#10b981',overheating:'#f59e0b',stagflation:'#ef4444',deflation:'#3b82f6'};
+  const qn={goldilocks:'Goldilocks',overheating:'Overheating',stagflation:'Stagflation',deflation:'Deflation'};
+  hist.slice().reverse().forEach((en,idx)=>{
+    const n=hist.length-idx;
+    const d=new Date(en.date);
+    const ds=d.toLocaleDateString('en-GB')+' '+d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td>${n}</td><td>${ds}</td>
+      <td style="color:${en.g>=0?'var(--green)':'var(--red)'};font-weight:700">${en.g.toFixed(3)}</td>
+      <td style="color:${en.i>=0?'var(--orange)':'var(--blue)'};font-weight:700">${en.i.toFixed(3)}</td>
+      <td><span class="q-dot" style="background:${qc[en.q]}"></span>${qn[en.q]}</td>
+      <td>${en.w}/${W_IND.length}</td>
+      <td><button class="btn btn-outline" style="font-size:0.62rem;padding:0.2rem 0.5rem" onclick="loadH(${hist.length-1-idx})">Load</button></td>`;
+    b.appendChild(tr);
+  });
+}
+
+function loadH(idx){
+  const en=hist[idx];if(!en)return;
+  state.values={...en.vals};state.overrides={...en.ovrs};
+  renderG();renderI();renderW();
+  document.querySelectorAll('.tab-btn').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(x=>x.classList.remove('active'));
+  document.querySelector('[data-tab="dashboard"]').classList.add('active');
+  document.getElementById('tab-dashboard').classList.add('active');
+}
+
+function clearHistory(){if(!confirm('Clear all history?'))return;hist=[];localStorage.removeItem('dq3_hist');renderHistory()}
+
+// ═══════ OVERRIDES ═══════
+function togOvr(id){
+  if(state.overrides[id]!==undefined){
+    delete state.overrides[id];
+    const inp=document.getElementById('in_'+id);if(inp){inp.value=state.values[id];inp.classList.remove('overridden')}
+    document.getElementById('ob_'+id)?.classList.remove('active');
+  }else{
+    const inp=document.getElementById('in_'+id);
+    state.overrides[id]=parseFloat(inp?.value||state.values[id]);
+    inp?.classList.add('overridden');document.getElementById('ob_'+id)?.classList.add('active');
+  }
+  save();
+}
+function updW(id,v){const n=parseFloat(v);if(!isNaN(n))state.values[id]=n;save()}
+
+// ═══════ FRED ═══════
+// FRED fetch with CORS proxy fallback
+const PROXIES=[
+  url=>url, // direct first
+  url=>'https://corsproxy.io/?url='+encodeURIComponent(url),
+  url=>'https://api.allorigins.win/raw?url='+encodeURIComponent(url),
+];
+let activeProxy=0;
+
+async function fredFetch(url){
+  const order=[activeProxy,...[0,1,2].filter(i=>i!==activeProxy)];
+  for(const pi of order){
+    try{
+      const ctrl=new AbortController();
+      const tid=setTimeout(()=>ctrl.abort(),12000);
+      const res=await fetch(PROXIES[pi](url),{signal:ctrl.signal});
+      clearTimeout(tid);
+      if(res.ok){activeProxy=pi;return await res.json()}
+    }catch(e){continue}
+  }
+  return null;
+}
+
+async function fetchAllFRED(){
+  const k=document.getElementById('fredApiKey').value.trim();
+  if(!k){alert('Enter a FRED API key.\nhttps://fred.stlouisfed.org/docs/api/api_key.html');return}
+  state.fredKey=k;
+  document.getElementById('loadingOverlay').classList.add('active');
+  const all=[...G_IND,...I_IND,...W_IND].filter(i=>i.fred);
+  const yoyMonthly=['PAYEMS','INDPRO','AMTMNO','TEMPHELPS','TOTLL','CPIAUCSL','CES0500000003','CUSR0000SAH1','PCEPILFE'];
+  const yoyQuarterly=['GDP'];
+  const isYoy=s=>yoyMonthly.includes(s)||yoyQuarterly.includes(s);
+  let f=0,errors=[];
+
+  for(const ind of all){
+    try{
+      const lim=yoyQuarterly.includes(ind.fred)?8:yoyMonthly.includes(ind.fred)?15:5;
+      const url=`https://api.stlouisfed.org/fred/series/observations?series_id=${ind.fred}&api_key=${k}&file_type=json&sort_order=desc&limit=${lim}`;
+      const data=await fredFetch(url);
+      if(!data||!data.observations?.length){errors.push(ind.fred);continue}
+      let val;
+      if(yoyMonthly.includes(ind.fred)&&data.observations.length>=13){
+        const la=parseFloat(data.observations[0].value),ya=parseFloat(data.observations[12].value);
+        if(!isNaN(la)&&!isNaN(ya)&&ya!==0)val=((la-ya)/ya)*100;
+      }else if(yoyQuarterly.includes(ind.fred)&&data.observations.length>=5){
+        const la=parseFloat(data.observations[0].value),ya=parseFloat(data.observations[4].value);
+        if(!isNaN(la)&&!isNaN(ya)&&ya!==0)val=((la-ya)/ya)*100;
+      }
+      if(val===undefined){for(const o of data.observations){if(o.value&&o.value!=='.'){val=parseFloat(o.value);break}}}
+      if(val!==undefined&&!isNaN(val)&&state.overrides[ind.id]===undefined){
+        state.values[ind.id]=Math.round(val*100)/100;
+        const inp=document.getElementById('in_'+ind.id)||document.getElementById('wi_'+ind.id);
+        if(inp)inp.value=state.values[ind.id];f++;
+      }
+    }catch(e){errors.push(ind.fred+': '+e.message);console.warn('Failed:',ind.fred,e)}
+  }
+  document.getElementById('loadingOverlay').classList.remove('active');
+  renderG();renderI();renderW();save();
+  let msg=`Fetched ${f}/${all.length} indicators.`;
+  if(f>0)msg+=`\nUsing: ${activeProxy===0?'direct FRED API':activeProxy===1?'corsproxy.io':'allorigins.win'}`;
+  msg+=`\n\nManual entry needed: ISM PMI, Roche LII, Fed Net Liquidity Δ, Roche Recession, Misery Index.`;
+  if(errors.length&&f===0)msg+=`\n\n⚠ All fetches failed. Check:\n1. Is your FRED API key valid?\n2. Try opening this page via a local server (e.g. python -m http.server)\n\nFailed series: ${errors.slice(0,5).join(', ')}`;
+  else if(errors.length)msg+=`\n\nFailed: ${errors.join(', ')}`;
+  alert(msg);
+}
+
+// ═══════ STATE ═══════
+function save(){localStorage.setItem('dq3_state',JSON.stringify(state))}
+function resetDefaults(){
+  if(!confirm('Reset all values to defaults?'))return;
+  state={values:{},overrides:{},fredKey:state.fredKey};
+  [...G_IND,...I_IND].forEach(i=>state.values[i.id]=i.def);
+  W_IND.forEach(w=>state.values[w.id]=w.def);
+  lastRes=null;renderG();renderI();renderW();drawQ(0,0,null);
+  document.getElementById('cqName').textContent='Press Calculate';
+  document.getElementById('cqName').style.color='var(--text-muted)';
+  ['cqGrowth','cqInflation','growthScore','inflationScore','warningCount'].forEach(id=>document.getElementById(id).textContent='—');
+  save();
+}
+function exportState(){
+  const d={state,hist,exported:new Date().toISOString()};
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([JSON.stringify(d,null,2)],{type:'application/json'}));
+  a.download=`dalio-quadrant-${new Date().toISOString().slice(0,10)}.json`;a.click();
+}
+function importState(e){
+  const f=e.target.files[0];if(!f)return;
+  const rd=new FileReader();
+  rd.onload=ev=>{
+    try{const d=JSON.parse(ev.target.result);if(d.state)state=d.state;if(d.hist){hist=d.hist;localStorage.setItem('dq3_hist',JSON.stringify(hist))}
+    renderG();renderI();renderW();if(hist.length){const l=hist[hist.length-1];drawQ(l.g,l.i,l.q);updateDisp(l.g,l.i,l.q,l.w)}
+    }catch(err){alert('Error loading file.')}};
+  rd.readAsText(f);e.target.value='';
+}
+
+window.addEventListener('resize',()=>{
+  if(lastRes)drawQ(lastRes.g,lastRes.i,lastRes.q);
+  else if(hist.length){const l=hist[hist.length-1];drawQ(l.g,l.i,l.q)}
+  else drawQ(0,0,null);
+});
+
+init();
+</script>
+</body>
+</html>
