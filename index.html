@@ -289,11 +289,49 @@ body{font-family:var(--font-sans);background:var(--bg-primary);color:var(--text-
 .loading-overlay.active{display:flex}
 .spinner{width:30px;height:30px;border:3px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:spin 0.8s linear infinite;margin-right:0.8rem}
 @keyframes spin{to{transform:rotate(360deg)}}
+
+/* ═══════ TOASTS ═══════ */
+.toast-wrap{position:fixed;bottom:1.2rem;right:1.2rem;z-index:1100;display:flex;flex-direction:column;gap:0.5rem;max-width:380px}
+.toast{
+  background:var(--bg-card);border:1px solid var(--border-accent);border-left-width:3px;border-radius:7px;
+  padding:0.65rem 0.85rem;font-family:var(--font-mono);font-size:0.76rem;color:var(--text-secondary);
+  box-shadow:0 8px 24px rgba(0,0,0,0.35);white-space:pre-line;line-height:1.5;
+  opacity:0;transform:translateX(20px);transition:opacity 0.25s,transform 0.25s;
+}
+.toast.show{opacity:1;transform:translateX(0)}
+.toast.success{border-left-color:var(--green)}
+.toast.warn{border-left-color:var(--orange)}
+.toast.error{border-left-color:var(--red)}
+.toast.info{border-left-color:var(--blue)}
+
+/* ═══════ INDICATOR META (source link / as-of / direction) ═══════ */
+.src-link{color:var(--gold);text-decoration:none;font-weight:500}
+.src-link:hover{text-decoration:underline}
+.src-link.muted{color:var(--text-muted);cursor:default}
+.asof{color:var(--text-muted)}
+.dir-up{color:var(--green)}
+.dir-down{color:var(--red)}
+
+/* ═══════ MARKET PANELS (Finviz) ═══════ */
+.market-note{font-family:var(--font-mono);font-size:0.74rem;color:var(--text-secondary);margin-top:0.55rem;line-height:1.5}
+.market-note.muted{color:var(--text-muted)}
+.market-note code{background:var(--bg-secondary);padding:0.1rem 0.35rem;border-radius:3px;color:var(--gold)}
+.sector-table{width:100%;border-collapse:collapse;font-family:var(--font-mono);font-size:0.76rem}
+.sector-table th{text-align:right;padding:0.4rem 0.6rem;color:var(--text-muted);font-weight:600;font-size:0.68rem;text-transform:uppercase;letter-spacing:0.04em;border-bottom:1px solid var(--border)}
+.sector-table th:first-child{text-align:left}
+.sector-table td{padding:0.38rem 0.6rem;text-align:right;border-bottom:1px solid rgba(255,255,255,0.03);font-weight:600}
+.sector-table td:first-child{text-align:left;color:var(--text-primary);font-weight:500}
+.sector-table tr:hover td{background:var(--bg-card-hover)}
+.futures-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:0.55rem}
+.fut-tile{background:var(--bg-secondary);border:1px solid var(--border);border-radius:7px;padding:0.55rem 0.7rem}
+.fut-name{font-family:var(--font-mono);font-size:0.72rem;color:var(--text-secondary);margin-bottom:0.25rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fut-chg{font-family:var(--font-mono);font-size:0.95rem;font-weight:700}
 </style>
 </head>
 <body>
 
-<div class="loading-overlay" id="loadingOverlay"><div class="spinner"></div><span>Fetching live FRED data…</span></div>
+<div class="loading-overlay" id="loadingOverlay"><div class="spinner"></div><span>Fetching live data…</span></div>
+<div class="toast-wrap" id="toasts"></div>
 
 <header class="header">
   <div class="header-left">
@@ -308,7 +346,7 @@ body{font-family:var(--font-sans);background:var(--bg-primary);color:var(--text-
       <label>FRED API:</label>
       <input type="text" id="fredApiKey" placeholder="Optional — server uses FRED_API_KEY" />
     </div>
-    <button class="btn btn-gold" onclick="fetchAllFRED()">⟳ Fetch</button>
+    <button class="btn btn-gold" onclick="refreshAll()">⟳ Fetch</button>
     <button class="btn btn-outline" onclick="exportState()">Export</button>
     <button class="btn btn-outline" onclick="document.getElementById('importFile').click()">Import</button>
     <input type="file" id="importFile" style="display:none" accept=".json" onchange="importState(event)">
@@ -374,6 +412,22 @@ body{font-family:var(--font-sans);background:var(--bg-primary);color:var(--text-
       <div class="panel-score" id="warningCount" style="background:var(--red-dim);color:var(--red)">—</div>
     </div>
     <div class="panel-body"><div class="warnings-grid" id="warningsGrid"></div></div>
+  </div>
+
+  <div class="warnings-row panel">
+    <div class="panel-header">
+      <div class="panel-title" style="color:var(--blue)"><span class="dot" style="background:var(--blue)"></span>Market Confirmation — Sector Performance</div>
+      <div class="panel-score" style="background:var(--blue-dim);color:var(--blue);font-size:0.68rem">FINVIZ</div>
+    </div>
+    <div class="panel-body" id="sectorsBody"><div class="market-note muted">Sector performance loads from Finviz Elite…</div></div>
+  </div>
+
+  <div class="warnings-row panel">
+    <div class="panel-header">
+      <div class="panel-title" style="color:var(--gold)"><span class="dot" style="background:var(--gold)"></span>Futures &amp; Forex</div>
+      <div class="panel-score" style="background:rgba(212,168,67,0.12);color:var(--gold);font-size:0.68rem">FINVIZ</div>
+    </div>
+    <div class="panel-body"><div class="futures-grid" id="futuresBody"><div class="market-note muted">Futures &amp; forex load from Finviz…</div></div></div>
   </div>
 
   <div class="footer-bar">
@@ -528,7 +582,8 @@ const G_IND = [
   {id:'nominal_gdp',name:'Nominal GDP',unit:'% YoY',fred:'GDP',def:5.1,
    th:{bull:5.0,bear:3.0},desc:'FRED GDP',dir:'hb',w:0.8},
   {id:'ism_pmi',name:'ISM Manufacturing PMI',unit:'Index',fred:null,def:52.6,
-   th:{bull:53.0,bear:47.0},desc:'Manual — ISM Report',dir:'hb',w:1.0},
+   th:{bull:53.0,bear:47.0},desc:'Manual — ISM Report',dir:'hb',w:1.0,
+   src:'https://www.ismworld.org/supply-management-news-and-reports/reports/ism-report-on-business/',srcLabel:'ISM'},
   {id:'ind_prod',name:'Industrial Production',unit:'% YoY',fred:'INDPRO',def:0.8,
    th:{bull:2.0,bear:-1.0},desc:'Fed Ind. Production',dir:'hb',w:0.9},
   {id:'new_orders',name:'New Mfg Orders',unit:'% YoY',fred:'AMTMNO',def:1.5,
@@ -542,7 +597,8 @@ const G_IND = [
   {id:'nfci',name:'NFCI',unit:'Index',fred:'NFCI',def:-0.56,
    th:{bull:-0.50,bear:0.0},desc:'Chicago Fed (neg = loose)',dir:'lb',w:0.9},
   {id:'fed_liq',name:'Fed Net Liquidity Δ',unit:'% YoY',fred:null,def:-6.0,
-   th:{bull:10.0,bear:-10.0},desc:'WALCL−TGA−RRP YoY%',dir:'hb',w:0.7},
+   th:{bull:10.0,bear:-10.0},desc:'Auto: WALCL−TGA−RRP YoY%',dir:'hb',w:0.7,
+   src:'https://fred.stlouisfed.org/graph/?g=WALCL',srcLabel:'AUTO'},
 ];
 
 const I_IND = [
@@ -551,13 +607,15 @@ const I_IND = [
   {id:'cpi',name:'CPI',unit:'% YoY',fred:'CPIAUCSL',def:2.8,
    th:{rise:3.5,fall:2.0},desc:'BLS Consumer Prices',w:1.1},
   {id:'roche_lii',name:'Roche Leading Inflation',unit:'%',fred:null,def:2.35,
-   th:{rise:3.0,fall:1.8},desc:'Discipline Funds LII (manual)',w:1.2},
+   th:{rise:3.0,fall:1.8},desc:'Discipline Funds LII (manual)',w:1.2,
+   src:'https://macro.disciplinefunds.com',srcLabel:'DF'},
   {id:'wages',name:'Avg Hourly Earnings',unit:'% YoY',fred:'CES0500000003',def:3.8,
    th:{rise:4.5,fall:3.0},desc:'BLS Wage Growth',w:0.9},
   {id:'shelter',name:'Shelter CPI',unit:'% YoY',fred:'CUSR0000SAH1',def:4.0,
    th:{rise:5.5,fall:3.0},desc:'Lagging, persistent',w:0.8},
   {id:'misery',name:'Misery Index',unit:'UE+CPI',fred:null,def:6.8,
-   th:{rise:9.0,fall:5.5},desc:'Unemployment + CPI YoY',w:0.7},
+   th:{rise:9.0,fall:5.5},desc:'Auto: UNRATE + CPI YoY',w:0.7,
+   src:'https://fred.stlouisfed.org/series/UNRATE',srcLabel:'AUTO'},
   {id:'ffr',name:'Federal Funds Rate',unit:'%',fred:'FEDFUNDS',def:4.50,
    th:{rise:4.5,fall:2.0},desc:'Fed policy rate',w:0.6},
 ];
@@ -566,13 +624,13 @@ const W_IND = [
   {id:'sahm',name:'Sahm Rule',fred:'SAHMREALTIME',def:0.43,thr:0.5,dir:'above',desc:'Trigger ≥ 0.50'},
   {id:'yc',name:'10Y-2Y Yield Curve',fred:'T10Y2Y',def:0.15,thr:0,dir:'below',desc:'Inverted < 0'},
   {id:'hy',name:'HY Credit Spreads',fred:'BAMLH0A0HYM2',def:3.4,thr:5.0,dir:'above',desc:'Stress > 5.0%'},
-  {id:'roche_rec',name:'Roche Recession Rule',fred:null,def:0,thr:1,dir:'above',desc:'1 = triggered'},
+  {id:'roche_rec',name:'Roche Recession Rule',fred:null,def:0,thr:1,dir:'above',desc:'1 = triggered',src:'https://macro.disciplinefunds.com',srcLabel:'DF'},
   {id:'ue',name:'Unemployment Rate',fred:'UNRATE',def:4.0,thr:5.0,dir:'above',desc:'UE > 5%'},
   {id:'nfci_w',name:'NFCI Stress',fred:'NFCI',def:-0.56,thr:0,dir:'above',desc:'Tightening > 0'},
   {id:'temp_w',name:'Temp Help Decline',fred:'TEMPHELPS',def:-3.5,thr:-5.0,dir:'below',desc:'Layoff signal < -5%'},
 ];
 
-let state={values:{},overrides:{},fredKey:''};
+let state={values:{},overrides:{},fredKey:'',dates:{},dirs:{},fetchedAt:0};
 let hist=[];
 let lastRes=null;
 
@@ -593,12 +651,15 @@ function init(){
   if(s)try{state=JSON.parse(s)}catch(e){}
   const h=localStorage.getItem('dq3_hist');
   if(h)try{hist=JSON.parse(h)}catch(e){}
+  // Ensure new state fields exist for sessions saved by older versions.
+  state.dates=state.dates||{};state.dirs=state.dirs||{};state.fetchedAt=state.fetchedAt||0;
   [...G_IND,...I_IND].forEach(i=>{if(state.values[i.id]===undefined)state.values[i.id]=i.def});
   W_IND.forEach(w=>{if(state.values[w.id]===undefined)state.values[w.id]=w.def});
   if(state.fredKey)document.getElementById('fredApiKey').value=state.fredKey;
   renderG();renderI();renderW();
   if(hist.length>0){const l=hist[hist.length-1];drawQ(l.g,l.i,l.q);updateDisp(l.g,l.i,l.q,l.w)}
   else drawQ(0,0,null);
+  maybeAutoRefresh();
 }
 
 // ═══════ RENDER ═══════
@@ -611,6 +672,25 @@ function renderI(){
   I_IND.forEach(i=>c.appendChild(mkRow(i,'inflation')));
 }
 
+// Source link / freshness / direction shown under each indicator name.
+function srcOf(ind){
+  if(ind.fred)return{url:`https://fred.stlouisfed.org/series/${ind.fred}`,label:ind.fred};
+  if(ind.src)return{url:ind.src,label:ind.srcLabel||'SOURCE'};
+  return{url:null,label:'MANUAL'};
+}
+function fmtDate(s){const d=new Date(s);if(isNaN(d))return s;return d.toLocaleDateString('en-US',{month:'short',year:'2-digit'});}
+function indMeta(ind){
+  const s=srcOf(ind);
+  const link=s.url
+    ?`<a class="src-link" href="${s.url}" target="_blank" rel="noopener">${s.label} ↗</a>`
+    :`<span class="src-link muted">${s.label}</span>`;
+  const dt=state.dates&&state.dates[ind.id];
+  const asof=dt?` · <span class="asof">${fmtDate(dt)}</span>`:'';
+  const d=state.dirs&&state.dirs[ind.id];
+  const dir=d==='up'?` <span class="dir-up">▲</span>`:d==='down'?` <span class="dir-down">▼</span>`:'';
+  return`${link} · ${ind.desc}${asof}${dir}`;
+}
+
 function mkRow(ind,type){
   const r=document.createElement('div');r.className='indicator';
   const isO=state.overrides[ind.id]!==undefined;
@@ -619,7 +699,7 @@ function mkRow(ind,type){
   const barClass=type==='growth'?'growth-bar':'infl-bar';
   r.innerHTML=`
     <div class="ind-name">${ind.name} <span style="color:var(--text-muted);font-size:0.72rem">(${ind.unit})</span>
-      <span class="sub">${ind.desc} · ${ind.fred||'MANUAL'}</span></div>
+      <span class="sub">${indMeta(ind)}</span></div>
     <div class="heatbar-wrap"><div class="heatbar ${barClass}"><div class="heatbar-thumb" id="ht_${ind.id}" style="left:${hp}%"></div></div></div>
     <input type="number" step="0.01" value="${v}" id="in_${ind.id}" class="${isO?'overridden':''}" oninput="onIn('${ind.id}','${type}',this)"/>
     <div class="signal-badge neutral" id="sig_${ind.id}">—</div>
@@ -655,7 +735,7 @@ function renderW(){
     const c=document.createElement('div');
     c.className=`warning-card ${t?'triggered':'safe'}`;c.id=`wc_${w.id}`;
     c.innerHTML=`<div class="warning-light"></div>
-      <div class="warning-info"><div class="w-name">${w.name}</div><div class="w-val">${w.desc}</div></div>
+      <div class="warning-info"><div class="w-name">${w.name}</div><div class="w-val">${indMeta(w)}</div></div>
       <input type="number" step="0.01" class="w-input" value="${v}" id="wi_${w.id}" onchange="updW('${w.id}',this.value)"/>`;
     g.appendChild(c);
   });
@@ -675,7 +755,9 @@ function sI(ind){
 }
 
 // ═══════ CALCULATE ═══════
-function doCalculate(){
+// Score everything and update the display/canvas — WITHOUT logging to history.
+// Used both by the Calculate button and after a data fetch.
+function computeAll(){
   let gws=0,gss=0;
   G_IND.forEach(i=>{const s=sG(i);gss+=s*i.w;gws+=i.w;updBadge(i.id,s,'g')});
   const gs=gws?gss/gws:0;
@@ -697,14 +779,19 @@ function doCalculate(){
   });
 
   updateDisp(gs,is_,q,wc);drawQ(gs,is_,q);
+  lastRes={g:gs,i:is_,q,w:wc};
+  return{gs,is_,q,wc};
+}
 
+// ═══════ CALCULATE & LOG ═══════
+function doCalculate(){
+  const {gs,is_,q,wc}=computeAll();
   hist.push({
     date:new Date().toISOString(),
     g:Math.round(gs*1000)/1000,i:Math.round(is_*1000)/1000,
     q,w:wc,vals:{...state.values},ovrs:{...state.overrides}
   });
   localStorage.setItem('dq3_hist',JSON.stringify(hist));
-  lastRes={g:gs,i:is_,q,w:wc};
   document.getElementById('lastUpdate').textContent=new Date().toLocaleString('en-GB');
   save();
 }
@@ -945,55 +1032,190 @@ async function pool(items,n,worker){
   }));
 }
 
-async function fetchAllFRED(){
+async function fetchAllFRED(opts={}){
+  const silent=!!opts.silent;
   const k=document.getElementById('fredApiKey').value.trim();
   if(k){state.fredKey=k;save()}
   usedSource=null;
-  document.getElementById('loadingOverlay').classList.add('active');
+  if(!silent)document.getElementById('loadingOverlay').classList.add('active');
 
   const all=[...G_IND,...I_IND,...W_IND].filter(i=>i.fred);
   const series=[...new Set(all.map(i=>i.fred))]; // dedupe (NFCI, TEMPHELPS appear twice)
-  const valBySeries={},failed=[];
+  const bySeries={},failed=[];
 
   await pool(series,5,async(sid)=>{
     const data=await fredFetch(sid,limitFor(sid),k);
     if(!data||!data.observations?.length){failed.push(sid);return}
+    const valid=data.observations.map(o=>({d:o.date,v:parseFloat(o.value)})).filter(o=>!isNaN(o.v));
+    if(!valid.length){failed.push(sid);return}
     let val;
     if(isYoy(sid)){const y=pickYoY(data.observations,12);if(y!=null)val=y}
-    if(val===undefined){for(const o of data.observations){const n=parseFloat(o.value);if(!isNaN(n)){val=n;break}}}
-    if(val!==undefined&&!isNaN(val))valBySeries[sid]=Math.round(val*100)/100;
-    else failed.push(sid);
+    if(val===undefined)val=valid[0].v;                       // latest valid level
+    if(val===undefined||isNaN(val)){failed.push(sid);return}
+    const dir=valid.length>1?(valid[0].v>valid[1].v?'up':valid[0].v<valid[1].v?'down':''):'';
+    bySeries[sid]={v:Math.round(val*100)/100,date:valid[0].d,dir};
   });
 
   // Apply each series value to every indicator that uses it (respect overrides).
   all.forEach(i=>{
-    if(valBySeries[i.fred]!==undefined&&state.overrides[i.id]===undefined)
-      state.values[i.id]=valBySeries[i.fred];
+    const o=bySeries[i.fred];
+    if(o&&state.overrides[i.id]===undefined){
+      state.values[i.id]=o.v;state.dates[i.id]=o.date;state.dirs[i.id]=o.dir;
+    }
   });
-  const ok=Object.keys(valBySeries).length;
 
-  document.getElementById('loadingOverlay').classList.remove('active');
-  renderG();renderI();renderW();save();
-
-  let msg=`Fetched ${ok}/${series.length} FRED series.`;
-  if(ok>0&&usedSource)msg+=`\nSource: ${usedSource==='server'?'server proxy (/api/fred)':'public CORS proxy'}.`;
-  msg+=`\n\nManual entry still needed: ISM PMI, Roche LII, Fed Net Liquidity Δ, Roche Recession, Misery Index.`;
-  if(ok===0){
-    msg+=`\n\n⚠ No data fetched.`;
-    msg+=k?`\n• Check that your FRED API key is valid.`
-         :`\n• Set FRED_API_KEY in your Vercel project env (recommended), or paste a FRED API key above.\n  Get one free: https://fred.stlouisfed.org/docs/api/api_key.html`;
-    if(failed.length)msg+=`\nFailed series: ${failed.slice(0,6).join(', ')}`;
-  }else if(failed.length){
-    msg+=`\n\nFailed: ${failed.join(', ')}`;
+  // Derive indicators that have no single FRED series.
+  let derived=0;
+  if(state.overrides['misery']===undefined&&bySeries['UNRATE']&&bySeries['CPIAUCSL']){
+    state.values['misery']=Math.round((bySeries['UNRATE'].v+bySeries['CPIAUCSL'].v)*100)/100;
+    state.dates['misery']=bySeries['CPIAUCSL'].date;
+    state.dirs['misery']=bySeries['CPIAUCSL'].dir;derived++;
   }
-  alert(msg);
+  const fl=await computeFedNetLiquidity(k);
+  if(fl&&state.overrides['fed_liq']===undefined){
+    state.values['fed_liq']=fl.value;state.dates['fed_liq']=fl.date;state.dirs['fed_liq']=fl.dir;derived++;
+  }
+
+  const ok=Object.keys(bySeries).length;
+  if(ok>0)state.fetchedAt=Date.now();
+
+  if(!silent)document.getElementById('loadingOverlay').classList.remove('active');
+  renderG();renderI();renderW();save();
+  computeAll(); // refresh regime display from fresh data (without logging history)
+
+  if(!silent){
+    if(ok===0){
+      let m='No data fetched.\n'+(k?'Check that your FRED API key is valid.':'Set FRED_API_KEY in Vercel (recommended), or paste a FRED key above.');
+      if(failed.length)m+='\nFailed: '+failed.slice(0,6).join(', ');
+      toast(m,'error',7000);
+    }else{
+      let m=`Fetched ${ok}/${series.length} FRED series`+(derived?` (+${derived} derived)`:'')+'.';
+      m+='\nSource: '+(usedSource==='server'?'server proxy':usedSource==='proxy'?'public proxy':'cache')+'.';
+      m+='\nManual only: ISM PMI, Roche LII, Roche Recession.';
+      toast(m,failed.length?'warn':'success',5500);
+    }
+  }
+  return ok;
+}
+
+// Fed Net Liquidity Δ (YoY%) = WALCL − TGA(WTREGEN) − RRP(RRPONTSYD).
+// WALCL is reported in $millions, the other two in $billions → convert WALCL /1000.
+async function computeFedNetLiquidity(key){
+  const ids=['WALCL','WTREGEN','RRPONTSYD'];
+  let data=null;
+  try{
+    const u=`/api/fred?series_ids=${ids.join(',')}&limit=420&sort_order=desc`+(key?`&api_key=${encodeURIComponent(key)}`:'');
+    const res=await fetchT(u,12000);
+    if(res&&res.ok)data=await res.json();
+  }catch(e){}
+  if(!data)return null;
+  const ser={};
+  for(const id of ids){
+    const obs=(data[id]&&data[id].observations)||[];
+    const arr=obs.map(o=>({t:new Date(o.date).getTime(),v:parseFloat(o.value),d:o.date}))
+      .filter(o=>!isNaN(o.v)&&!isNaN(o.t)).sort((a,b)=>b.t-a.t);
+    if(!arr.length)return null;ser[id]=arr;
+  }
+  const near=(arr,t)=>{let best=arr[0],bd=Infinity;for(const o of arr){const df=Math.abs(o.t-t);if(df<bd){bd=df;best=o}}return best;};
+  const net=t=>near(ser.WALCL,t).v/1000 - near(ser.WTREGEN,t).v - near(ser.RRPONTSYD,t).v;
+  const t0=ser.WALCL[0].t,yr=365*24*3600*1000,wk=7*24*3600*1000;
+  const n0=net(t0),n1=net(t0-yr);
+  if(!isFinite(n0)||!isFinite(n1)||n1===0)return null;
+  const nPrev=net(t0-wk);
+  return{value:Math.round(((n0-n1)/Math.abs(n1))*10000)/100,date:ser.WALCL[0].d,dir:n0>nPrev?'up':n0<nPrev?'down':''};
+}
+
+// ═══════ FINVIZ (market confirmation) ═══════
+function fnum(s){const n=parseFloat(String(s).replace(/[%+\s]/g,''));return isNaN(n)?0:n}
+
+async function fetchFinviz(){
+  try{
+    const r=await fetchT('/api/finviz?type=groups&g=sector',12000);
+    if(r&&r.ok){const j=await r.json();if(j&&j.rows&&j.rows.length)renderSectors(j.rows);else renderFinvizPlaceholder('sectors')}
+    else renderFinvizPlaceholder('sectors');
+  }catch(e){renderFinvizPlaceholder('sectors')}
+  try{
+    const r=await fetchT('/api/finviz?type=futures',12000);
+    if(r&&r.ok){const j=await r.json();renderFutures(j&&j.futures)}
+    else renderFinvizPlaceholder('futures');
+  }catch(e){renderFinvizPlaceholder('futures')}
+}
+
+function renderSectors(rows){
+  const el=document.getElementById('sectorsBody');if(!el)return;
+  const keys=Object.keys(rows[0]||{});
+  const nameKey=keys.find(k=>/name/i.test(k))||keys[1]||keys[0];
+  const perfKeys=keys.filter(k=>/perf/i.test(k));
+  if(!nameKey||!perfKeys.length){renderFinvizPlaceholder('sectors');return}
+  const sortKey=perfKeys.find(k=>/month/i.test(k))||perfKeys[0];
+  const cols=[perfKeys.find(k=>/week/i.test(k)),perfKeys.find(k=>/month/i.test(k)),perfKeys.find(k=>/ytd/i.test(k))].filter(Boolean);
+  const sorted=[...rows].sort((a,b)=>fnum(b[sortKey])-fnum(a[sortKey]));
+  let html='<table class="sector-table"><thead><tr><th>Sector</th>'+cols.map(c=>`<th>${c.replace(/perf/i,'').trim()}</th>`).join('')+'</tr></thead><tbody>';
+  sorted.forEach(r=>{
+    html+=`<tr><td>${r[nameKey]}</td>`+cols.map(c=>{const n=fnum(r[c]);const col=n>0?'var(--green)':n<0?'var(--red)':'var(--text-muted)';return `<td style="color:${col}">${n>0?'+':''}${n.toFixed(2)}%</td>`}).join('')+'</tr>';
+  });
+  html+='</tbody></table>'+sectorRegimeNote(sorted,nameKey);
+  el.innerHTML=html;
+}
+
+function sectorRegimeNote(sorted,nameKey){
+  const top=sorted.slice(0,3).map(r=>r[nameKey]).filter(Boolean);
+  const t=top.join(' ');
+  let lean;
+  if(/energy|material|gold|metal|oil/i.test(t))lean='Energy/Materials leading → inflationary tilt (Overheating / Stagflation).';
+  else if(/util|defensive|health|staple|real estate/i.test(t))lean='Defensives leading → risk-off (Deflation / Stagflation).';
+  else if(/tech|cyclical|financ|industrial|communication|discretionary/i.test(t))lean='Cyclicals leading → risk-on (Goldilocks / Overheating).';
+  else lean='Mixed leadership — no clear regime tilt.';
+  return`<div class="market-note">Leaders: <strong>${top.join(', ')||'—'}</strong><br>${lean}<br><span class="muted">Informational — does not change the score.</span></div>`;
+}
+
+function renderFutures(data){
+  const el=document.getElementById('futuresBody');if(!el)return;
+  let arr=[];
+  if(Array.isArray(data))arr=data;
+  else if(data&&typeof data==='object')arr=Object.values(data);
+  arr=arr.filter(x=>x&&typeof x==='object');
+  if(!arr.length){renderFinvizPlaceholder('futures');return}
+  const pick=o=>({name:o.label||o.name||o.ticker||o.symbol||'',chg:parseFloat(o.change??o.changePercent??o.perfDay??o.perf??o.percentChange)});
+  let items=arr.map(pick).filter(x=>x.name);
+  const want=/gold|crude|oil|s&p|500|dollar|index|nasdaq|dow|treasur|bond|10|silver|copper|natural gas|euro|bitcoin|yen/i;
+  const curated=items.filter(x=>want.test(x.name));
+  items=(curated.length>=4?curated:items).slice(0,12);
+  if(!items.length){renderFinvizPlaceholder('futures');return}
+  el.innerHTML=items.map(x=>{
+    const n=isNaN(x.chg)?null:x.chg;const col=n>0?'var(--green)':n<0?'var(--red)':'var(--text-muted)';
+    return`<div class="fut-tile"><div class="fut-name">${x.name}</div><div class="fut-chg" style="color:${col}">${n==null?'—':(n>0?'+':'')+n.toFixed(2)+'%'}</div></div>`;
+  }).join('');
+}
+
+function renderFinvizPlaceholder(which){
+  const el=document.getElementById(which==='sectors'?'sectorsBody':'futuresBody');
+  if(el)el.innerHTML='<div class="market-note muted">Set <code>FINVIZ_API_KEY</code> (Finviz Elite auth token) in Vercel to load live '+(which==='sectors'?'sector performance.':'futures &amp; forex.')+'</div>';
+}
+
+// ═══════ TOASTS ═══════
+function toast(msg,type='info',ms=4500){
+  const wrap=document.getElementById('toasts');if(!wrap)return;
+  const t=document.createElement('div');t.className='toast '+type;t.textContent=msg;
+  wrap.appendChild(t);
+  requestAnimationFrame(()=>t.classList.add('show'));
+  setTimeout(()=>{t.classList.remove('show');setTimeout(()=>t.remove(),320)},ms);
+}
+
+// ═══════ REFRESH ORCHESTRATION ═══════
+async function refreshAll(){await fetchAllFRED();fetchFinviz()}
+async function maybeAutoRefresh(){
+  fetchFinviz(); // cheap & edge-cached — always refresh the market panels
+  const age=Date.now()-(state.fetchedAt||0);
+  if(!state.fetchedAt||age>6*3600*1000)await fetchAllFRED({silent:true});
+  else computeAll(); // show regime from cached values
 }
 
 // ═══════ STATE ═══════
 function save(){localStorage.setItem('dq3_state',JSON.stringify(state))}
 function resetDefaults(){
   if(!confirm('Reset all values to defaults?'))return;
-  state={values:{},overrides:{},fredKey:state.fredKey};
+  state={values:{},overrides:{},fredKey:state.fredKey,dates:{},dirs:{},fetchedAt:0};
   [...G_IND,...I_IND].forEach(i=>state.values[i.id]=i.def);
   W_IND.forEach(w=>state.values[w.id]=w.def);
   lastRes=null;renderG();renderI();renderW();drawQ(0,0,null);
@@ -1014,7 +1236,7 @@ function importState(e){
   rd.onload=ev=>{
     try{const d=JSON.parse(ev.target.result);if(d.state)state=d.state;if(d.hist){hist=d.hist;localStorage.setItem('dq3_hist',JSON.stringify(hist))}
     renderG();renderI();renderW();if(hist.length){const l=hist[hist.length-1];drawQ(l.g,l.i,l.q);updateDisp(l.g,l.i,l.q,l.w)}
-    }catch(err){alert('Error loading file.')}};
+    }catch(err){toast('Error loading file.','error')}};
   rd.readAsText(f);e.target.value='';
 }
 
