@@ -1,0 +1,6 @@
+{
+  "rewrites": [
+    { "source": "/api/fred", "destination": "/api/fred" },
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
+}
