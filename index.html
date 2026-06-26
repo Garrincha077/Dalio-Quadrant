@@ -293,7 +293,7 @@ body{font-family:var(--font-sans);background:var(--bg-primary);color:var(--text-
 </head>
 <body>
 
-<div class="loading-overlay" id="loadingOverlay"><div class="spinner"></div><span>Fetching FRED data (trying direct + proxy)...</span></div>
+<div class="loading-overlay" id="loadingOverlay"><div class="spinner"></div><span>Fetching live FRED data…</span></div>
 
 <header class="header">
   <div class="header-left">
@@ -306,7 +306,7 @@ body{font-family:var(--font-sans);background:var(--bg-primary);color:var(--text-
   <div class="header-right">
     <div class="fred-grp">
       <label>FRED API:</label>
-      <input type="text" id="fredApiKey" placeholder="Enter key for live data..." />
+      <input type="text" id="fredApiKey" placeholder="Optional — server uses FRED_API_KEY" />
     </div>
     <button class="btn btn-gold" onclick="fetchAllFRED()">⟳ Fetch</button>
     <button class="btn btn-outline" onclick="exportState()">Export</button>
@@ -887,68 +887,105 @@ function togOvr(id){
 function updW(id,v){const n=parseFloat(v);if(!isNaN(n))state.values[id]=n;save()}
 
 // ═══════ FRED ═══════
-// FRED fetch with CORS proxy fallback
-const PROXIES=[
-  url=>url, // direct first
-  url=>'https://corsproxy.io/?url='+encodeURIComponent(url),
-  url=>'https://api.allorigins.win/raw?url='+encodeURIComponent(url),
-];
-let activeProxy=0;
+// Series that need a YoY % transform (FRED gives levels/indices for these).
+const YOY_MONTHLY=['PAYEMS','INDPRO','AMTMNO','TEMPHELPS','TOTLL','CPIAUCSL','CES0500000003','CUSR0000SAH1','PCEPILFE'];
+const YOY_QUARTERLY=['GDP'];
+const isYoy=s=>YOY_MONTHLY.includes(s)||YOY_QUARTERLY.includes(s);
+// Pull a few extra observations so a not-yet-released latest month or a gap
+// can't break the 12-month offset.
+const limitFor=s=>YOY_QUARTERLY.includes(s)?8:YOY_MONTHLY.includes(s)?16:5;
 
-async function fredFetch(url){
-  const order=[activeProxy,...[0,1,2].filter(i=>i!==activeProxy)];
-  for(const pi of order){
-    try{
-      const ctrl=new AbortController();
-      const tid=setTimeout(()=>ctrl.abort(),12000);
-      const res=await fetch(PROXIES[pi](url),{signal:ctrl.signal});
-      clearTimeout(tid);
-      if(res.ok){activeProxy=pi;return await res.json()}
-    }catch(e){continue}
+let usedSource=null; // 'server' | 'proxy'
+
+function fetchT(url,ms){
+  const ctrl=new AbortController();const id=setTimeout(()=>ctrl.abort(),ms);
+  return fetch(url,{signal:ctrl.signal}).finally(()=>clearTimeout(id));
+}
+
+// Compute YoY by matching the observation ~`monthsBack` before the latest
+// VALID one (by date), skipping missing '.' values — far more robust than
+// using a fixed array index.
+function pickYoY(obs,monthsBack){
+  const valid=obs.map(o=>({d:o.date,v:parseFloat(o.value)})).filter(o=>!isNaN(o.v));
+  if(valid.length<2)return null;
+  const latest=valid[0];
+  const target=new Date(latest.d);target.setMonth(target.getMonth()-monthsBack);
+  let best=null,bd=Infinity;
+  for(const o of valid.slice(1)){const diff=Math.abs(new Date(o.d)-target);if(diff<bd){bd=diff;best=o}}
+  if(!best||best.v===0)return null;
+  // Only trust the YoY if we matched within ~60 days of the 1-year mark.
+  if(bd>1000*60*60*24*60)return null;
+  return((latest.v-best.v)/Math.abs(best.v))*100;
+}
+
+// Reliable fetch: same-origin serverless proxy first (no CORS, may inject the
+// key from env), then public CORS proxies as a fallback for non-Vercel hosts.
+async function fredFetch(series,lim,key){
+  try{
+    const u=`/api/fred?series_id=${encodeURIComponent(series)}&limit=${lim}&sort_order=desc`+(key?`&api_key=${encodeURIComponent(key)}`:'');
+    const res=await fetchT(u,12000);
+    if(res&&res.ok){const j=await res.json();if(j&&j.observations){usedSource=usedSource||'server';return j}}
+  }catch(e){}
+  if(key){
+    const direct=`https://api.stlouisfed.org/fred/series/observations?series_id=${encodeURIComponent(series)}&api_key=${encodeURIComponent(key)}&file_type=json&sort_order=desc&limit=${lim}`;
+    const proxies=[u=>'https://corsproxy.io/?url='+encodeURIComponent(u),u=>'https://api.allorigins.win/raw?url='+encodeURIComponent(u)];
+    for(const p of proxies){
+      try{const res=await fetchT(p(direct),12000);if(res&&res.ok){const j=await res.json();if(j&&j.observations){usedSource=usedSource||'proxy';return j}}}catch(e){}
+    }
   }
   return null;
 }
 
+// Bounded-concurrency runner — fetch several series at once instead of
+// one-at-a-time, so a full refresh takes seconds, not minutes.
+async function pool(items,n,worker){
+  let idx=0;
+  await Promise.all(Array.from({length:Math.min(n,items.length)},async()=>{
+    while(idx<items.length){const i=idx++;await worker(items[i])}
+  }));
+}
+
 async function fetchAllFRED(){
   const k=document.getElementById('fredApiKey').value.trim();
-  if(!k){alert('Enter a FRED API key.\nhttps://fred.stlouisfed.org/docs/api/api_key.html');return}
-  state.fredKey=k;
+  if(k){state.fredKey=k;save()}
+  usedSource=null;
   document.getElementById('loadingOverlay').classList.add('active');
-  const all=[...G_IND,...I_IND,...W_IND].filter(i=>i.fred);
-  const yoyMonthly=['PAYEMS','INDPRO','AMTMNO','TEMPHELPS','TOTLL','CPIAUCSL','CES0500000003','CUSR0000SAH1','PCEPILFE'];
-  const yoyQuarterly=['GDP'];
-  const isYoy=s=>yoyMonthly.includes(s)||yoyQuarterly.includes(s);
-  let f=0,errors=[];
 
-  for(const ind of all){
-    try{
-      const lim=yoyQuarterly.includes(ind.fred)?8:yoyMonthly.includes(ind.fred)?15:5;
-      const url=`https://api.stlouisfed.org/fred/series/observations?series_id=${ind.fred}&api_key=${k}&file_type=json&sort_order=desc&limit=${lim}`;
-      const data=await fredFetch(url);
-      if(!data||!data.observations?.length){errors.push(ind.fred);continue}
-      let val;
-      if(yoyMonthly.includes(ind.fred)&&data.observations.length>=13){
-        const la=parseFloat(data.observations[0].value),ya=parseFloat(data.observations[12].value);
-        if(!isNaN(la)&&!isNaN(ya)&&ya!==0)val=((la-ya)/ya)*100;
-      }else if(yoyQuarterly.includes(ind.fred)&&data.observations.length>=5){
-        const la=parseFloat(data.observations[0].value),ya=parseFloat(data.observations[4].value);
-        if(!isNaN(la)&&!isNaN(ya)&&ya!==0)val=((la-ya)/ya)*100;
-      }
-      if(val===undefined){for(const o of data.observations){if(o.value&&o.value!=='.'){val=parseFloat(o.value);break}}}
-      if(val!==undefined&&!isNaN(val)&&state.overrides[ind.id]===undefined){
-        state.values[ind.id]=Math.round(val*100)/100;
-        const inp=document.getElementById('in_'+ind.id)||document.getElementById('wi_'+ind.id);
-        if(inp)inp.value=state.values[ind.id];f++;
-      }
-    }catch(e){errors.push(ind.fred+': '+e.message);console.warn('Failed:',ind.fred,e)}
-  }
+  const all=[...G_IND,...I_IND,...W_IND].filter(i=>i.fred);
+  const series=[...new Set(all.map(i=>i.fred))]; // dedupe (NFCI, TEMPHELPS appear twice)
+  const valBySeries={},failed=[];
+
+  await pool(series,5,async(sid)=>{
+    const data=await fredFetch(sid,limitFor(sid),k);
+    if(!data||!data.observations?.length){failed.push(sid);return}
+    let val;
+    if(isYoy(sid)){const y=pickYoY(data.observations,12);if(y!=null)val=y}
+    if(val===undefined){for(const o of data.observations){const n=parseFloat(o.value);if(!isNaN(n)){val=n;break}}}
+    if(val!==undefined&&!isNaN(val))valBySeries[sid]=Math.round(val*100)/100;
+    else failed.push(sid);
+  });
+
+  // Apply each series value to every indicator that uses it (respect overrides).
+  all.forEach(i=>{
+    if(valBySeries[i.fred]!==undefined&&state.overrides[i.id]===undefined)
+      state.values[i.id]=valBySeries[i.fred];
+  });
+  const ok=Object.keys(valBySeries).length;
+
   document.getElementById('loadingOverlay').classList.remove('active');
   renderG();renderI();renderW();save();
-  let msg=`Fetched ${f}/${all.length} indicators.`;
-  if(f>0)msg+=`\nUsing: ${activeProxy===0?'direct FRED API':activeProxy===1?'corsproxy.io':'allorigins.win'}`;
-  msg+=`\n\nManual entry needed: ISM PMI, Roche LII, Fed Net Liquidity Δ, Roche Recession, Misery Index.`;
-  if(errors.length&&f===0)msg+=`\n\n⚠ All fetches failed. Check:\n1. Is your FRED API key valid?\n2. Try opening this page via a local server (e.g. python -m http.server)\n\nFailed series: ${errors.slice(0,5).join(', ')}`;
-  else if(errors.length)msg+=`\n\nFailed: ${errors.join(', ')}`;
+
+  let msg=`Fetched ${ok}/${series.length} FRED series.`;
+  if(ok>0&&usedSource)msg+=`\nSource: ${usedSource==='server'?'server proxy (/api/fred)':'public CORS proxy'}.`;
+  msg+=`\n\nManual entry still needed: ISM PMI, Roche LII, Fed Net Liquidity Δ, Roche Recession, Misery Index.`;
+  if(ok===0){
+    msg+=`\n\n⚠ No data fetched.`;
+    msg+=k?`\n• Check that your FRED API key is valid.`
+         :`\n• Set FRED_API_KEY in your Vercel project env (recommended), or paste a FRED API key above.\n  Get one free: https://fred.stlouisfed.org/docs/api/api_key.html`;
+    if(failed.length)msg+=`\nFailed series: ${failed.slice(0,6).join(', ')}`;
+  }else if(failed.length){
+    msg+=`\n\nFailed: ${failed.join(', ')}`;
+  }
   alert(msg);
 }
 
