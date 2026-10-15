@@ -1,0 +1,7 @@
+.env*
+.git/
+.github/
+test/
+scripts/
+work/
+node_modules/

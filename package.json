@@ -1,0 +1,13 @@
+{
+  "name": "dalio-quadrant",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node --env-file-if-exists=.env.local scripts/dev.mjs",
+    "test": "node --test",
+    "snapshot": "node scripts/snapshot.mjs"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}
