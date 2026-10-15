@@ -136,6 +136,7 @@
         margin: 8px 0 14px;
       }
       .panel {
+        min-width: 0;
         background: var(--panel);
         border: 1px solid var(--border);
         border-radius: 12px;
@@ -352,6 +353,51 @@
         font-size: 13px;
         color: var(--muted);
       }
+      .context-controls {
+        display: flex;
+        gap: 14px;
+        flex-wrap: wrap;
+        margin: 12px 0 18px;
+      }
+      .context-controls label {
+        font-size: 12px;
+        color: var(--muted);
+        display: grid;
+        gap: 5px;
+      }
+      .context-controls select {
+        max-width: 100%;
+        background: #1a2638;
+        color: var(--text);
+        border: 1px solid #43516a;
+        border-radius: 6px;
+        padding: 8px;
+      }
+      .context-table td {
+        padding: 7px 8px;
+      }
+      .z-cell {
+        width: 88px;
+        min-height: 53px;
+        padding: 5px;
+        color: var(--text);
+        font-family: ui-monospace, monospace;
+      }
+      .z-cell small {
+        font-size: 10px;
+        color: var(--text);
+      }
+      .z-cell.chosen {
+        outline: 2px solid var(--gold);
+        outline-offset: 1px;
+      }
+      .context-table th:nth-child(n + 3),
+      .context-table td:nth-child(n + 3) {
+        text-align: center;
+      }
+      #contextChart {
+        height: 310px;
+      }
       @media (max-width: 1000px) {
         .hero,
         .grid {
@@ -415,6 +461,13 @@
           id="tab-dashboard"
         >
           Dashboard</button
+        ><button
+          role="tab"
+          aria-selected="false"
+          aria-controls="context"
+          id="tab-context"
+        >
+          Long-run context</button
         ><button
           role="tab"
           aria-selected="false"
@@ -522,6 +575,20 @@
           </p>
         </section>
         <section class="panel" style="margin-bottom: 18px">
+          <h2>Debt & credit cycle</h2>
+          <p class="sub">
+            Debt servicing, credit supply and fiscal capacity. These ratios are
+            shown separately from the growth × inflation score.
+          </p>
+          <div class="table-wrap" id="debtTable"></div>
+          <p class="sub">
+            Positive lending standards mean net tightening. Gross federal debt
+            includes intragovernmental holdings. Federal interest / receipts
+            uses matched fiscal years; its change is over one year. Each series
+            keeps its own observation date.
+          </p>
+        </section>
+        <section class="panel" style="margin-bottom: 18px">
           <h2>Recession & financial stress</h2>
           <div id="stress" class="stress-grid"></div>
           <p class="sub">
@@ -572,6 +639,84 @@
           <p id="scenarioResult"></p>
         </section>
       </main>
+      <section
+        id="context"
+        role="tabpanel"
+        aria-labelledby="tab-context"
+        hidden
+      >
+        <div class="panel">
+          <h2>Long-run context — levels & momentum</h2>
+          <p class="sub">
+            Compare with the preceding 5, 10 or 20 complete years. Blue = below
+            the reference centre; orange = above. Colour measures historical
+            position, not whether an outcome is good or bad. Select a cell to
+            inspect its history.
+          </p>
+          <div class="context-controls">
+            <label
+              >Measure<select id="contextMeasure">
+                <option value="level">Level</option>
+                <option value="momentum">Momentum</option>
+              </select></label
+            >
+            <label
+              >Estimator<select id="contextEstimator">
+                <option value="standard">Mean / standard deviation</option>
+                <option value="robust">Median / scaled MAD</option>
+              </select></label
+            >
+          </div>
+          <div class="table-wrap" id="contextTable">
+            Waiting for long-run observations.
+          </div>
+          <p class="note">
+            Every cell shows available / required sample size. Missing years are
+            not filled. Quarterly data stay quarterly; weekly context uses the
+            last available observation in each completed month. The 20Y
+            percentile is an empirical rank, not a probability forecast.
+          </p>
+        </div>
+        <div class="panel" style="margin-top: 18px">
+          <div class="context-controls">
+            <label
+              >Indicator<select id="contextIndicator">
+                <option value="pce">Core PCE</option>
+              </select></label
+            >
+            <label
+              >Chart range<select id="contextYears">
+                <option value="5">5 years</option>
+                <option value="10" selected>10 years</option>
+                <option value="20">20 years</option>
+              </select></label
+            >
+          </div>
+          <h2 id="contextTitle">Historical comparison</h2>
+          <button id="contextExport" type="button" disabled>
+            Export selected series (CSV)
+          </button>
+          <p class="sub" id="contextDetail">
+            Select an indicator after data loads.
+          </p>
+          <canvas
+            id="contextChart"
+            role="img"
+            aria-label="Historical indicator chart. Select a cell to inspect the numeric comparison."
+          ></canvas>
+          <p class="sub">
+            Gold: selected series. Dashed blue: reference centre and ±2
+            dispersion units for the selected window. Shading:
+            <a
+              href="https://fred.stlouisfed.org/series/USREC"
+              target="_blank"
+              rel="noopener"
+              >USREC / NBER recession chronology</a
+            >, identified retrospectively. This chart uses today's revised
+            history; it is not a real-time backtest or a buy/sell rule.
+          </p>
+        </div>
+      </section>
       <section
         id="history"
         role="tabpanel"
@@ -687,6 +832,44 @@
             </p>
           </details>
           <details>
+            <summary>Long-run statistics and debt-cycle context</summary>
+            <p>
+              Up to 25 years of history is requested for macro and debt
+              indicators. Each current level is compared with 5, 10 and 20
+              preceding complete calendar years, excluding the current
+              observation. Monthly windows require 60/120/240 observations;
+              quarterly windows 20/40/80; annual fiscal windows 5/10/20. The
+              series must span the entire window and contain at least 95% of
+              expected observations. Short histories or larger gaps are
+              unavailable; smaller gaps retain explicit actual/expected counts.
+            </p>
+            <p>
+              Standard z = (value − mean) / sample standard deviation (n−1).
+              Robust z = (value − median) / (1.4826 × median absolute
+              deviation). A zero dispersion gives no z-score. Percentiles use
+              the empirical midrank among preceding observations. Pandemic
+              extremes remain in the data; the robust estimator offers an
+              additional comparison.
+            </p>
+            <p>
+              Levels are annual growth rates for activity and inflation, and
+              published levels or ratios for financial conditions, policy and
+              debt. Momentum is the change over three months (13 weeks for
+              weekly source series; one year for annual fiscal ratios). Weekly
+              statistics are sampled once per completed month and are explicitly
+              dated separately from the latest weekly dashboard value. Annual
+              fiscal series have small samples. Structural changes can shift the
+              reference distribution.
+            </p>
+            <p>
+              The statistical layer does not replace or retune the quadrant's
+              heuristic weights. Credit context uses TDSP, DRTSCILM, GFDEGDQ188S
+              and 100 × FYOINT / FYFR for matching fiscal years. Debt ratios are
+              not default probabilities. Historical revisions can change
+              z-scores even when the latest observation is unchanged.
+            </p>
+          </details>
+          <details>
             <summary>Sources and provenance</summary>
             <p>
               <a
@@ -716,6 +899,41 @@
               for credit spreads. FRED access does not by itself grant
               unrestricted redistribution rights. No affiliation with Ray Dalio
               or Bridgewater.
+            </p>
+            <p>
+              Additional references:
+              <a
+                href="https://macro.disciplinefunds.com/"
+                target="_blank"
+                rel="noopener"
+                >Discipline Funds macro dashboard</a
+              >,
+              <a
+                href="https://macro.disciplinefunds.com/leading-inflation-index/"
+                target="_blank"
+                rel="noopener"
+                >their Leading Inflation Index</a
+              >
+              and
+              <a
+                href="https://macro.disciplinefunds.com/real-time-payrolls-tracker/"
+                target="_blank"
+                rel="noopener"
+                >their Treasury payroll-tax tracker</a
+              >. Their proprietary series are not reproduced as our own
+              calculations.
+            </p>
+            <p>
+              <a
+                href="https://wmi.edu.sg/dmp-online-international/"
+                target="_blank"
+                rel="noopener"
+                >WMI — Dalio Market Principles</a
+              >
+              publicly describes separate economic/market and investment
+              principles, expectations, debt cycles and scenario testing. This
+              application draws on public descriptions; it does not reproduce
+              the paid course, proprietary simulator or datasets.
             </p>
           </details>
         </article>

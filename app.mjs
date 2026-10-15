@@ -1,4 +1,12 @@
-import { VERSION, DEFINITIONS, classify } from "./lib/model.mjs";
+import {
+  VERSION,
+  DEFINITIONS,
+  classify,
+  isCompatibleSnapshot,
+} from "./lib/model.mjs";
+import { historyRecord } from "./lib/archive.mjs";
+import { createHistoryView } from "./history-view.mjs";
+const longRun = createHistoryView();
 const $ = (id) => document.getElementById(id),
   finite = Number.isFinite;
 const fmt = (v, d = 2) => (finite(v) ? v.toFixed(d) : "—");
@@ -18,12 +26,14 @@ const date = (s, f) =>
     ? "No observation"
     : f === "quarterly"
       ? `Q${Math.floor((Number(s.slice(5, 7)) - 1) / 3) + 1} ${s.slice(0, 4)}`
-      : new Date(s + "T00:00:00Z").toLocaleDateString(undefined, {
-          year: "numeric",
-          month: "short",
-          ...(f === "monthly" ? {} : { day: "numeric" }),
-          timeZone: "UTC",
-        });
+      : f === "annual"
+        ? `FY ${s.slice(0, 4)}`
+        : new Date(s + "T00:00:00Z").toLocaleDateString(undefined, {
+            year: "numeric",
+            month: "short",
+            ...(f === "monthly" ? {} : { day: "numeric" }),
+            timeZone: "UTC",
+          });
 const when = (s) => new Date(s).toLocaleString();
 let snapshot = null,
   history = [],
@@ -35,13 +45,14 @@ try {
     history = stored
       .filter(
         (s) =>
-          s.version === VERSION &&
+          isCompatibleSnapshot(s) &&
           finite(s.growth?.score) &&
           finite(s.inflation?.score) &&
           s.signature &&
           s.fetchedAt,
       )
-      .slice(-500);
+      .map(historyRecord)
+      .slice(-200);
   // Remove a legacy credential without deleting the user's version 1 records.
   const legacy = JSON.parse(localStorage.getItem("dq3_state") || "null");
   if (legacy && "fredKey" in legacy) {
@@ -61,6 +72,7 @@ document.querySelectorAll("[role=tab]").forEach((button) =>
         (p) => (p.hidden = p.id !== button.getAttribute("aria-controls")),
       );
     if (button.id === "tab-dashboard") drawQuadrant();
+    if (button.id === "tab-context") longRun.redraw();
     if (button.id === "tab-history") {
       renderHistory();
       loadSharedHistory();
@@ -93,7 +105,7 @@ function badge(d) {
   return `<span class="pill ${d.status}">${d.status === "ok" ? "Dated" : d.status}</span>`;
 }
 function table(items) {
-  return `<table><thead><tr><th>Indicator / observation period</th><th>Latest</th><th>3M Δ</th><th>Status</th></tr></thead><tbody>${items.map((d) => `<tr><td><a href="https://fred.stlouisfed.org/series/${d.series}" target="_blank" rel="noopener">${d.name}</a><small>${date(d.date, d.frequency)} · ${d.frequency}</small></td><td>${fmt(d.value)} <small>${d.unit}</small></td><td>${signed(d.delta)} <small>${d.transform === "yoy" || d.unit === "%" || d.unit === "pp" ? "pp" : "points"}</small></td><td>${badge(d)}${d.value !== null && d.previous === null ? "<small>No 3M comparison</small>" : ""}</td></tr>`).join("")}</tbody></table>`;
+  return `<table><thead><tr><th>Indicator / observation period</th><th>Latest</th><th>Change</th><th>Status</th></tr></thead><tbody>${items.map((d) => `<tr><td><a href="https://fred.stlouisfed.org/series/${d.series}" target="_blank" rel="noopener">${d.name}</a><small>${date(d.date, d.frequency)} · ${d.frequency}</small></td><td>${fmt(d.value)} <small>${d.unit}</small></td><td>${signed(d.delta)} <small>${d.unit === "index" ? "points" : "pp"} / ${d.deltaMonths === 12 ? "1Y" : "3M"}</small></td><td>${badge(d)}${d.value !== null && d.previous === null ? "<small>No comparison</small>" : ""}</td></tr>`).join("")}</tbody></table>`;
 }
 const sensitivity = {
   goldilocks:
@@ -128,7 +140,7 @@ function render() {
       : `Observed activity is ${g > 0 ? "accelerating" : g < 0 ? "decelerating" : "mixed"}; annual inflation is ${i > 0 ? "accelerating" : i < 0 ? "slowing" : "mixed"}. These observations arrive at different dates and may be revised.`,
   );
   text("balanceNote", sensitivity[s.regime.id]);
-  for (const group of ["growth", "inflation", "credit"])
+  for (const group of ["growth", "inflation", "credit", "debt"])
     $(group + "Table").innerHTML = table(
       s.indicators.filter((d) => d.group === group),
     );
@@ -174,6 +186,7 @@ function render() {
     )
     .join("");
   drawQuadrant();
+  longRun.render(s);
   renderHistory();
 }
 function renderHistory() {
@@ -197,7 +210,7 @@ async function loadSharedHistory() {
     if (!Array.isArray(records)) throw new Error();
     const valid = records.filter(
       (s) =>
-        s.version === VERSION &&
+        isCompatibleSnapshot(s) &&
         finite(s.growth?.score) &&
         finite(s.inflation?.score) &&
         s.signature &&
@@ -322,10 +335,13 @@ async function refresh() {
       finite(s.inflation.score) &&
       history.at(-1)?.signature !== s.signature
     ) {
-      history.push(s);
+      history.push(historyRecord(s));
       history = history.slice(-500);
       try {
-        localStorage.setItem("dq_v2_history", JSON.stringify(history));
+        localStorage.setItem(
+          "dq_v2_history",
+          JSON.stringify(history.slice(-200)),
+        );
       } catch {
         text(
           "historyMessage",
@@ -351,7 +367,7 @@ async function refresh() {
     ["growthScore", "inflationScore", "coverage"].forEach((id) =>
       text(id, "—"),
     );
-    for (const group of ["growth", "inflation", "credit"])
+    for (const group of ["growth", "inflation", "credit", "debt"])
       $(group + "Table").innerHTML =
         '<p class="muted">No current observation.</p>';
     ["drivers", "counterEvidence", "stress", "market", "balanceNote"].forEach(
@@ -360,6 +376,7 @@ async function refresh() {
     text("status", error.message);
     $("status").className = "status error";
     drawQuadrant();
+    longRun.clear();
   } finally {
     refreshing = false;
     $("refresh").disabled = false;
@@ -406,7 +423,10 @@ $("methodTable").innerHTML =
         `<tr><td>${d.name}</td><td>${d.scale}</td><td>${d.weight}</td><td>${d.maxAge}</td></tr>`,
     )
     .join("")}</tbody></table>`;
-window.addEventListener("resize", drawQuadrant);
+window.addEventListener("resize", () => {
+  drawQuadrant();
+  longRun.redraw();
+});
 setInterval(
   () => {
     if (!document.hidden) refresh();

@@ -35,9 +35,15 @@ createServer(async (req, res) => {
   const file = url.pathname === "/" ? "index.html" : url.pathname.slice(1);
   // Serve only the public browser entry points, never .env, scripts or API sources.
   if (
-    !["index.html", "app.mjs", "lib/model.mjs", "data/history.json"].includes(
-      file,
-    )
+    ![
+      "index.html",
+      "app.mjs",
+      "lib/model.mjs",
+      "lib/statistics.mjs",
+      "lib/archive.mjs",
+      "history-view.mjs",
+      "data/history.json",
+    ].includes(file)
   ) {
     res.writeHead(404).end("Not found");
     return;

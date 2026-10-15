@@ -18,8 +18,11 @@ Node 22 or newer, no package dependencies:
 
 ## Data and calculation
 
-`api/dashboard.js` fetches 30 months for 25 distinct FRED series, in five bounded
-workers, and returns normalized data, quality flags and the computed regime.
+`api/dashboard.js` requests 31 distinct FRED series in five bounded workers:
+up to 25 years for macro, debt and recession context, and 30 months for daily
+market/stress series. Daily RRP inputs receive a 10,000-observation limit so the
+long liquidity history is not silently truncated. The response includes
+normalized data, quality flags, statistical profiles and the computed regime.
 Responses without source errors are edge cached for one hour. Partial failures
 are not cached. The browser refreshes on opening and every six hours while
 visible; it also refreshes when returning to an old session.
@@ -43,13 +46,51 @@ visible; it also refreshes when returning to an old session.
   Changes are rates in basis points, price/index percent changes or VIX points,
   with actual dated observations. These are not sector/futures/total returns.
 
+## Long-run statistics and debt cycle
+
+The Long-run context tab provides a selectable level/momentum heatmap for 5, 10
+and 20 preceding years, standard or robust normalization, empirical percentiles,
+explicit sample sizes and an inspectable historical chart. Quarterly data stay
+quarterly. Weekly series use their last observation in each completed month,
+with a separate statistical reference date. Annual fiscal data remain annual.
+
+- Standard z: `(current - preceding mean) / sample SD`, with `n - 1` variance.
+- Robust z: `(current - preceding median) / (1.4826 * MAD)`. Zero dispersion is
+  unavailable. Numerical z-scores are not clipped; only colour intensity is.
+- The current observation is excluded from the reference distribution. A series
+  must span the full requested calendar window and have at least 95% of expected
+  observations. Interior gaps are not filled and actual/expected counts remain
+  visible. Short or sparse histories give no z-score.
+- Percentile: `100 * (count below + 0.5 * count equal) / reference count`.
+- Levels for activity and inflation are YoY rates, not trending nominal levels.
+  Momentum compares those rates over 3 months (13 weeks for weekly inputs).
+  Annual fiscal ratios use a one-year change. Small annual samples are flagged.
+- Reference bands use the selected mean/SD or median/scaled MAD over the current
+  window. They are descriptive, not rolling historical trading signals.
+- Recession shading uses `USREC` and is retrospective. All profiles use the
+  latest revised FRED history, not historical data vintages. This is not a
+  backtest; COVID observations are preserved in both estimator views.
+
+The independent debt panel includes household debt service / disposable income
+(`TDSP`), net banks tightening C&I lending standards (`DRTSCILM`), gross federal
+debt / GDP (`GFDEGDQ188S`), and federal interest outlays / receipts
+(`100 * FYOINT / FYFR`, exact matching fiscal-year end dates). These metrics do
+not alter quadrant weights. Their individual dates and freshness flags matter;
+debt ratios are not default probabilities.
+
 ## History and scope
 
 Valid snapshots are automatically saved when their dataset signature changes,
-including revisions and freshness changes. Browser history is capped at 500
-records and can be exported. Repeated identical fetches do not add records.
+including revisions and freshness changes. Revisions to older statistical
+reference data also change a compact context checksum. The browser persists the
+latest 200 compact records; the combined history view/export supports up to 500.
+Full multi-decade chart arrays are not copied into each saved record. Compact
+context entries retain level and momentum arrays `[z, robustZ, percentile, n]`
+for each horizon. Repeated identical fetches do not add records.
 Version 1 records remain under their old storage key but are not mixed with the
 new model. The old locally saved credential is removed on first load.
+Version 2.0 records remain compatible because the `momentum-1` quadrant model
+has not changed; version 2.1 adds a separate statistical layer.
 
 The History view also loads `data/history.json`, a shared archive of changed
 macro datasets, including revisions. The Macro monitor GitHub workflow runs
@@ -77,6 +118,16 @@ values into a current regime.
 - [Bridgewater: The All Weather Story](https://www.bridgewater.com/research-and-insights/the-all-weather-story)
 - [Ray Dalio: Principles](https://www.principles.com/)
 - [FRED observations and vintage API](https://fred.stlouisfed.org/docs/api/fred/series_observations.html)
+- [Discipline Funds macro dashboard](https://macro.disciplinefunds.com/)
+- [Discipline Funds Leading Inflation Index](https://macro.disciplinefunds.com/leading-inflation-index/)
+- [Discipline Funds Treasury payroll-tax tracker](https://macro.disciplinefunds.com/real-time-payrolls-tracker/)
+- [WMI Dalio Market Principles: public programme description](https://wmi.edu.sg/dmp-online-international/)
+
+Discipline Funds informs the separation of indicators and historical views;
+its proprietary Roche/LII series are not copied or recreated with guessed
+formulas. WMI's public curriculum informs the separation of economic/market
+context from investment decisions and scenario testing. Paid course material,
+proprietary simulator data and internal investment formulas are not reproduced.
 
 Observed momentum is not a surprise relative to discounted expectations.
 Capital allocation and risk allocation are different. Scenario sensitivities
