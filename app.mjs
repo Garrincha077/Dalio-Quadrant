@@ -6,7 +6,9 @@ import {
 } from "./lib/model.mjs";
 import { historyRecord } from "./lib/archive.mjs";
 import { createHistoryView } from "./history-view.mjs";
+import { createQuadrantView } from "./quadrant-view.mjs";
 const longRun = createHistoryView();
+const quadrantView = createQuadrantView();
 const $ = (id) => document.getElementById(id),
   finite = Number.isFinite;
 const fmt = (v, d = 2) => (finite(v) ? v.toFixed(d) : "—");
@@ -237,83 +239,7 @@ async function loadSharedHistory() {
   }
 }
 function drawQuadrant() {
-  const canvas = $("quadrant"),
-    r = canvas.getBoundingClientRect();
-  if (!r.width) return;
-  const dpr = window.devicePixelRatio || 1;
-  canvas.width = r.width * dpr;
-  canvas.height = r.height * dpr;
-  const ctx = canvas.getContext("2d");
-  ctx.scale(dpr, dpr);
-  const w = r.width,
-    h = r.height,
-    cx = w / 2,
-    cy = h / 2,
-    pad = 26,
-    x = (v) => cx + v * (cx - pad),
-    y = (v) => cy - v * (cy - pad);
-  ctx.fillStyle = "#101725";
-  ctx.fillRect(0, 0, w, h);
-  [
-    ["#fb8995", 0, 0],
-    ["#f3b36c", cx, 0],
-    ["#87b6ff", 0, cy],
-    ["#60d6ab", cx, cy],
-  ].forEach(([color, a, b]) => {
-    ctx.fillStyle = color + "12";
-    ctx.fillRect(a, b, cx, cy);
-  });
-  ctx.fillStyle = "#a7b3c510";
-  ctx.fillRect(x(-0.15), 0, x(0.15) - x(-0.15), h);
-  ctx.fillRect(0, y(0.15), w, y(-0.15) - y(0.15));
-  ctx.strokeStyle = "#40506b";
-  ctx.setLineDash([4, 4]);
-  ctx.beginPath();
-  ctx.moveTo(cx, 0);
-  ctx.lineTo(cx, h);
-  ctx.moveTo(0, cy);
-  ctx.lineTo(w, cy);
-  ctx.stroke();
-  ctx.setLineDash([]);
-  ctx.font = "10px ui-monospace,monospace";
-  ctx.fillStyle = "#b7c3d6";
-  ctx.textAlign = "left";
-  ctx.fillText("STAGFLATION", 9, 18);
-  ctx.fillText("DISINFLATIONARY", 9, h - 24);
-  ctx.fillText("SLOWDOWN", 9, h - 10);
-  ctx.textAlign = "right";
-  ctx.fillText("OVERHEATING", w - 9, 18);
-  ctx.fillText("GOLDILOCKS", w - 9, h - 10);
-  ctx.textAlign = "left";
-  ctx.fillStyle = "#a7b3c5";
-  ctx.fillText("GROWTH →", w - 81, cy - 8);
-  const trail = history.slice(-24);
-  ctx.strokeStyle = "#e2b75255";
-  ctx.beginPath();
-  trail.forEach((s, j) =>
-    j
-      ? ctx.lineTo(x(s.growth.score), y(s.inflation.score))
-      : ctx.moveTo(x(s.growth.score), y(s.inflation.score)),
-  );
-  ctx.stroke();
-  trail.forEach((s) => {
-    ctx.fillStyle = "#e2b75266";
-    ctx.beginPath();
-    ctx.arc(x(s.growth.score), y(s.inflation.score), 2, 0, Math.PI * 2);
-    ctx.fill();
-  });
-  if (finite(snapshot?.growth.score) && finite(snapshot?.inflation.score)) {
-    const a = x(snapshot.growth.score),
-      b = y(snapshot.inflation.score);
-    ctx.fillStyle = "#e2b752";
-    ctx.beginPath();
-    ctx.arc(a, b, 6, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.strokeStyle = "#e2b75288";
-    ctx.beginPath();
-    ctx.arc(a, b, 12, 0, Math.PI * 2);
-    ctx.stroke();
-  }
+  quadrantView.render(snapshot);
 }
 async function refresh() {
   if (refreshing) return;

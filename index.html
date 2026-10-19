@@ -398,6 +398,31 @@
       #contextChart {
         height: 310px;
       }
+      .quadrant-frame {
+        position: relative;
+      }
+      .quadrant-tooltip {
+        position: absolute;
+        z-index: 2;
+        width: 220px;
+        max-width: calc(100% - 16px);
+        padding: 9px 12px;
+        white-space: pre-line;
+        pointer-events: none;
+        color: var(--text);
+        background: #0b1019f2;
+        border: 1px solid #8b7749;
+        border-radius: 7px;
+        font-size: 12px;
+      }
+      #quadrantReadout {
+        min-height: 62px;
+        margin: 10px 0;
+      }
+      .quadrant-method {
+        font-size: 12px;
+        color: var(--muted);
+      }
       .pressure-layout {
         display: grid;
         grid-template-columns: minmax(260px, 0.85fr) minmax(0, 1.6fr);
@@ -758,15 +783,71 @@
           </section>
           <section class="panel">
             <h2>Growth × inflation momentum</h2>
-            <canvas
-              id="quadrant"
-              role="img"
-              aria-label="Quadrant diagram. The scores and current regime are also shown as text."
-            ></canvas>
-            <p class="sub">
-              Centre band = transition. Dots = observed datasets; open History
-              to include the shared archive.
+            <div class="context-controls">
+              <label
+                >Spacing<select id="quadrantPeriod">
+                  <option value="monthly" selected>Monthly</option>
+                  <option value="quarterly">Quarterly</option>
+                  <option value="annual">Annual</option>
+                </select></label
+              >
+              <label
+                >Positions<select id="quadrantCount">
+                  <option value="5">5</option>
+                  <option value="12" selected>12</option>
+                  <option value="20">20</option>
+                </select></label
+              >
+            </div>
+            <div class="quadrant-frame">
+              <canvas
+                id="quadrant"
+                role="img"
+                aria-label="Growth and inflation momentum trail. Use Inspect position for exact scores and dates."
+              ></canvas>
+              <div id="quadrantTip" class="quadrant-tooltip" hidden></div>
+            </div>
+            <p class="sub" id="quadrantTrailStatus">
+              Waiting for source observations.
             </p>
+            <label class="sub"
+              >Inspect position
+              <select id="quadrantInspect" disabled>
+                <option>Waiting for data</option>
+              </select></label
+            >
+            <p class="sub" id="quadrantReadout">Waiting for verified data.</p>
+            <p class="note">
+              Historical dots: reconstructed with today's revised FRED data.
+              Current dot: latest published observations. Centre band =
+              transition.
+            </p>
+            <details class="quadrant-method">
+              <summary>Trail method</summary>
+              <p>
+                Spacing changes the sampling interval; both axes retain the same
+                three-month momentum formula, weights and 75% coverage
+                requirement. The current position is followed backward by
+                completed calendar months, quarters or years. Each completed
+                bucket uses its last valid monthly reference-period position;
+                unavailable buckets remain gaps.
+              </p>
+              <p>
+                Reconstruction uses only economic reference periods ending on or
+                before each sampled cutoff, with today's revised values. It does
+                not simulate original publication lags or historical data
+                vintages: these are retrospective reference-period positions,
+                not readings the app recorded or signals that could have been
+                traded at those dates. Inspect shows the sampled date when it
+                differs from the bucket end. Saved observed snapshots remain in
+                History.
+              </p>
+              <p>
+                Older points become smaller and fainter; the current point has
+                an outer ring. Select Inspect position to reach overlapping
+                points using the keyboard or on mobile.
+              </p>
+            </details>
           </section>
         </div>
         <div class="grid">

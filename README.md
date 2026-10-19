@@ -48,6 +48,25 @@ visible; it also refreshes when returning to an old session.
 
 ## Long-run statistics and debt cycle
 
+The growth × inflation chart uses a 12-position fading trail by default: the
+current published-data position plus eleven completed calendar periods. Choose
+monthly, quarterly or annual spacing and 5/12/20 positions. Only sampling changes;
+the underlying three-month momentum scales, weights and 75% coverage gates stay
+the same. Older points shrink/fade, connecting segments also fade, and the current
+point has an outer ring. Missing buckets remain gaps without connecting lines.
+Hover/tap shows a tooltip; Inspect position supports keyboards and overlapping
+points. Reduced-motion users receive no selection fade animation.
+
+Historical positions are reconstructed in the browser from the already-fetched,
+latest revised profiles. For each completed calendar bucket, use its last valid
+monthly reference-period position. Only economic reference periods ending by the
+sample cutoff enter, with the existing freshness rules. Source periods and their
+momentum comparisons keep native monthly/quarterly frequencies. Original release
+lags and historical vintages are not simulated; these are retrospective reference
+positions, not previously archived readings or a tradable real-time backtest.
+The UI labels this distinction and shows the actual sampled date. Reconstruction
+does not write invented observations to History or the shared archive.
+
 The Long-run context tab opens with a macro pressure score and four visual
 pillar scales, with level and direction visible together. Pillar selection shows
 oriented input z-scores, dates, exclusions and contributions to the total;
@@ -137,8 +156,8 @@ for each horizon. Repeated identical fetches do not add records.
 Version 1 records remain under their old storage key but are not mixed with the
 new model. The old locally saved credential is removed on first load.
 Version 2.0 records remain compatible because the `momentum-1` quadrant model
-has not changed; version 2.1 adds a statistical layer and 2.2 adds the separate
-pressure composite.
+has not changed; version 2.1 adds a statistical layer, 2.2 adds the separate
+pressure composite and 2.3 adds the retrospective reference-period trail.
 
 The History view also loads `data/history.json`, a shared archive of changed
 macro datasets, including revisions. The Macro monitor GitHub workflow runs
