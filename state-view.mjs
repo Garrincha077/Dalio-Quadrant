@@ -77,7 +77,7 @@ function chart(state) {
 }
 function observation(d) {
   return d
-    ? `<tr><th scope="row"><a href="https://fred.stlouisfed.org/series/${esc(d.series)}" target="_blank" rel="noopener">${esc(d.name)}</a></th><td>${fmt(d.value)} ${esc(d.unit)}</td><td>${d.frequency === "quarterly" ? quarter(d.date) : month(d.date)}</td><td><span class="pill ${d.status === "ok" ? "ok" : "stale"}">${esc(d.status)}</span></td></tr>`
+    ? `<tr><th scope="row">${d.source ? `<a href="${esc(d.source)}" target="_blank" rel="noopener">${esc(d.name)}</a>` : esc(d.name)}</th><td>${fmt(d.value)} ${esc(d.unit)}</td><td>${d.frequency === "quarterly" ? quarter(d.date) : month(d.date)}</td><td><span class="pill ${d.status === "ok" ? "ok" : "stale"}">${esc(d.status)}</span></td></tr>`
     : "";
 }
 export function createStateView() {
@@ -113,16 +113,20 @@ export function createStateView() {
         ? `State is a level; direction is a separate question. The momentum view currently reads growth ${signed(g)} and inflation ${signed(i)} (${next.regime.name}). Improving momentum can coexist with below-trend activity; easing inflation can remain above 2%.`
         : "Momentum is a separate lens and is currently unavailable.";
     const indicators = next?.indicators || [],
-      get = (id) => indicators.find((d) => d.id === id),
-      rows = [
-        get("activityState"),
-        get("headlinePce"),
-        get("gdp"),
-        get("pce"),
-        get("unemployment"),
-      ];
-    $("stateEvidence").innerHTML = next
-      ? `<table><caption>Dated levels behind the state and its cross-checks</caption><thead><tr><th>Indicator</th><th>Level</th><th>Reference period</th><th>Status</th></tr></thead><tbody>${rows.map(observation).join("")}</tbody></table>`
+      get = (id) => indicators.find((d) => d.id === id);
+    const b = s?.activityBreadth;
+    $("stateBreadth").innerHTML =
+      `<h3>Monthly activity breadth</h3><strong>${b?.available ? `${b.positive} / ${b.count} expanding YoY` : "Insufficient fresh breadth data"}</strong><div class="state-breadth-dots" aria-hidden="true">${(b?.indicators || []).map((d) => `<span class="${d.status !== "ok" ? "unknown" : d.value > 0 ? "positive" : d.value < 0 ? "negative" : "flat"}"></span>`).join("")}</div><p class="sub">${b ? `${b.count}/${b.total} usable readings${b.count ? ` · ${month(b.earliest)}${b.latest !== b.earliest ? ` – ${month(b.latest)}` : ""}` : ""}. ` : ""}Six monthly output, income, spending, sales and employment measures. Positive YoY growth can still be below trend; the count is not a recession probability.</p>`;
+    const groups = s?.evidence || [];
+    const evidenceRows = groups.flatMap((group) => group.indicators);
+    const fresh = evidenceRows.filter(
+      (d) => d.status === "ok" && finite(d.value),
+    ).length;
+    $("stateCoverage").textContent = groups.length
+      ? `${fresh}/${evidenceRows.length} fresh readings across activity, labour and prices. Each observation retains its reference period. Cross-checks do not add weight to the quadrant axes.`
+      : "Waiting for dated evidence.";
+    $("stateEvidence").innerHTML = groups.length
+      ? `<table><caption>Economic state: ${evidenceRows.length} dated indicators</caption><thead><tr><th>Indicator</th><th>Level / annual growth</th><th>Reference period</th><th>Status</th></tr></thead>${groups.map((group) => `<tbody><tr class="state-group"><th colspan="4" scope="rowgroup">${esc(group.name)}</th></tr>${group.indicators.map(observation).join("")}</tbody>`).join("")}</table>`
       : "No current observations.";
     const n = s?.nowcast;
     $("stateNowcast").innerHTML =

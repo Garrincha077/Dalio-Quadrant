@@ -20,8 +20,8 @@ Node 22 or newer, no package dependencies:
 
 ## Data and calculation
 
-`api/dashboard.js` requests 34 distinct FRED series in five bounded workers,
-plus GDPNow's series metadata to verify the forecast's actual update timestamp:
+`api/dashboard.js` requests 40 distinct FRED series in five bounded workers,
+plus GDPNow's series metadata to verify the FRED source update timestamp:
 up to 25 years for macro, debt and recession context, and 30 months for static-state,
 nowcast and daily market/stress series. Daily RRP inputs receive a 10,000-observation limit so the
 long liquidity history is not silently truncated. The response includes
@@ -53,11 +53,28 @@ visible; it also refreshes when returning to an old session.
 ## Observed state, nowcast and investment lenses
 
 The default **Economy now** tab adds a separate static state layer
-(`economic-state-1`); **Momentum & data** retains the original momentum chart.
+(`economic-state-2`); **Momentum & data** retains the original momentum chart.
 State X is published CFNAI-MA3 activity relative to historical growth trend, with
 zero as its anchor. State Y is headline PCE YoY minus the Fed's 2% longer-run
 inflation anchor. This is neither an output gap nor economic surprises versus
 consensus. Core PCE remains a separately labelled cross-check.
+
+Sixteen dated indicators are grouped into anchors; output, income and demand;
+labour; and inflation/wages. Six additional FRED series add real income excluding
+transfers (`W875RX1`), real consumption (`PCEC96`), real manufacturing/trade sales
+(`CMRMTSPL`), household employment (`CE16OV`), core CPI (`CPILFESL`), and Dallas
+Fed trimmed-mean PCE (`PCETRIM12M159SFRBDAL`). The first five use exact year-earlier
+levels; trimmed PCE is already published as a 12-month rate and stays in levels.
+
+Monthly activity breadth counts positive YoY readings among production, payrolls,
+household employment, real income, consumption and sales. At least four of six
+must be fresh with completed periods, and no reading may trail the freshest
+usable month by more than two months. Zero is unchanged; missing/stale values
+are excluded and coverage/reference months are displayed. Positive growth does
+not establish above-trend activity. This count follows NBER indicator categories,
+not its recession-dating process; it is neither a probability nor independent
+confirmation count. These overlapping diagnostics do not change either axis,
+the original momentum model or the frozen investment backtest.
 
 Both state axes require completed monthly periods, freshness within 90 days of
 period end, and reference months no more than one month apart. No missing values
@@ -85,6 +102,8 @@ investment backtests test `momentum-1`, **not** the new state classifier.
 
 Sources: [Chicago Fed CFNAI](https://www.chicagofed.org/research/data/cfnai/current-data),
 [Fed inflation objective](https://www.federalreserve.gov/faqs/economy_14400.htm),
+[NBER activity measures](https://www.nber.org/research/business-cycle-dating),
+[Dallas Fed trimmed PCE via FRED](https://fred.stlouisfed.org/series/PCETRIM12M159SFRBDAL),
 [GDPNow methodology](https://www.atlantafed.org/research-and-data/data/gdpnow/explainer).
 
 An institutional-style workflow separates observed state, direction/nowcasts,

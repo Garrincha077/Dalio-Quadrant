@@ -11,6 +11,7 @@ import {
   buildEconomicState,
   buildGDPNow,
   STATE_VERSION,
+  STATE_DEFINITIONS,
 } from "../lib/economic-state.mjs";
 import { historyRecord } from "../lib/archive.mjs";
 import { fetchSeriesMetadata } from "../lib/fred.mjs";
@@ -19,6 +20,98 @@ const rows = (activity = 0.4, pce = 3) => [
   { id: "activityState", value: activity, date: "2026-08-01", status: "ok" },
   { id: "headlinePce", value: pce, date: "2026-08-01", status: "ok" },
 ];
+const breadthRows = () =>
+  [
+    ["production", 1],
+    ["realIncome", 2],
+    ["realConsumption", 3],
+    ["realSales", -1],
+    ["payrolls", 0],
+    ["householdEmployment", 0.5],
+  ].map(([id, value]) => ({ id, value, date: "2026-08-01", status: "ok" }));
+test("six monthly measures distinguish expansion, contraction and zero without counting stale readings", () => {
+  const inputs = [...rows(), ...breadthRows()];
+  const a = buildEconomicState(inputs, null, now);
+  assert.equal(a.evidence.flatMap((g) => g.indicators).length, 16);
+  assert.deepEqual(
+    [
+      a.activityBreadth.positive,
+      a.activityBreadth.negative,
+      a.activityBreadth.unchanged,
+    ],
+    [4, 1, 1],
+  );
+  assert.equal(a.activityBreadth.available, true);
+  assert.equal(a.activityBreadth.count, 6);
+  for (const id of ["production", "realIncome", "realConsumption"])
+    inputs.find((d) => d.id === id).status = "stale";
+  const b = buildEconomicState(inputs, null, now);
+  assert.equal(b.activityBreadth.count, 3);
+  assert.equal(b.activityBreadth.available, false);
+  assert.equal(b.available, true);
+  assert.equal(b.regime.id, a.regime.id);
+});
+test("breadth requires completed and comparable reference periods, with no forward filling", () => {
+  const inputs = breadthRows();
+  inputs[0].date = "2026-09-01";
+  inputs[1].date = "2026-06-01";
+  inputs[2].date = "2026-10-01";
+  inputs[3].date = "2026-07-01";
+  const s = buildEconomicState(inputs, null, now);
+  assert.equal(s.activityBreadth.count, 4);
+  assert.equal(s.activityBreadth.available, true);
+  assert.equal(s.activityBreadth.earliest, "2026-07-01");
+  assert.equal(s.activityBreadth.latest, "2026-09-01");
+  assert.equal(
+    s.activityBreadth.indicators[1].status,
+    "older reference period",
+  );
+  assert.equal(s.activityBreadth.indicators[2].status, "incomplete period");
+  const empty = buildEconomicState([], null, now).activityBreadth;
+  assert.equal(empty.count, 0);
+  assert.equal(empty.available, false);
+  assert.equal(empty.earliest, null);
+});
+test("new real-economy measures use exact annual growth; published trimmed PCE is never differenced again", () => {
+  const raw = Object.fromEntries(
+    STATE_DEFINITIONS.slice(2).map((d) => [
+      d.series,
+      {
+        observations:
+          d.id === "trimmedPce"
+            ? [{ date: "2026-08-01", value: "2.19" }]
+            : [
+                { date: "2025-08-01", value: "100" },
+                { date: "2026-08-01", value: "103" },
+                { date: "2026-10-01", value: "999" },
+              ],
+      },
+    ]),
+  );
+  const s = buildSnapshot(raw, now);
+  for (const id of [
+    "realIncome",
+    "realConsumption",
+    "realSales",
+    "householdEmployment",
+    "coreCpi",
+  ]) {
+    const d = s.indicators.find((d) => d.id === id);
+    assert.ok(Math.abs(d.value - 3) < 1e-12);
+    assert.equal(d.date, "2026-08-01");
+    assert.equal(d.score, null);
+  }
+  assert.equal(s.indicators.find((d) => d.id === "trimmedPce").value, 2.19);
+  assert.equal(s.growth.score, null);
+  assert.equal(s.inflation.score, null);
+  delete raw.W875RX1.observations[0];
+  raw.W875RX1.observations = raw.W875RX1.observations.filter(Boolean);
+  assert.equal(
+    buildSnapshot(raw, now).indicators.find((d) => d.id === "realIncome")
+      .status,
+    "missing",
+  );
+});
 test("economic-state quadrants use indicator levels around trend and PCE's 2% anchor", () => {
   assert.equal(classifyEconomicState(0.4, 3).id, "above-above");
   assert.equal(classifyEconomicState(0.4, 1).id, "above-below");

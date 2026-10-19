@@ -185,6 +185,47 @@
         color: var(--gold);
         margin: 12px 0;
       }
+      .state-breadth {
+        margin-top: 20px;
+        padding-top: 16px;
+        border-top: 1px solid var(--border);
+      }
+      .state-breadth h3 {
+        margin: 0 0 8px;
+      }
+      .state-breadth > strong {
+        font-size: 23px;
+      }
+      .state-breadth-dots {
+        display: flex;
+        gap: 6px;
+        margin: 12px 0;
+      }
+      .state-breadth-dots span {
+        height: 7px;
+        flex: 1;
+        border-radius: 4px;
+        background: #62738e;
+      }
+      .state-breadth-dots .positive {
+        background: #60d6ab;
+      }
+      .state-breadth-dots .negative {
+        background: #fb8995;
+      }
+      .state-breadth-dots .flat {
+        background: #e2b752;
+      }
+      .state-breadth-dots .unknown {
+        background: #29354a;
+      }
+      #stateEvidence .state-group th {
+        background: #182236;
+        color: #d6b86a;
+        padding-top: 14px;
+        padding-left: 8px;
+        text-align: left;
+      }
       .state-flow {
         display: flex;
         flex-wrap: wrap;
@@ -908,6 +949,9 @@
               State and momentum answer different questions.
             </p>
             <button id="stateToMomentum">Compare momentum & assets →</button>
+            <div id="stateBreadth" class="state-breadth">
+              Waiting for activity cross-checks.
+            </div>
           </article>
           <article class="panel">
             <h2>Static activity × inflation quadrants</h2>
@@ -964,7 +1008,14 @@
         </article>
         <article class="panel" style="margin-bottom: 18px">
           <h2>Evidence & measurement</h2>
-          <div id="stateEvidence" class="table-wrap">
+          <p id="stateCoverage" class="sub">Waiting for dated evidence.</p>
+          <div
+            id="stateEvidence"
+            class="table-wrap"
+            tabindex="0"
+            role="region"
+            aria-label="Economic indicator evidence; scroll horizontally on small screens"
+          >
             No current observations.
           </div>
           <details class="context-details">
@@ -983,6 +1034,27 @@
               refers to headline PCE. Core PCE appears as supporting evidence,
               with its own label and date. The annual comparison requires the
               exact matching month; missing bases stay unavailable.
+            </p>
+            <p class="sub">
+              Six monthly activity cross-checks follow categories used by the
+              NBER: industrial production, payroll and household employment,
+              real income excluding transfers, real consumption, and real
+              manufacturing and trade sales. Breadth counts positive annual
+              growth among fresh, completed observations, requires at least four
+              of six, and excludes readings more than two months behind the
+              freshest usable month. Zero is unchanged; missing or stale
+              readings are excluded, with coverage shown. This is our
+              descriptive count, not the NBER's recession-dating method.
+            </p>
+            <p class="sub">
+              These series overlap with the CFNAI and with each other. They
+              explain the economy's composition without being added to the
+              activity axis or treated as independent confirmations. GDP is a
+              quarterly cross-check. Core CPI, shelter, wages and the Dallas
+              Fed's published 12-month trimmed-mean PCE provide inflation
+              detail. Trimmed-mean PCE is already an annual rate; it is not
+              transformed a second time. CPI and wage growth do not share the
+              Fed's headline-PCE target.
             </p>
             <p class="sub">
               Both axes need a completed monthly period and must be no more than
@@ -1007,6 +1079,20 @@
                 target="_blank"
                 rel="noopener"
                 >Fed inflation objective</a
+              >
+              ·
+              <a
+                href="https://www.nber.org/research/business-cycle-dating"
+                target="_blank"
+                rel="noopener"
+                >NBER activity measures</a
+              >
+              ·
+              <a
+                href="https://fred.stlouisfed.org/series/PCETRIM12M159SFRBDAL"
+                target="_blank"
+                rel="noopener"
+                >Dallas Fed trimmed-mean PCE via FRED</a
               >
               ·
               <a
