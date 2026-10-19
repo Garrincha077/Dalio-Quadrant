@@ -85,7 +85,10 @@ test("fade and radii increase monotonically with recency; invalid current data n
   const styles = Array.from({ length: 12 }, (_, i) => trailStyle(i, 12));
   assert.equal(styles[0].opacity, 0.16);
   assert.equal(styles.at(-1).opacity, 1);
-  assert.equal(styles.at(-1).radius, 8);
+  assert.equal(styles.at(-1).radius, 14);
+  assert.ok(styles[0].radius >= 8, "oldest circle must fit a readable number");
+  assert.equal(buildTrail(fixture())[0].sequence, 1);
+  assert.equal(buildTrail(fixture()).at(-1).sequence, 12);
   assert.ok(
     styles.every(
       (s, i) =>

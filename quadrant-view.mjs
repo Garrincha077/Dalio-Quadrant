@@ -9,7 +9,7 @@ const date = (s) =>
     day: "numeric",
     timeZone: "UTC",
   });
-export function createQuadrantView() {
+export function createQuadrantView(onInspect = () => {}) {
   let snapshot = null,
     slots = [],
     marks = [],
@@ -23,21 +23,22 @@ export function createQuadrantView() {
   function showTooltip(p) {
     const tip = $("quadrantTip"),
       r = canvas.getBoundingClientRect();
-    tip.textContent = `${p.slot.label} · ${date(p.slot.point.date)}\nGrowth ${signed(p.slot.point.growth.score)} · Inflation ${signed(p.slot.point.inflation.score)}\n${p.slot.point.regime.name}`;
+    tip.textContent = `#${p.slot.sequence} · ${p.slot.label} · ${date(p.slot.point.date)}\nGrowth ${signed(p.slot.point.growth.score)} · Inflation ${signed(p.slot.point.inflation.score)}\n${p.slot.point.regime.name}`;
     tip.style.left = `${Math.max(8, Math.min(r.width - 228, p.x + 15))}px`;
     tip.style.top = `${Math.max(8, Math.min(r.height - 90, p.y + 15))}px`;
     tip.hidden = false;
   }
   function updateReadout() {
     const slot = slots.find((s) => s.key === selected);
+    onInspect(slot || null);
     $("quadrantInspect").value = selected;
     if (!slot) {
       $("quadrantReadout").textContent = "Waiting for verified data.";
       return;
     }
     $("quadrantReadout").textContent = slot.point
-      ? `${slot.label} · ${date(slot.point.date)} · Growth ${signed(slot.point.growth.score)} · Inflation ${signed(slot.point.inflation.score)} · ${slot.point.regime.name} · Coverage G ${Math.round(slot.point.growth.coverage * 100)}% / I ${Math.round(slot.point.inflation.coverage * 100)}%${slot.kind === "reconstructed" ? " · reconstructed" : " · current published data"}`
-      : `${slot.label}: no valid position with at least 75% coverage on both axes. This gap is not connected.`;
+      ? `#${slot.sequence} · ${slot.label} · ${date(slot.point.date)} · Growth ${signed(slot.point.growth.score)} · Inflation ${signed(slot.point.inflation.score)} · ${slot.point.regime.name} · Coverage G ${Math.round(slot.point.growth.coverage * 100)}% / I ${Math.round(slot.point.inflation.coverage * 100)}%${slot.kind === "reconstructed" ? " · reconstructed" : " · current published data"}`
+      : `#${slot.sequence} · ${slot.label}: no valid position with at least 75% coverage on both axes. This gap is not connected.`;
   }
   function draw() {
     const r = canvas.getBoundingClientRect();
@@ -51,7 +52,7 @@ export function createQuadrantView() {
       h = r.height,
       cx = w / 2,
       cy = h / 2,
-      pad = 32;
+      pad = 48;
     const x = (v) => cx + v * (cx - pad),
       y = (v) => cy - v * (cy - pad);
     ctx.fillStyle = "#101725";
@@ -80,12 +81,15 @@ export function createQuadrantView() {
     ctx.font = "10px ui-monospace,monospace";
     ctx.fillStyle = "#b7c3d6";
     ctx.textAlign = "left";
-    ctx.fillText("STAGFLATION", 9, 18);
-    ctx.fillText("DISINFLATIONARY", 9, h - 24);
-    ctx.fillText("SLOWDOWN", 9, h - 10);
+    ctx.fillText("GROWTH ↓", 9, 18);
+    ctx.fillText("INFLATION ↑", 9, 31);
+    ctx.fillText("GROWTH ↓", 9, h - 24);
+    ctx.fillText("INFLATION ↓", 9, h - 10);
     ctx.textAlign = "right";
-    ctx.fillText("OVERHEATING", w - 9, 18);
-    ctx.fillText("GOLDILOCKS", w - 9, h - 10);
+    ctx.fillText("GROWTH ↑", w - 9, 18);
+    ctx.fillText("INFLATION ↑", w - 9, 31);
+    ctx.fillText("GROWTH ↑", w - 9, h - 24);
+    ctx.fillText("INFLATION ↓", w - 9, h - 10);
     ctx.fillStyle = "#a7b3c5";
     ctx.fillText("GROWTH →", w - 9, cy - 8);
     ctx.textAlign = "left";
@@ -112,21 +116,33 @@ export function createQuadrantView() {
       ctx.lineTo(b.x, b.y);
       ctx.stroke();
     }
-    for (const p of marks.filter(Boolean)) {
-      ctx.fillStyle = `rgba(226,183,82,${p.opacity})`;
+    function drawMark(p, focus = false) {
+      ctx.save();
+      ctx.fillStyle = `rgba(226,183,82,${focus ? Math.max(0.8, p.opacity) : p.opacity})`;
       ctx.beginPath();
       ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
       ctx.fill();
+      ctx.strokeStyle = `rgba(226,183,82,${Math.max(0.32, p.opacity)})`;
+      ctx.lineWidth = 1;
+      ctx.stroke();
+      ctx.font = `700 ${p.slot.kind === "current" ? 11 : 9}px ui-monospace,monospace`;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillStyle = focus || p.opacity >= 0.65 ? "#101725" : "#e8edf5d9";
+      ctx.fillText(String(p.slot.sequence), p.x, p.y + 0.5);
       if (p.slot.kind === "current") {
         ctx.strokeStyle = "#e2b752a0";
         ctx.lineWidth = 1.5;
         ctx.beginPath();
-        ctx.arc(p.x, p.y, 13, 0, Math.PI * 2);
+        ctx.arc(p.x, p.y, p.radius + 5, 0, Math.PI * 2);
         ctx.stroke();
       }
+      ctx.restore();
     }
+    for (const p of marks.filter(Boolean)) drawMark(p);
     const chosen = marks.find((p) => p?.slot.key === selected);
     if (chosen) {
+      drawMark(chosen, true);
       ctx.strokeStyle = "#f2f5fa";
       ctx.lineWidth = 1.5;
       ctx.beginPath();
@@ -140,7 +156,8 @@ export function createQuadrantView() {
     ].filter((p, i, a) => p && a.indexOf(p) === i);
     ctx.font = "11px system-ui,sans-serif";
     for (const p of endpoints) {
-      const label = p.slot.label,
+      const label =
+          p.slot.kind === "current" ? `Now · ${p.slot.sequence}` : p.slot.label,
         tw = ctx.measureText(label).width;
       const lx = Math.max(8, Math.min(w - tw - 8, p.x + 15)),
         ly = p.y < 42 ? p.y + 24 : p.y - 16;
@@ -169,14 +186,14 @@ export function createQuadrantView() {
         ...slots.map((s) => {
           const option = document.createElement("option");
           option.value = s.key;
-          option.textContent = `${s.label}${s.point ? "" : " · unavailable"}`;
+          option.textContent = `${s.sequence} · ${s.label}${s.point ? "" : " · unavailable"}`;
           return option;
         }),
       );
       $("quadrantInspect").disabled = !slots.length;
       const available = slots.filter((s) => s.point).length;
       $("quadrantTrailStatus").textContent = slots.length
-        ? `${available}/${slots.length} positions · Now + ${count - 1} completed ${cadence === "monthly" ? "months" : cadence === "quarterly" ? "quarters" : "years"}. Older = smaller and fainter.`
+        ? `${available}/${slots.length} positions · 1 = oldest, ${count} = Now. Missing numbers = unavailable periods. Older = smaller and fainter.`
         : "Waiting for source observations.";
     }
     updateReadout();

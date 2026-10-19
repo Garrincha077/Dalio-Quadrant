@@ -117,6 +117,7 @@
       }
       nav {
         display: flex;
+        flex-wrap: wrap;
         gap: 6px;
         margin-bottom: 22px;
       }
@@ -161,6 +162,67 @@
         grid-template-columns: 1.1fr 1fr;
         gap: 18px;
         margin-bottom: 18px;
+      }
+      .preferred-assets {
+        border-top: 1px solid var(--border);
+        margin-top: 20px;
+        padding-top: 16px;
+      }
+      .preferred-assets h3 {
+        margin: 4px 0;
+        font-size: 19px;
+      }
+      .asset-levels {
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .asset-levels strong {
+        color: var(--text);
+      }
+      .asset-list {
+        list-style: none;
+        padding: 0;
+        margin: 12px 0;
+      }
+      .asset-list li {
+        border-left: 2px solid var(--gold);
+        padding: 4px 0 4px 12px;
+        margin: 10px 0;
+      }
+      .asset-list span {
+        display: block;
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .research-stack {
+        display: grid;
+        gap: 18px;
+      }
+      .research-stack h2 {
+        margin-top: 10px;
+      }
+      .research-stack caption {
+        text-align: left;
+        color: var(--muted);
+        padding: 0 0 12px;
+        white-space: normal;
+      }
+      .research-stack th[scope="row"] {
+        font-weight: 500;
+        color: var(--text);
+      }
+      .audit-note {
+        white-space: normal;
+        min-width: 240px;
+      }
+      .chart-legend {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
+        font-size: 12px;
+      }
+      #researchEquity {
+        max-width: 860px;
       }
       .regime {
         font:
@@ -736,6 +798,13 @@
         ><button
           role="tab"
           aria-selected="false"
+          aria-controls="research"
+          id="tab-research"
+        >
+          Backtest & prediction</button
+        ><button
+          role="tab"
+          aria-selected="false"
           aria-controls="history"
           id="tab-history"
         >
@@ -780,6 +849,14 @@
               economic surprises versus market consensus.
             </p>
             <div id="balanceNote" class="sub"></div>
+            <section
+              id="preferredAssets"
+              class="preferred-assets"
+              aria-label="Preferred assets for selected position"
+            >
+              <h3>Preferred assets</h3>
+              <p class="sub">Waiting for a valid position.</p>
+            </section>
           </section>
           <section class="panel">
             <h2>Growth × inflation momentum</h2>
@@ -843,9 +920,10 @@
                 History.
               </p>
               <p>
-                Older points become smaller and fainter; the current point has
-                an outer ring. Select Inspect position to reach overlapping
-                points using the keyboard or on mobile.
+                Numbers run from 1 (oldest) to the selected count (Now). Older
+                points become smaller and fainter; the current point has an
+                outer ring. Select Inspect position to reach overlapping points
+                using the keyboard or on mobile.
               </p>
             </details>
           </section>
@@ -1152,6 +1230,60 @@
         </div>
       </section>
       <section
+        id="research"
+        role="tabpanel"
+        aria-labelledby="tab-research"
+        hidden
+      >
+        <p id="researchStatus" class="status">
+          Loading dated research summary…
+        </p>
+        <div class="research-stack">
+          <article class="panel" id="researchOverview"></article>
+          <article class="panel">
+            <h2>Growth of $100</h2>
+            <p class="sub">
+              Year-end observations. Monthly drawdowns and all baselines are in
+              the comparison below.
+            </p>
+            <div id="researchEquity"></div>
+            <details>
+              <summary>Exact annual returns</summary>
+              <div id="researchAnnual" class="table-wrap"></div>
+            </details>
+          </article>
+          <article class="panel">
+            <h2>Strategies on the same reserved period</h2>
+            <div id="researchResults" class="table-wrap"></div>
+            <p class="sub">
+              CAGR = compounded annual return. Excess Sharpe uses the T-bill
+              carry proxy. Drawdown = worst peak-to-trough loss at monthly
+              closes; intramonth losses can be larger. Costs are assumptions,
+              not realised execution.
+            </p>
+          </article>
+          <article class="panel" id="researchPrediction"></article>
+          <article class="panel">
+            <h2>Did the expected assets actually win?</h2>
+            <div id="researchConditional" class="table-wrap"></div>
+          </article>
+          <article class="panel">
+            <h2>Does macro momentum lag the market?</h2>
+            <div id="researchLag"></div>
+          </article>
+          <article class="panel">
+            <h2>Historical economic sanity checks</h2>
+            <div id="researchAudit"></div>
+          </article>
+          <article class="panel">
+            <details>
+              <summary>Research protocol, selection and limitations</summary>
+              <div id="researchProtocol" class="sub"></div>
+            </details>
+          </article>
+        </div>
+      </section>
+      <section
         id="history"
         role="tabpanel"
         aria-labelledby="tab-history"
@@ -1228,9 +1360,13 @@
             <div id="methodTable" class="table-wrap"></div>
             <p>
               Scales, weights, freshness limits and the transition band are
-              explicit starting assumptions. They have not been calibrated or
-              validated for predictive performance. Correlated inflation and
-              labour series can still overlap.
+              explicit descriptive assumptions. A separate vintage-based test of
+              limited calibration variants and predictive models appears in
+              Backtest & prediction. It does not establish a reliable edge or
+              change this chart's scales. Correlated inflation and labour series
+              can still overlap. Manufacturing orders are nominal dollar orders,
+              so inflation can lift that growth input. It is not an independent
+              real-output measure.
             </p>
             <p>
               Credit conditions, policy rates, net liquidity and stress lights
@@ -1257,12 +1393,14 @@
               and pricing. None of these relationships is guaranteed.
             </p>
             <p>
-              “Disinflationary slowdown” means falling growth and inflation
-              momentum. It does not establish negative inflation or a recession.
-              A TIPS yield is not a TIPS total return; a Treasury yield change
-              is not a bond return. WTI is a spot price, not a commodity
-              portfolio return. No risk-parity weights are estimated without
-              appropriate return and covariance data.
+              The arrows indicate growth and inflation momentum, not their
+              absolute levels. Falling momentum does not establish negative
+              inflation or a recession. Earlier labels such as “Overheating”
+              overstated what this calculation could establish and were
+              replaced. A TIPS yield is not a TIPS total return; a Treasury
+              yield change is not a bond return. WTI is a spot price, not a
+              commodity portfolio return. No risk-parity weights are estimated
+              without appropriate return and covariance data.
             </p>
           </details>
           <details>

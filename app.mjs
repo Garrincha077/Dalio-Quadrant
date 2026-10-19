@@ -7,8 +7,14 @@ import {
 import { historyRecord } from "./lib/archive.mjs";
 import { createHistoryView } from "./history-view.mjs";
 import { createQuadrantView } from "./quadrant-view.mjs";
+import { createAssetsView } from "./assets-view.mjs";
+import { createResearchView } from "./research-view.mjs";
 const longRun = createHistoryView();
-const quadrantView = createQuadrantView();
+const assetsView = createAssetsView();
+const quadrantView = createQuadrantView((slot) =>
+  assetsView.render(snapshot, slot),
+);
+const researchView = createResearchView((s) => assetsView.setResearch(s));
 const $ = (id) => document.getElementById(id),
   finite = Number.isFinite;
 const fmt = (v, d = 2) => (finite(v) ? v.toFixed(d) : "—");
@@ -198,7 +204,7 @@ function renderHistory() {
         .reverse()
         .map(
           (s) =>
-            `<tr><td>${escape(when(s.fetchedAt))}</td><td>${signed(s.growth.score)}</td><td>${signed(s.inflation.score)}</td><td>${escape(s.regime.name)}</td></tr>`,
+            `<tr><td>${escape(when(s.fetchedAt))}</td><td>${signed(s.growth.score)}</td><td>${signed(s.inflation.score)}</td><td>${escape(classify(s.growth.score, s.inflation.score).name)}</td></tr>`,
         )
         .join("")}</tbody></table>`
     : "<p>No valid observed snapshots yet.</p>";
@@ -352,6 +358,7 @@ $("methodTable").innerHTML =
 window.addEventListener("resize", () => {
   drawQuadrant();
   longRun.redraw();
+  researchView.redraw();
 });
 setInterval(
   () => {
@@ -367,3 +374,4 @@ document.addEventListener("visibilitychange", () => {
     refresh();
 });
 refresh();
+researchView.load();

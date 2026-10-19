@@ -1,7 +1,9 @@
 # Dalio Quadrant — Principles & Evidence
 
 Independent US macro monitor inspired by the public All Weather framework. Uses
-FRED only; no Finviz Elite, public CORS proxy, AI provider or browser API key.
+FRED for the live macro dashboard; no Finviz Elite, public CORS proxy, AI provider
+or browser API key. The separate dated research experiment uses adjusted ETF
+histories from Alpha Vantage and Yahoo Finance in addition to ALFRED vintages.
 The formulas are transparent application heuristics, not Bridgewater's model.
 
 ## Run and deploy
@@ -41,7 +43,8 @@ visible; it also refreshes when returning to an old session.
 - At least 75% of each axis's configured weight must be fresh and have comparison
   history. A score within 0.15 of zero gives a transition state. No default data
   or probability claims.
-- “Disinflationary slowdown” does not establish deflation or a recession.
+- Directional arrow labels describe momentum, not economic levels, inflation
+  below zero or a recession. The original level-claiming names were removed.
 - Market context: `DGS10`, `DFII10`, `T10YIE`, `DTWEXBGS`, `DCOILWTICO`, `VIXCLS`.
   Changes are rates in basis points, price/index percent changes or VIX points,
   with actual dated observations. These are not sector/futures/total returns.
@@ -53,7 +56,8 @@ current published-data position plus eleven completed calendar periods. Choose
 monthly, quarterly or annual spacing and 5/12/20 positions. Only sampling changes;
 the underlying three-month momentum scales, weights and 75% coverage gates stay
 the same. Older points shrink/fade, connecting segments also fade, and the current
-point has an outer ring. Missing buckets remain gaps without connecting lines.
+point has an outer ring. Numbers run from 1 (oldest) to the selected count (Now).
+Missing buckets keep their sequence numbers and remain gaps without connecting lines.
 Hover/tap shows a tooltip; Inspect position supports keyboards and overlapping
 points. Reduced-motion users receive no selection fade animation.
 
@@ -158,6 +162,8 @@ new model. The old locally saved credential is removed on first load.
 Version 2.0 records remain compatible because the `momentum-1` quadrant model
 has not changed; version 2.1 adds a statistical layer, 2.2 adds the separate
 pressure composite and 2.3 adds the retrospective reference-period trail.
+Version 2.4 adds numbered circles, selected-period conditional asset sensitivities,
+neutral momentum labels, historical economic checks and the separate research view.
 
 The History view also loads `data/history.json`, a shared archive of changed
 macro datasets, including revisions. The Macro monitor GitHub workflow runs
@@ -174,11 +180,28 @@ may block the archive's push and will need a compatible repository policy.
 The workflow is not active on a feature branch. The initial archive entry is a
 real observation collected during implementation, not fabricated past history.
 Live API fetches work independently of the archive and do not write history on
-the server. No notifications, consensus feed, calibrated risk-parity portfolio
-or backtest are configured. Timestamped release/vintage information and
-validation are required for those investment-model extensions. ISM/Roche manual
+the server. No notifications, consensus feed or calibrated risk-parity portfolio
+are configured. A separate frozen vintage-based backtest is available in the
+research view; it does not establish a reliable predictive edge. ISM/Roche manual
 entry and legacy import were removed rather than silently carrying example
 values into a current regime.
+
+## Backtest and experimental predictions
+
+See [research findings, sources, timing and reproduction](scripts/research/README.md)
+and the byte-preserved [predeclared protocol](scripts/research/protocol.md).
+The app compares thirteen strategies and baselines over the same reserved Jan 2021–Dec 2025 window,
+with actual ALFRED publication vintages, prior-day market features, matured labels
+and turnover costs. Conditional next-month returns, sample sizes, lag diagnostics,
+and revised economic sanity checks are separate views. Public JSON contains
+aggregate statistics/yearly strategy returns, not raw provider price histories.
+
+Original quadrant rotation earned 4.34% CAGR vs SPY's 14.32%. A separate predictive
+rotation earned 14.90%, but its paired uncertainty interval includes zero and its
+25 bp stress result trails SPY. Consequently the descriptive axes were not retuned
+to force theoretical asset winners. The predictor remains explicitly experimental.
+Its October 2026 snapshot is dated and frozen; live FRED refresh/archiving does not
+retrain it. Synthetic research checks run in CI alongside Node tests.
 
 ## Public research and source terms
 
