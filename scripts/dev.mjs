@@ -40,8 +40,10 @@ createServer(async (req, res) => {
       "app.mjs",
       "lib/model.mjs",
       "lib/statistics.mjs",
+      "lib/composite.mjs",
       "lib/archive.mjs",
       "history-view.mjs",
+      "pressure-view.mjs",
       "data/history.json",
     ].includes(file)
   ) {

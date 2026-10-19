@@ -48,7 +48,14 @@ visible; it also refreshes when returning to an old session.
 
 ## Long-run statistics and debt cycle
 
-The Long-run context tab provides a selectable level/momentum heatmap for 5, 10
+The Long-run context tab opens with a macro pressure score and four visual
+pillar scales, with level and direction visible together. Pillar selection shows
+oriented input z-scores, dates, exclusions and contributions to the total;
+selecting an input opens its historical chart. A CSV exports all 16 score inputs,
+effective weights, raw/capped z-scores and exclusion reasons. The detailed
+heatmap remains available in a collapsed section.
+
+The tab also provides a selectable level/momentum heatmap for 5, 10
 and 20 preceding years, standard or robust normalization, empirical percentiles,
 explicit sample sizes and an inspectable historical chart. Quarterly data stay
 quarterly. Weekly series use their last observation in each completed month,
@@ -56,7 +63,7 @@ with a separate statistical reference date. Annual fiscal data remain annual.
 
 - Standard z: `(current - preceding mean) / sample SD`, with `n - 1` variance.
 - Robust z: `(current - preceding median) / (1.4826 * MAD)`. Zero dispersion is
-  unavailable. Numerical z-scores are not clipped; only colour intensity is.
+  unavailable. Detailed numerical z-scores are not clipped; only colour intensity is.
 - The current observation is excluded from the reference distribution. A series
   must span the full requested calendar window and have at least 95% of expected
   observations. Interior gaps are not filled and actual/expected counts remain
@@ -78,6 +85,46 @@ debt / GDP (`GFDEGDQ188S`), and federal interest outlays / receipts
 not alter quadrant weights. Their individual dates and freshness flags matter;
 debt ratios are not default probabilities.
 
+## Long-run macro pressure (application heuristic)
+
+Model `long-run-pressure-1` is separate from the unchanged quadrant model.
+Default reference: 10 preceding years, robust median/scaled MAD. Every reference
+(5/10/20) and estimator (standard/robust) is calculated from the same profiles.
+Four pillars each receive 25%, with equal weights among available inputs within
+each pillar:
+
+- Growth weakness: invert GDP, industrial production, manufacturing orders,
+  payrolls and temporary employment growth.
+- Inflation pressure: core PCE, CPI, wages and shelter growth, positive signs.
+- Financial tightness: positive NFCI and bank lending standards; invert bank
+  lending growth and net liquidity growth.
+- Debt burden: household debt service, federal debt/GDP and interest/receipts,
+  positive signs. The nominal policy rate remains contextual, outside this index.
+
+Orient each level z-score, cap it at ±3, average within pillars, then average the
+four pillars. `score = 50 + (50 / 3) * average`. The range is 0–100; 50 denotes
+inputs at their respective historical centres. Capping only affects composite
+contributions. The heatmap and export retain the raw z-scores.
+
+Stale, missing and invalid reference inputs are excluded, without substituting
+zero. Each pillar needs at least two-thirds of its original inputs, and total
+coverage (average of four pillar coverage fractions) must reach 75%. All four
+pillars must qualify; their 25% weights never migrate between pillars. A pillar
+with a missing input redistributes its weight among its available inputs, visibly.
+
+Momentum is calculated independently using the same signs/caps/coverage rules
+on 3-month/13-week changes (one year for the annual fiscal ratio). Building/easing
+thresholds are ±0.15 z; this is not the change in the headline score. Score labels
+are below 40 / 40 to below 60 / 60 to below 75 / 75+, uncalibrated descriptive
+bands. Opposing pillars can cancel, so the UI shows their spread and contributors.
+A low score does not rule out deflation or risks omitted from these assumptions.
+This is neither a recession probability nor an allocation/trading rule.
+
+Snapshot responses contain all six variants. Archive/export records retain a
+compact method-versioned score/pillar summary, without repeating input arrays.
+Historical records lacking this field are not backfilled with today's statistics.
+The API request includes the UI version to avoid a cached prior model response.
+
 ## History and scope
 
 Valid snapshots are automatically saved when their dataset signature changes,
@@ -90,7 +137,8 @@ for each horizon. Repeated identical fetches do not add records.
 Version 1 records remain under their old storage key but are not mixed with the
 new model. The old locally saved credential is removed on first load.
 Version 2.0 records remain compatible because the `momentum-1` quadrant model
-has not changed; version 2.1 adds a separate statistical layer.
+has not changed; version 2.1 adds a statistical layer and 2.2 adds the separate
+pressure composite.
 
 The History view also loads `data/history.json`, a shared archive of changed
 macro datasets, including revisions. The Macro monitor GitHub workflow runs
@@ -122,6 +170,7 @@ values into a current regime.
 - [Discipline Funds Leading Inflation Index](https://macro.disciplinefunds.com/leading-inflation-index/)
 - [Discipline Funds Treasury payroll-tax tracker](https://macro.disciplinefunds.com/real-time-payrolls-tracker/)
 - [WMI Dalio Market Principles: public programme description](https://wmi.edu.sg/dmp-online-international/)
+- [OECD/JRC: Handbook on Constructing Composite Indicators](https://www.oecd.org/en/publications/handbook-on-constructing-composite-indicators-methodology-and-user-guide_9789264043466-en.html)
 
 Discipline Funds informs the separation of indicators and historical views;
 its proprietary Roche/LII series are not copied or recreated with guessed

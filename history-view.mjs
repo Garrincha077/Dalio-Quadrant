@@ -1,3 +1,4 @@
+import { createPressureView } from "./pressure-view.mjs";
 const $ = (id) => document.getElementById(id),
   finite = Number.isFinite;
 const fmt = (v, n = 2) => (finite(v) ? v.toFixed(n) : "—");
@@ -28,6 +29,15 @@ export function createHistoryView() {
   let snapshot = null,
     selected = "pce",
     years = 10;
+  const pressure = createPressureView((id) => {
+    selected = id;
+    $("contextIndicator").value = id;
+    $("contextMeasure").value = "level";
+    renderTable();
+    draw();
+    $("contextTitle").scrollIntoView({ behavior: "smooth", block: "start" });
+    $("contextTitle").focus({ preventScroll: true });
+  });
   const measure = () => $("contextMeasure").value;
   const robust = () => $("contextEstimator").value === "robust";
   const statistic = (p) => p.windows[years][measure()];
@@ -206,6 +216,7 @@ export function createHistoryView() {
       .map((p) => `<option value="${p.id}">${p.name}</option>`)
       .join("");
     $("contextIndicator").value = selected;
+    pressure.render(snapshot, years, $("contextEstimator").value);
     renderTable();
     draw();
   }
@@ -216,6 +227,7 @@ export function createHistoryView() {
     years = Number(button.dataset.years);
     $("contextIndicator").value = selected;
     $("contextYears").value = String(years);
+    pressure.render(snapshot, years, $("contextEstimator").value);
     renderTable();
     draw();
   });
@@ -228,6 +240,8 @@ export function createHistoryView() {
     $(id).addEventListener("change", () => {
       selected = $("contextIndicator").value || selected;
       years = Number($("contextYears").value);
+      if (snapshot)
+        pressure.render(snapshot, years, $("contextEstimator").value);
       renderTable();
       draw();
     });
@@ -261,6 +275,7 @@ export function createHistoryView() {
     redraw: draw,
     clear() {
       snapshot = null;
+      pressure.clear();
       $("contextExport").disabled = true;
       $("contextTitle").textContent = "Historical comparison";
       $("contextTable").textContent = "Current data is unavailable.";

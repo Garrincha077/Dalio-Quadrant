@@ -398,6 +398,223 @@
       #contextChart {
         height: 310px;
       }
+      .pressure-layout {
+        display: grid;
+        grid-template-columns: minmax(260px, 0.85fr) minmax(0, 1.6fr);
+        gap: 28px;
+        align-items: start;
+        margin: 22px 0;
+      }
+      .pressure-summary {
+        background: #0d1522;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 22px;
+      }
+      .pressure-number {
+        font:
+          700 76px/1.1 ui-monospace,
+          monospace;
+        letter-spacing: -5px;
+        margin: 14px 0 2px;
+        color: var(--gold);
+      }
+      .pressure-number small {
+        font:
+          400 20px system-ui,
+          sans-serif;
+        letter-spacing: 0;
+        color: var(--muted);
+      }
+      #pressureBand {
+        font-size: 18px;
+        font-weight: 650;
+      }
+      .pressure-meter,
+      .pillar-track {
+        position: relative;
+        display: block;
+        height: 10px;
+        margin: 24px 7px 10px;
+        border-radius: 8px;
+        background: linear-gradient(
+          90deg,
+          #3c669b 0%,
+          #293e58 40%,
+          #293e58 60%,
+          #966437 100%
+        );
+      }
+      .pressure-meter::before,
+      .pillar-centre {
+        content: "";
+        position: absolute;
+        left: 50%;
+        top: -4px;
+        height: 18px;
+        width: 1px;
+        background: #dce3ef80;
+      }
+      #pressureMarker,
+      .pillar-track i {
+        position: absolute;
+        top: 50%;
+        width: 14px;
+        height: 14px;
+        transform: translate(-50%, -50%);
+        border: 2px solid #f2f5fa;
+        background: var(--gold);
+        border-radius: 50%;
+        box-shadow: 0 0 0 3px #0d1522;
+      }
+      #pressureMarker[hidden] {
+        display: none;
+      }
+      .pressure-scale {
+        display: flex;
+        justify-content: space-between;
+        font-size: 11px;
+        color: var(--muted);
+        gap: 6px;
+      }
+      .pressure-movement {
+        margin: 20px 0 12px;
+        border-top: 1px solid var(--border);
+        padding-top: 14px;
+      }
+      .pressure-movement strong {
+        display: block;
+        margin-top: 4px;
+        font-size: 16px;
+      }
+      #pressureReading {
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .pressure-pillar {
+        display: block;
+        width: 100%;
+        text-align: left;
+        padding: 12px 14px;
+        background: #101a29;
+        margin-bottom: 10px;
+      }
+      .pressure-pillar.chosen {
+        border-color: var(--gold);
+      }
+      .pillar-heading,
+      .pillar-foot {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+      }
+      .pillar-heading > span {
+        font:
+          600 22px ui-monospace,
+          monospace;
+      }
+      .pillar-heading small {
+        font:
+          400 11px system-ui,
+          sans-serif;
+        color: var(--muted);
+      }
+      .pillar-track {
+        margin: 12px 6px 10px;
+        height: 6px;
+      }
+      .pillar-track i {
+        width: 11px;
+        height: 11px;
+        border-width: 1px;
+      }
+      .pillar-centre {
+        height: 12px;
+        top: -3px;
+      }
+      .pillar-foot {
+        font-size: 11px;
+        color: var(--muted);
+        flex-wrap: wrap;
+        gap: 3px 12px;
+      }
+      .pressure-driver {
+        width: 100%;
+        display: grid;
+        grid-template-columns: minmax(0, 1.6fr) minmax(60px, 1fr) minmax(
+            115px,
+            0.8fr
+          );
+        align-items: center;
+        text-align: left;
+        gap: 18px;
+        padding: 12px 4px;
+        border: 0;
+        border-top: 1px solid var(--border);
+        border-radius: 0;
+        background: transparent;
+      }
+      .pressure-driver:hover {
+        background: #1a2638;
+      }
+      .pressure-driver strong {
+        font-size: 13px;
+        font-weight: 500;
+      }
+      .pressure-driver small {
+        display: block;
+        font-size: 11px;
+        color: var(--muted);
+        margin-top: 3px;
+      }
+      .driver-track {
+        position: relative;
+        height: 7px;
+        background: #223147;
+        border-radius: 3px;
+      }
+      .driver-track::after {
+        content: "";
+        position: absolute;
+        left: 50%;
+        top: -4px;
+        height: 15px;
+        width: 1px;
+        background: #c4ccdb80;
+      }
+      .driver-track i {
+        position: absolute;
+        height: 7px;
+      }
+      .driver-value {
+        text-align: right;
+        font:
+          500 13px ui-monospace,
+          monospace;
+      }
+      .driver-value small {
+        font:
+          400 11px system-ui,
+          sans-serif;
+      }
+      .context-details {
+        border-top: 1px solid var(--border);
+        padding-top: 15px;
+        margin-top: 18px;
+      }
+      .context-details summary {
+        cursor: pointer;
+        color: var(--gold);
+        font-size: 13px;
+      }
+      .context-details[open] summary {
+        margin-bottom: 16px;
+      }
+      .pressure-method {
+        font-size: 13px;
+        color: var(--muted);
+      }
       @media (max-width: 1000px) {
         .hero,
         .grid {
@@ -408,6 +625,29 @@
         }
       }
       @media (max-width: 600px) {
+        .pressure-layout {
+          grid-template-columns: 1fr;
+          gap: 18px;
+        }
+        .pressure-summary {
+          padding: 18px;
+        }
+        .pressure-number {
+          font-size: 64px;
+        }
+        .pressure-driver {
+          grid-template-columns: minmax(0, 1fr) 104px;
+          gap: 8px;
+        }
+        .driver-track {
+          grid-row: 2;
+          grid-column: 1 / -1;
+          margin: 4px 0 7px;
+        }
+        .driver-value {
+          grid-row: 1;
+          grid-column: 2;
+        }
         header {
           align-items: flex-start;
           flex-direction: column;
@@ -646,36 +886,150 @@
         hidden
       >
         <div class="panel">
-          <h2>Long-run context — levels & momentum</h2>
+          <h2>Long-run macro pressure</h2>
           <p class="sub">
-            Compare with the preceding 5, 10 or 20 complete years. Blue = below
-            the reference centre; orange = above. Colour measures historical
-            position, not whether an outcome is good or bad. Select a cell to
-            inspect its history.
+            One descriptive score, four equally weighted pillars. 50 is the
+            historical centre; higher means more pressure under the stated
+            assumptions. Individual dates and coverage still matter.
           </p>
           <div class="context-controls">
             <label
-              >Measure<select id="contextMeasure">
-                <option value="level">Level</option>
-                <option value="momentum">Momentum</option>
+              >Reference window<select id="contextYears">
+                <option value="5">5 years</option>
+                <option value="10" selected>10 years</option>
+                <option value="20">20 years</option>
               </select></label
             >
             <label
               >Estimator<select id="contextEstimator">
                 <option value="standard">Mean / standard deviation</option>
-                <option value="robust">Median / scaled MAD</option>
+                <option value="robust" selected>Median / scaled MAD</option>
               </select></label
             >
           </div>
-          <div class="table-wrap" id="contextTable">
-            Waiting for long-run observations.
+          <div class="pressure-layout">
+            <div class="pressure-summary">
+              <div class="sub" id="pressureReference">
+                Waiting for verified observations
+              </div>
+              <div class="pressure-number">
+                <span id="pressureScore">—</span><small> / 100</small>
+              </div>
+              <div id="pressureBand">Waiting for data</div>
+              <div
+                id="pressureGauge"
+                role="img"
+                aria-label="Macro pressure has not loaded"
+              >
+                <div class="pressure-meter">
+                  <i id="pressureMarker" hidden></i>
+                </div>
+                <div class="pressure-scale">
+                  <span>0 · lower</span><span>50 · centre</span
+                  ><span>100 · higher</span>
+                </div>
+              </div>
+              <div class="pressure-movement">
+                <span class="sub">Pressure momentum</span
+                ><strong id="pressureMovement">—</strong>
+              </div>
+              <p class="sub" id="pressureCoverage">No current coverage</p>
+              <p id="pressureReading">
+                The score appears when enough fresh inputs and reference history
+                are available.
+              </p>
+            </div>
+            <div>
+              <h3 style="margin-top: 0">Pressure by pillar</h3>
+              <p class="sub">
+                Same 0–100 scale · 50 at the centre. Select a pillar to see its
+                inputs. Direction uses standardized momentum.
+              </p>
+              <div id="pressurePillars">Waiting for source data.</div>
+            </div>
           </div>
+          <h3 id="pressureDriverTitle">Pillar inputs</h3>
+          <p class="sub" id="pressureDriverNote"></p>
+          <div id="pressureDrivers"></div>
+          <button id="pressureExport" type="button" disabled>
+            Export score inputs (CSV)
+          </button>
           <p class="note">
-            Every cell shows available / required sample size. Missing years are
-            not filled. Quarterly data stay quarterly; weekly context uses the
-            last available observation in each completed month. The 20Y
-            percentile is an empirical rank, not a probability forecast.
+            A historical pressure index, not a recession probability or
+            allocation signal. Annual fiscal inputs lag monthly data. A low
+            score can coexist with deflation or other risks outside this model.
           </p>
+          <details class="context-details pressure-method">
+            <summary>How the composite works</summary>
+            <p>
+              Each pillar has 25% weight. Inputs are equally weighted within
+              their pillar. Growth weakness uses GDP, production, orders,
+              payrolls and temporary employment with inverted signs. Inflation
+              pressure uses core PCE, CPI, wages and shelter. Financial
+              tightness uses NFCI and bank lending standards with positive
+              signs, and lending growth and net liquidity growth with inverted
+              signs. Debt burden uses household debt service, federal debt/GDP
+              and federal interest/receipts. Fed funds stays in the detailed
+              context because a nominal policy rate alone does not establish
+              restrictiveness.
+            </p>
+            <p>
+              For the selected reference and estimator, orient each level
+              z-score toward pressure, cap it at ±3, average available inputs
+              within each pillar, then average the four pillars. Score = 50 +
+              (50 / 3) × that average. Capping limits individual outliers here;
+              the detailed heatmap retains uncapped z-scores. Robust mode uses
+              median and scaled MAD, retaining the original observations.
+            </p>
+            <p>
+              Only fresh inputs with valid reference statistics enter. At least
+              two-thirds of each pillar and 75% of the original, equally
+              weighted pillar coverage are required. Missing inputs receive no
+              neutral value; available inputs share the pillar's fixed weight.
+              All four pillars are required. The same rules independently apply
+              to momentum.
+            </p>
+            <p>
+              Momentum uses standardized changes over 3 months or 13 weeks; the
+              fiscal ratio uses one year. Building/easing uses ±0.15 z
+              thresholds. The headline score uses levels. Momentum is not a
+              change in the headline score. Below 40 = below usual pressure,
+              40–60 = near usual, 60–75 = elevated, and 75+ = high. These
+              weights, caps and labels are transparent heuristics, with no
+              forecast calibration. Pillars can offset one another; their spread
+              and inputs remain visible.
+            </p>
+            <p>
+              All inputs use the latest revised FRED history and their own
+              observation dates. Changing the reference or estimator changes the
+              comparison. This is an independent application model. General
+              methodological reference:
+              <a
+                href="https://www.oecd.org/en/publications/handbook-on-constructing-composite-indicators-methodology-and-user-guide_9789264043466-en.html"
+                target="_blank"
+                rel="noopener"
+                >OECD/JRC handbook on composite indicators</a
+              >.
+            </p>
+          </details>
+          <details class="context-details">
+            <summary>All 17 indicators — detailed z-score heatmap</summary>
+            <p class="sub">
+              Blue = below the reference centre; orange = above. These are raw
+              indicator signs, before composite orientation. The selected chart
+              measure applies to this heatmap. Select a cell to inspect its
+              history.
+            </p>
+            <div class="table-wrap" id="contextTable">
+              Waiting for long-run observations.
+            </div>
+            <p class="note">
+              Every cell shows available / required sample size. Missing years
+              are not filled. Quarterly data stay quarterly; weekly context uses
+              the last available observation in each completed month. The 20Y
+              percentile is an empirical rank, not a probability forecast.
+            </p>
+          </details>
         </div>
         <div class="panel" style="margin-top: 18px">
           <div class="context-controls">
@@ -685,14 +1039,13 @@
               </select></label
             >
             <label
-              >Chart range<select id="contextYears">
-                <option value="5">5 years</option>
-                <option value="10" selected>10 years</option>
-                <option value="20">20 years</option>
+              >Chart measure<select id="contextMeasure">
+                <option value="level">Level</option>
+                <option value="momentum">Momentum</option>
               </select></label
             >
           </div>
-          <h2 id="contextTitle">Historical comparison</h2>
+          <h2 id="contextTitle" tabindex="-1">Historical comparison</h2>
           <button id="contextExport" type="button" disabled>
             Export selected series (CSV)
           </button>

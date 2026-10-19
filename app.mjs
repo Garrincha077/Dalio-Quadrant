@@ -322,7 +322,7 @@ async function refresh() {
   text("status", "Refreshing source observations…");
   $("status").className = "status";
   try {
-    const response = await fetch("/api/dashboard", {
+    const response = await fetch(`/api/dashboard?v=${VERSION}`, {
         signal: AbortSignal.timeout(60000),
       }),
       s = await response.json();
