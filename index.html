@@ -163,6 +163,51 @@
         gap: 18px;
         margin-bottom: 18px;
       }
+      .state-lenses {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 18px;
+        margin-bottom: 18px;
+      }
+      .state-lenses h3 {
+        margin: 0 0 8px;
+      }
+      .lens-value {
+        font:
+          700 27px/1.5 ui-monospace,
+          monospace;
+        color: var(--gold);
+      }
+      .state-regime {
+        font:
+          700 clamp(21px, 2.5vw, 30px) / 1.3 ui-monospace,
+          monospace;
+        color: var(--gold);
+        margin: 12px 0;
+      }
+      .state-flow {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 8px;
+        margin: 14px 0;
+      }
+      .state-flow span {
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 5px 9px;
+        font-size: 13px;
+      }
+      #stateChart svg {
+        display: block;
+        width: 100%;
+      }
+      #stateEvidence caption {
+        text-align: left;
+        white-space: normal;
+        padding-bottom: 10px;
+        color: var(--muted);
+      }
       .preferred-assets {
         border-top: 1px solid var(--border);
         margin-top: 20px;
@@ -704,7 +749,8 @@
       }
       @media (max-width: 1000px) {
         .hero,
-        .grid {
+        .grid,
+        .state-lenses {
           grid-template-columns: 1fr;
         }
         .stress-grid {
@@ -772,7 +818,9 @@
       <div>
         <div class="eyebrow">Principles · Evidence · Balance</div>
         <h1>Dalio <span>Quadrant</span></h1>
-        <div class="sub">US macro momentum & market context · FRED</div>
+        <div class="sub">
+          US economic state, momentum & market context · FRED
+        </div>
       </div>
       <div class="actions">
         <button id="refresh" class="primary">↻ Refresh data</button
@@ -784,10 +832,17 @@
         <button
           role="tab"
           aria-selected="true"
+          aria-controls="state"
+          id="tab-state"
+        >
+          Economy now</button
+        ><button
+          role="tab"
+          aria-selected="false"
           aria-controls="dashboard"
           id="tab-dashboard"
         >
-          Dashboard</button
+          Momentum & data</button
         ><button
           role="tab"
           aria-selected="false"
@@ -821,7 +876,157 @@
       <div id="status" class="status" role="status" aria-live="polite">
         Loading dated observations. No example values are used.
       </div>
-      <main id="dashboard" role="tabpanel" aria-labelledby="tab-dashboard">
+      <section id="state" role="tabpanel" aria-labelledby="tab-state">
+        <div class="hero">
+          <article class="panel">
+            <div class="eyebrow">
+              Observed state · published indicator levels
+            </div>
+            <h2>Where is the economy now?</h2>
+            <div id="stateRegime" class="state-regime">
+              Waiting for fresh state data
+            </div>
+            <div class="metrics">
+              <div class="metric">
+                <strong id="stateActivity">—</strong
+                ><span>Activity vs trend · index</span>
+              </div>
+              <div class="metric">
+                <strong id="stateInflation">—</strong
+                ><span>Headline PCE · YoY</span>
+              </div>
+              <div class="metric">
+                <strong id="stateGap">—</strong
+                ><span>Inflation minus 2% · pp</span>
+              </div>
+            </div>
+            <p id="stateDates" class="sub">Waiting for dated observations.</p>
+            <p id="stateQuality" class="note">
+              Both state inputs are required.
+            </p>
+            <p id="stateDirection" class="sub">
+              State and momentum answer different questions.
+            </p>
+            <button id="stateToMomentum">Compare momentum & assets →</button>
+          </article>
+          <article class="panel">
+            <h2>Static activity × inflation quadrants</h2>
+            <div id="stateChart"></div>
+            <p class="sub">
+              X: CFNAI-MA3 activity index · 0 = historical growth trend.<br />Y:
+              headline PCE YoY minus the 2% long-run anchor, in percentage
+              points.
+            </p>
+            <p class="note">
+              This is the latest published economic state. Below-trend activity
+              does not establish a recession. Shaded boundary buffers indicate
+              limited conviction near the anchors, not a statistical confidence
+              interval.
+            </p>
+          </article>
+        </div>
+        <div class="state-lenses">
+          <article id="stateNowcast" class="panel">
+            <h3>Model nowcast</h3>
+            <p class="sub">Waiting for source data.</p>
+          </article>
+          <article id="statePricing" class="panel">
+            <h3>Market pricing</h3>
+            <p class="sub">Waiting for source data.</p>
+          </article>
+          <article id="stateFinancing" class="panel">
+            <h3>Financial conditions</h3>
+            <p class="sub">Waiting for source data.</p>
+          </article>
+        </div>
+        <article class="panel" style="margin-bottom: 18px">
+          <h2>Read the layers together</h2>
+          <div class="state-flow">
+            <span>1 · Economic state</span> →
+            <span>2 · Direction / nowcast</span> →
+            <span>3 · Pricing & financing</span> →
+            <span>4 · Portfolio risk</span>
+          </div>
+          <p>
+            Above-target inflation can be falling. Below-trend activity can be
+            recovering. Investment outcomes also depend on what is priced in,
+            real yields, liquidity and portfolio exposure. These readings inform
+            scenarios; they do not select a guaranteed winning asset.
+          </p>
+          <p class="sub">
+            The public All Weather framework separates broad market exposures
+            from active forecasts and balances economic sensitivities. This
+            independent app does not reproduce a hedge fund's proprietary
+            models. The existing asset-return research remains experimental; it
+            has not investment-backtested this new static state classifier.
+          </p>
+          <button id="stateToResearch">Inspect investment backtests →</button>
+        </article>
+        <article class="panel" style="margin-bottom: 18px">
+          <h2>Evidence & measurement</h2>
+          <div id="stateEvidence" class="table-wrap">
+            No current observations.
+          </div>
+          <details class="context-details">
+            <summary>State method, anchors & sources</summary>
+            <p class="sub">
+              Static means indicator levels, rather than the three-month changes
+              used by Momentum. The activity axis uses the Chicago Fed's
+              published three-month average of its 85-indicator national
+              activity index. Zero represents growth at its historical trend,
+              not an output gap, zero GDP growth or a recession boundary. Its
+              normalisation can be revised by the publisher.
+            </p>
+            <p class="sub">
+              The inflation axis is 100 × (PCEPI / PCEPI twelve months earlier −
+              1), minus 2 percentage points. The Fed's 2% longer-run objective
+              refers to headline PCE. Core PCE appears as supporting evidence,
+              with its own label and date. The annual comparison requires the
+              exact matching month; missing bases stay unavailable.
+            </p>
+            <p class="sub">
+              Both axes need a completed monthly period and must be no more than
+              90 days beyond period end, with no more than one month between
+              their reference periods. Buffers of ±0.10 activity-index units and
+              ±0.20 inflation percentage points are descriptive heuristics. They
+              are not fitted to asset returns. GDPNow requires a separately
+              verified update within 21 days and a target quarter no more than
+              45 days past quarter end; its units are quarter-on-quarter
+              annualised, not GDP YoY.
+            </p>
+            <p class="sub">
+              <a
+                href="https://www.chicagofed.org/research/data/cfnai/current-data"
+                target="_blank"
+                rel="noopener"
+                >Chicago Fed activity index</a
+              >
+              ·
+              <a
+                href="https://www.federalreserve.gov/faqs/economy_14400.htm"
+                target="_blank"
+                rel="noopener"
+                >Fed inflation objective</a
+              >
+              ·
+              <a
+                href="https://www.bridgewater.com/research-and-insights/the-all-weather-story"
+                target="_blank"
+                rel="noopener"
+                >Bridgewater public framework</a
+              >. Reference periods differ from publication dates; source refresh
+              does not remove publication lags. Old archives without this layer
+              are not backfilled.
+            </p>
+          </details>
+        </article>
+      </section>
+      <main
+        id="dashboard"
+        role="tabpanel"
+        aria-labelledby="tab-dashboard"
+        hidden
+      >
         <div class="hero">
           <section class="panel">
             <div class="eyebrow">Observed momentum · not a forecast</div>

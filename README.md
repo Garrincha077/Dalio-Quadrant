@@ -20,9 +20,10 @@ Node 22 or newer, no package dependencies:
 
 ## Data and calculation
 
-`api/dashboard.js` requests 31 distinct FRED series in five bounded workers:
-up to 25 years for macro, debt and recession context, and 30 months for daily
-market/stress series. Daily RRP inputs receive a 10,000-observation limit so the
+`api/dashboard.js` requests 34 distinct FRED series in five bounded workers,
+plus GDPNow's series metadata to verify the forecast's actual update timestamp:
+up to 25 years for macro, debt and recession context, and 30 months for static-state,
+nowcast and daily market/stress series. Daily RRP inputs receive a 10,000-observation limit so the
 long liquidity history is not silently truncated. The response includes
 normalized data, quality flags, statistical profiles and the computed regime.
 Responses without source errors are edge cached for one hour. Partial failures
@@ -48,6 +49,49 @@ visible; it also refreshes when returning to an old session.
 - Market context: `DGS10`, `DFII10`, `T10YIE`, `DTWEXBGS`, `DCOILWTICO`, `VIXCLS`.
   Changes are rates in basis points, price/index percent changes or VIX points,
   with actual dated observations. These are not sector/futures/total returns.
+
+## Observed state, nowcast and investment lenses
+
+The default **Economy now** tab adds a separate static state layer
+(`economic-state-1`); **Momentum & data** retains the original momentum chart.
+State X is published CFNAI-MA3 activity relative to historical growth trend, with
+zero as its anchor. State Y is headline PCE YoY minus the Fed's 2% longer-run
+inflation anchor. This is neither an output gap nor economic surprises versus
+consensus. Core PCE remains a separately labelled cross-check.
+
+Both state axes require completed monthly periods, freshness within 90 days of
+period end, and reference months no more than one month apart. No missing values
+or year-earlier bases are filled. Descriptive buffers ±0.10 activity units and
+±0.20 inflation pp flag sensitivity near an anchor; they are not confidence
+intervals, recession thresholds or return-optimised parameters. Values near trend
+are labelled near trend, rather than confidently assigning a strong/weak regime.
+
+GDPNow is a **separate model nowcast**, with its target quarter and q/q annualised
+units. The FRED quarterly observation label is not a publication timestamp.
+`lib/fred.mjs` additionally retrieves `last_updated` from `/fred/series`; a verified
+update no older than 21 days and a target no more than 45 days past quarter end
+are required to show it as fresh. Missing metadata, future timestamps and stale
+targets withhold the headline number. GDPNow never enters either quadrant or the
+asset-return experiment. Market breakevens, real yields, financial conditions and
+liquidity remain additional, distinctly dated lenses.
+`last_updated` is the FRED mirror's update timestamp, not an independently
+verified Atlanta Fed forecast-release timestamp. Freshness checks are explicit
+source-age heuristics, not a complete publication-calendar system.
+
+Current source-backed levels enter future successful macro archive records with
+their state method/version and provenance; old records are not backfilled. State
+updates and GDPNow revisions change the dataset signature. The existing frozen
+investment backtests test `momentum-1`, **not** the new state classifier.
+
+Sources: [Chicago Fed CFNAI](https://www.chicagofed.org/research/data/cfnai/current-data),
+[Fed inflation objective](https://www.federalreserve.gov/faqs/economy_14400.htm),
+[GDPNow methodology](https://www.atlantafed.org/research-and-data/data/gdpnow/explainer).
+
+An institutional-style workflow separates observed state, direction/nowcasts,
+pricing/financing, and portfolio risk. A next substantive extension would be
+matched-horizon consensus/surprise data plus portfolio sensitivity/risk budgets
+and forward validation. Current market proxies are not a fabricated consensus
+surprise index, and conditional asset lists are not risk-balanced allocations.
 
 ## Long-run statistics and debt cycle
 
@@ -164,6 +208,8 @@ has not changed; version 2.1 adds a statistical layer, 2.2 adds the separate
 pressure composite and 2.3 adds the retrospective reference-period trail.
 Version 2.4 adds numbered circles, selected-period conditional asset sensitivities,
 neutral momentum labels, historical economic checks and the separate research view.
+Version 2.5 adds the separate static state view and independently dated GDPNow;
+the original momentum model and frozen backtest results remain compatible.
 
 The History view also loads `data/history.json`, a shared archive of changed
 macro datasets, including revisions. The Macro monitor GitHub workflow runs

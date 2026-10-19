@@ -9,6 +9,8 @@ import { createHistoryView } from "./history-view.mjs";
 import { createQuadrantView } from "./quadrant-view.mjs";
 import { createAssetsView } from "./assets-view.mjs";
 import { createResearchView } from "./research-view.mjs";
+import { createStateView } from "./state-view.mjs";
+const stateView = createStateView();
 const longRun = createHistoryView();
 const assetsView = createAssetsView();
 const quadrantView = createQuadrantView((slot) =>
@@ -80,6 +82,7 @@ document.querySelectorAll("[role=tab]").forEach((button) =>
         (p) => (p.hidden = p.id !== button.getAttribute("aria-controls")),
       );
     if (button.id === "tab-dashboard") drawQuadrant();
+    if (button.id === "tab-state") stateView.redraw();
     if (button.id === "tab-context") longRun.redraw();
     if (button.id === "tab-history") {
       renderHistory();
@@ -132,6 +135,7 @@ function render() {
   const s = snapshot,
     g = s.growth.score,
     i = s.inflation.score;
+  stateView.render(s);
   text("regime", s.regime.name);
   text("growthScore", signed(g));
   text("inflationScore", signed(i));
@@ -309,6 +313,7 @@ async function refresh() {
     $("status").className = "status error";
     drawQuadrant();
     longRun.clear();
+    stateView.render(null);
   } finally {
     refreshing = false;
     $("refresh").disabled = false;
@@ -344,6 +349,7 @@ function scenario() {
 ["sg", "si"].forEach((id) => $(id).addEventListener("input", scenario));
 text("version", VERSION);
 scenario();
+stateView.render(null);
 drawQuadrant();
 renderHistory();
 $("methodTable").innerHTML =
@@ -359,6 +365,7 @@ window.addEventListener("resize", () => {
   drawQuadrant();
   longRun.redraw();
   researchView.redraw();
+  stateView.redraw();
 });
 setInterval(
   () => {
