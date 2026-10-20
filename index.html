@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-app-shell="2.10.0">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
@@ -8,7 +8,14 @@
       content="Growth and inflation momentum, credit conditions and market context from dated FRED observations. Inspired by public All Weather principles."
     />
     <title>Dalio Quadrant — Principles & Evidence</title>
-    <link rel="icon" href="data:," />
+    <meta name="theme-color" content="#131b28" />
+    <link
+      rel="manifest"
+      href="/manifest.webmanifest"
+      crossorigin="use-credentials"
+    />
+    <link rel="icon" href="/icons/icon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
     <style>
       :root {
         color-scheme: dark;
@@ -985,6 +992,30 @@
         padding: 10px 0;
         color: var(--gold);
       }
+      .pwa-notice {
+        border: 1px solid var(--border);
+        background: var(--panel);
+        border-radius: 10px;
+        padding: 14px 18px;
+        margin-bottom: 14px;
+      }
+      .pwa-notice p {
+        margin: 6px 0;
+      }
+      #installDialog {
+        background: var(--panel);
+        color: var(--text);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        max-width: min(560px, calc(100vw - 32px));
+        padding: 24px;
+      }
+      #installDialog::backdrop {
+        background: #000a;
+      }
+      #installApp:disabled {
+        cursor: default;
+      }
     </style>
   </head>
   <body>
@@ -999,9 +1030,36 @@
       <div class="actions">
         <button id="refresh" class="primary">↻ Refresh data</button
         ><button id="export">Export history</button>
+        <button id="installApp" type="button">Install app</button>
       </div>
     </header>
     <div class="wrap">
+      <div id="pwaUpdate" class="pwa-notice" role="status" hidden>
+        A new app version is ready.
+        <button id="updateApp" type="button">Update & reload</button>
+      </div>
+      <div id="offlineConnection" class="pwa-notice" role="status" hidden>
+        Offline · saved observations and previously downloaded research may be
+        available. Reconnect to refresh the current economy and asset
+        preference.
+      </div>
+      <aside
+        id="offlineSummary"
+        class="pwa-notice"
+        aria-labelledby="offlineSummaryTitle"
+        hidden
+      >
+        <strong id="offlineSummaryTitle"
+          >Saved economic snapshot · live refresh unavailable</strong
+        >
+        <p id="offlineSummaryDate" class="sub"></p>
+        <p id="offlineSummaryValues"></p>
+        <p class="sub">
+          These are dated saved values, not current readings. The current asset
+          recommendation is withheld until fresh data loads. Saved observations
+          remain in History.
+        </p>
+      </aside>
       <nav role="tablist" aria-label="Dashboard views">
         <button
           role="tab"
@@ -2184,6 +2242,34 @@
         source: Federal Reserve Bank of St. Louis (FRED) and credited providers.
       </footer>
     </div>
+    <dialog id="installDialog" aria-labelledby="installTitle">
+      <h2 id="installTitle">Install Dalio Macro</h2>
+      <p>
+        Open this page in Google Chrome. Use the install icon beside the address
+        bar, or Chrome's menu → Cast, save and share → Install page as app. On
+        Android, use Chrome's Install app / Add to Home screen option.
+      </p>
+      <p>
+        The app opens in its own window with an icon. Fresh economic
+        observations require internet; saved values remain explicitly dated.
+        Keep the same public address for a permanent installation.
+      </p>
+      <p id="pwaAvailability" class="sub">
+        The install prompt depends on your browser and device. If this embedded
+        browser offers no installation, open the page directly in Chrome.
+        Preview addresses stay tied to their deployment and may require Vercel
+        login.
+      </p>
+      <p>
+        <a
+          href="https://support.google.com/chrome/answer/9658361"
+          target="_blank"
+          rel="noopener"
+          >Chrome installation help</a
+        >
+      </p>
+      <button id="closeInstall" type="button">Close</button>
+    </dialog>
     <script type="module" src="/app.mjs"></script>
   </body>
 </html>

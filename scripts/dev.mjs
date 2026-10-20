@@ -12,6 +12,9 @@ const types = {
   ".mjs": "text/javascript; charset=utf-8",
   ".json": "application/json; charset=utf-8",
   ".csv": "text/csv; charset=utf-8",
+  ".webmanifest": "application/manifest+json; charset=utf-8",
+  ".png": "image/png",
+  ".svg": "image/svg+xml",
 };
 createServer(async (req, res) => {
   const url = new URL(req.url, "http://localhost");
@@ -39,6 +42,17 @@ createServer(async (req, res) => {
     ![
       "index.html",
       "app.mjs",
+      "pwa.mjs",
+      "pwa-config.mjs",
+      "sw.mjs",
+      "offline-summary.mjs",
+      "lib/pwa-cache.mjs",
+      "manifest.webmanifest",
+      "icons/icon.svg",
+      "icons/icon-192.png",
+      "icons/icon-512.png",
+      "icons/maskable-512.png",
+      "icons/apple-touch-icon.png",
       "lib/model.mjs",
       "lib/economic-state.mjs",
       "lib/state-history.mjs",
@@ -68,6 +82,8 @@ createServer(async (req, res) => {
   }
   try {
     res.setHeader("Content-Type", types[path.extname(file)]);
+    if (["sw.mjs", "pwa-config.mjs", "manifest.webmanifest"].includes(file))
+      res.setHeader("Cache-Control", "no-cache");
     res.end(await readFile(path.join(root, file)));
   } catch {
     res.writeHead(404).end("Not found");

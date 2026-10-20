@@ -18,6 +18,43 @@ Node 22 or newer, no package dependencies:
 5. `npm run snapshot` with the environment loaded writes an inspectable local
    `work/snapshot.json`; neither this file nor `.env.local` belongs in Git.
 
+## Installable Chrome app
+
+The same dashboard is a PWA with a stable manifest ID/start URL `/`, standalone
+window, dark theme, 192/512 PNG icons and a maskable icon. Open the final public
+HTTPS address in Chrome and use **Install app**, the address-bar install icon,
+or Chrome's menu → Cast, save and share → Install page as app. When an embedded
+browser cannot expose installation, the button shows manual instructions.
+Installation depends on Chrome/device support and engagement; it is not forced.
+See [Chrome's instructions](https://support.google.com/chrome/answer/9658361).
+
+Use a stable public production origin for permanent installation. Vercel preview
+URLs create distinct installations tied to their particular origin and can need
+authentication; no bypass token or changing preview URL is embedded in the manifest.
+
+`sw.mjs` precaches 33 public shell/research assets atomically. Failed, redirected,
+wrong-MIME or wrong-version HTML responses do not replace a working shell. It
+never caches `/api/*`, auth/share-token or third-party requests. Dashboard requests
+use `cache: no-store`; no live API response is reused as an offline reading.
+The daily shared archive refreshes online with a dated offline fallback. The
+derived CSV is cached after its first successful download. Activation removes
+only this app's older cache namespaces. New workers wait for **Update & reload**;
+API version mismatches also request a worker update.
+
+After a successful complete refresh, the device stores only a compact dated
+activity/PCE summary. On offline or failed live refresh, a separate read-only
+panel shows it while the current model/recommendation is withheld. Reconnection
+refreshes automatically. Local History and downloaded frozen research remain
+available; this does not provide an offline live macro forecast. Clearing browser
+data removes saved observations and offline files.
+
+When changing public app assets, bump `VERSION`, `PWA_VERSION` and the HTML
+`data-app-shell` marker together. Keep module dependencies in `SHELL_PATHS`;
+Node tests verify release alignment and dependency coverage. Regenerate the
+code-native icons with `python scripts/generate-icons.py` (Pillow needed only
+for authoring). Browser Cache Storage is optional; denied/full storage must not
+break online usage. Server-side FRED credentials remain unchanged.
+
 ## Data and calculation
 
 `api/dashboard.js` requests 40 distinct FRED series in five bounded workers,

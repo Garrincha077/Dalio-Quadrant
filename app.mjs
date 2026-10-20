@@ -10,6 +10,13 @@ import { createQuadrantView } from "./quadrant-view.mjs";
 import { createAssetsView } from "./assets-view.mjs";
 import { createResearchView } from "./research-view.mjs";
 import { createStateView } from "./state-view.mjs";
+import { setupPwa, checkForPwaUpdate } from "./pwa.mjs";
+import {
+  saveOfflineSummary,
+  showOfflineSummary,
+  clearOfflineSummary,
+} from "./offline-summary.mjs";
+setupPwa();
 const stateView = createStateView();
 const longRun = createHistoryView();
 const assetsView = createAssetsView();
@@ -259,13 +266,18 @@ async function refresh() {
   $("status").className = "status";
   try {
     const response = await fetch(`/api/dashboard?v=${VERSION}`, {
+        cache: "no-store",
         signal: AbortSignal.timeout(60000),
       }),
       s = await response.json();
     if (!response.ok) throw new Error(s.error || "Refresh failed.");
-    if (s.version !== VERSION || !Array.isArray(s.indicators))
+    if (s.version !== VERSION || !Array.isArray(s.indicators)) {
+      checkForPwaUpdate();
       throw new Error("Unexpected data version. Please reload.");
+    }
     snapshot = s;
+    saveOfflineSummary(s);
+    clearOfflineSummary();
     if (
       finite(s.growth.score) &&
       finite(s.inflation.score) &&
@@ -314,12 +326,14 @@ async function refresh() {
     drawQuadrant();
     longRun.clear();
     stateView.render(null);
+    showOfflineSummary();
   } finally {
     refreshing = false;
     $("refresh").disabled = false;
   }
 }
 $("refresh").addEventListener("click", refresh);
+window.addEventListener("online", refresh);
 $("export").addEventListener("click", () => {
   const blob = new Blob(
     [
