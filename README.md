@@ -161,6 +161,31 @@ revision bias. None of these results retunes the axes or frozen investment model
 See [findings and reproduction](scripts/research/STATE_FORWARD.md) and the separate
 [static-state specification](scripts/research/state-forward-protocol.md).
 
+### Live state + trend asset preference
+
+Economy now's **Preferred asset classes** card ranks the five covered assets
+using the latest fresh same-month state and a fixed three-month change in
+activity/PCE. Choose a 3/12/36-month investment horizon. The current card remains
+live when the user replays historical chart positions or changes dot sampling.
+Missing/stale/mixed-month axes or gaps in the four-month trend window withhold
+the preference rather than retaining a previous recommendation.
+
+The `state-tilt-1` rule uses common mature two-month-delayed return labels from
+`state-forward-1`, with two levels of pooling toward broader state and global
+history (24 pseudo-observations per stage). Inside existing boundary buffers,
+neighbouring states blend smoothly: activity +0.01 is 55% above / 45% below.
+Those are statistical blending weights, not probabilities or portfolio weights.
+The chart's economic anchors and classification are unchanged.
+
+The card shows three candidates and all five ranks with pooled historical mean,
+median, P10, weighted loss frequency and lift from the asset's own baseline.
+It discloses cohort/episode counts, mixture weights, boundary disagreement and
+the frozen price cutoff. It is a **new research recommendation, not an
+out-of-sample validated strategy**. Historical weighted means/loss frequencies
+are not future-return forecasts/probabilities. Ranking does not equalise risk.
+See [the fixed method](scripts/research/state-tilt-method.md). The independent
+Python source-price check is `scripts/research/verify-state-tilt.py`.
+
 Sources: [Chicago Fed CFNAI](https://www.chicagofed.org/research/data/cfnai/current-data),
 [Fed inflation objective](https://www.federalreserve.gov/faqs/economy_14400.htm),
 [NBER activity measures](https://www.nber.org/research/business-cycle-dating),

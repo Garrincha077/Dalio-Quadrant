@@ -1,3 +1,4 @@
+import { createStateTiltView } from "./state-tilt-view.mjs";
 const $ = (id) => document.getElementById(id);
 const esc = (s) =>
   String(s).replace(
@@ -45,8 +46,10 @@ export function selectedForwardPoint(data, slot) {
 }
 
 export function createForwardView() {
+  const tiltView = createStateTiltView();
   let data = null,
-    slot = null;
+    slot = null,
+    snapshot = null;
   function renderPoint() {
     if (!data) return;
     const result = selectedForwardPoint(data, slot);
@@ -163,15 +166,21 @@ export function createForwardView() {
         throw new Error("Invalid research snapshot");
       data = next;
       render();
+      tiltView.render(snapshot, data);
     } catch {
       $("forwardStatus").textContent =
         "Forward-return research could not be loaded. Reload to retry; no example results are substituted.";
       $("stateForwardPoint").textContent =
         "Forward-return research unavailable.";
+      tiltView.render(snapshot, null);
     }
   }
   load();
   return {
+    setSnapshot(next) {
+      snapshot = next;
+      tiltView.render(snapshot, data);
+    },
     inspect(next) {
       slot = next;
       renderPoint();

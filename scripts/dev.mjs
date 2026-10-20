@@ -54,6 +54,8 @@ createServer(async (req, res) => {
       "state-view.mjs",
       "state-chart.mjs",
       "forward-view.mjs",
+      "state-tilt-view.mjs",
+      "lib/state-tilt.mjs",
       "data/history.json",
       "data/research-summary.json",
       "data/historical-audit.json",

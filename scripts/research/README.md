@@ -3,6 +3,10 @@
 For the separate 3/12/36-month **static state** study dated 20 October 2026,
 see [STATE_FORWARD.md](STATE_FORWARD.md). It covers every monthly state,
 conditional outcomes and selected-dot returns without changing this experiment.
+The live asset-preference card adds the separately specified
+[state-tilt-1 rule](state-tilt-method.md). It combines current state and 3-month
+direction using pooled conditional history; its new ranking rule has not been
+validated by the frozen walk-forward experiment below.
 
 This is an inspectable experiment, not a validated investment strategy. The
 descriptive quadrant formula remains `momentum-1`. The experiment selected limited

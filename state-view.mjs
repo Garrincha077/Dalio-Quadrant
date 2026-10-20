@@ -137,6 +137,7 @@ export function createStateView() {
   }
   function render(next) {
     snapshot = next;
+    forwardView.setSnapshot(next);
     const s = next?.economicState;
     $("stateRegime").textContent =
       s?.regime.name || "Waiting for fresh state data";
