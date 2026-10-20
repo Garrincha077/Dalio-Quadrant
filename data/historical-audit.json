@@ -1,0 +1,66 @@
+{
+  "asOf": "2026-10-19T14:28:29.364Z",
+  "method": "Latest revised complete reference periods; not a publication-vintage backtest. NBER recession labels are retrospective.",
+  "rows": [
+    {
+      "date": "2008-12-31",
+      "growth": -1,
+      "inflation": -0.6163805557026399,
+      "regime": "Growth ↓ · Inflation ↓",
+      "gdpYoy": -2.5411536884212604,
+      "pceYoy": 1.137827887712839,
+      "nberRecession": true,
+      "interpretation": "Growth and inflation momentum fell during the NBER recession."
+    },
+    {
+      "date": "2009-09-30",
+      "growth": 0.8167052772659305,
+      "inflation": -0.3825264555607108,
+      "regime": "Growth ↑ · Inflation ↓",
+      "gdpYoy": -3.1328157006863644,
+      "pceYoy": 0.7251804439602383,
+      "nberRecession": false,
+      "interpretation": "Recovery momentum improved while real GDP remained below its year-earlier level."
+    },
+    {
+      "date": "2020-04-30",
+      "growth": -1,
+      "inflation": -0.5999999999999999,
+      "regime": "Growth ↓ · Inflation ↓",
+      "gdpYoy": 1.3585350290757248,
+      "pceYoy": 0.9954970222243897,
+      "nberRecession": true,
+      "interpretation": "Both axes fell in the pandemic recession. NBER dated the trough later, in July 2021."
+    },
+    {
+      "date": "2020-09-30",
+      "growth": 1,
+      "inflation": 0.4756125000628345,
+      "regime": "Growth ↑ · Inflation ↑",
+      "gdpYoy": -1.3646720997737227,
+      "pceYoy": 1.4796915464076354,
+      "nberRecession": false,
+      "interpretation": "Recovery acceleration is not proof of an overheated economy; GDP YoY was still negative."
+    },
+    {
+      "date": "2022-06-30",
+      "growth": -0.8411135448942427,
+      "inflation": -0.014835829091016503,
+      "regime": "Transition / mixed signals",
+      "gdpYoy": 2.3387035447437476,
+      "pceYoy": 5.299386299552156,
+      "nberRecession": false,
+      "interpretation": "High inflation and near-zero inflation momentum coexist. Transition does not mean inflation was low."
+    },
+    {
+      "date": "2022-12-31",
+      "growth": -1,
+      "inflation": -0.5920717711627859,
+      "regime": "Growth ↓ · Inflation ↓",
+      "gdpYoy": 1.231299121338214,
+      "pceYoy": 5.070992092020132,
+      "nberRecession": false,
+      "interpretation": "Slowing inflation momentum coexisted with elevated inflation; neither axis establishes recession."
+    }
+  ]
+}

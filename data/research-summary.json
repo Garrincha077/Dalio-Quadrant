@@ -1,0 +1,859 @@
+{
+  "version": "walk-forward-research-1",
+  "asOf": "2026-10-19",
+  "developmentLabelsEnd": "2020-11-30",
+  "embargo": "December 2020 label excluded from model selection",
+  "holdoutStart": "2021-01-01",
+  "holdoutEnd": "2025-12-31",
+  "holdingMonths": 1,
+  "decisionRule": "ALFRED vintage and daily market features at least one calendar day before traded month-end close; labels mature by cutoff",
+  "costBpsPerSide": 10,
+  "cashAssumption": "TB3MS vintage yield held constant and compounded over actual holding days; approximate T-bill carry, not an investable total-return index",
+  "assetNames": {
+    "SPY": "S&P 500 (SPY)",
+    "IEF": "7\u201310Y Treasuries (IEF)",
+    "GLD": "Gold (GLD)",
+    "TIP": "Inflation-linked bonds (TIP)",
+    "DBC": "Broad commodity futures (DBC)",
+    "CASH": "T-bill yield proxy"
+  },
+  "quality": {
+    "monthlyCrossCheckCount": 321,
+    "medianReturnDifferenceBps": 0.005048809981200719,
+    "maxReturnDifferenceBps": 5.2622086768228105,
+    "marketDatesPrecedeDecisions": true
+  },
+  "sample": {
+    "featureRows": 285,
+    "validOriginalQuadrants": 185,
+    "firstOriginalQuadrant": "2011-03-31"
+  },
+  "selection": {
+    "spy": {
+      "candidate": "macro:100",
+      "trainedThrough": "rolling matured labels only",
+      "features": [
+        "core_g",
+        "core_i",
+        "gdp_yoy",
+        "pce_yoy",
+        "curve",
+        "policy_change3",
+        "nfci"
+      ]
+    },
+    "rotation": {
+      "candidate": "macro:100",
+      "features": [
+        "core_g",
+        "core_i",
+        "gdp_yoy",
+        "pce_yoy",
+        "curve",
+        "policy_change3",
+        "nfci"
+      ]
+    },
+    "quadrants": {
+      "growthScaleFactor": 0.75,
+      "inflationScaleFactor": 0.75,
+      "transitionBand": 0.2
+    }
+  },
+  "candidateCount": 42,
+  "results": [
+    {
+      "name": "Predictive SPY",
+      "months": 60,
+      "cagr": 0.14172043348572627,
+      "sharpe": 0.8110404366683142,
+      "volatility": 0.1394505883721929,
+      "maxDrawdown": -0.20245166307073437,
+      "totalReturn": 0.9399872187991722,
+      "turnoverPerYear": 1.0,
+      "cagrAt25bps": 0.1399904285480471,
+      "spyExposure": 0.8333333333333334,
+      "cashExposure": 0.16666666666666666,
+      "advantageVsSPY": {
+        "annualMeanReturnAdvantage": -0.0030132664600525105,
+        "lower95": -0.040110181920283636,
+        "upper95": 0.030176433601553865,
+        "blockMonths": 12,
+        "replications": 2500,
+        "confirmedPositive": false
+      }
+    },
+    {
+      "name": "Predictive rotation",
+      "months": 60,
+      "cagr": 0.14904318271217099,
+      "sharpe": 0.8660289430914804,
+      "volatility": 0.13679810643948778,
+      "maxDrawdown": -0.1697927382632758,
+      "totalReturn": 1.003003702437887,
+      "turnoverPerYear": 2.8,
+      "cagrAt25bps": 0.139894380121385,
+      "spyExposure": 0.18333333333333332,
+      "cashExposure": 0.0,
+      "advantageVsSPY": {
+        "annualMeanReturnAdvantage": 0.002993581209232943,
+        "lower95": -0.09836619687953059,
+        "upper95": 0.10608142302248526,
+        "blockMonths": 12,
+        "replications": 2500,
+        "confirmedPositive": false
+      }
+    },
+    {
+      "name": "Calibrated quadrants",
+      "months": 60,
+      "cagr": 0.10424623054023341,
+      "sharpe": 0.5562226018501019,
+      "volatility": 0.14359615403516565,
+      "maxDrawdown": -0.3272766506430611,
+      "totalReturn": 0.6418354444602243,
+      "turnoverPerYear": 1.6,
+      "cagrAt25bps": 0.09943038016159456,
+      "spyExposure": 0.8666666666666667,
+      "cashExposure": 0.016666666666666666,
+      "advantageVsSPY": {
+        "annualMeanReturnAdvantage": -0.036092100102167506,
+        "lower95": -0.10025558362437098,
+        "upper95": 0.0009741847865318625,
+        "blockMonths": 12,
+        "replications": 2500,
+        "confirmedPositive": false
+      }
+    },
+    {
+      "name": "Original quadrant map",
+      "months": 60,
+      "cagr": 0.043426930292658206,
+      "sharpe": 0.18268092626691657,
+      "volatility": 0.08593806547462683,
+      "maxDrawdown": -0.17883083638996033,
+      "totalReturn": 0.23683055945311038,
+      "turnoverPerYear": 6.8,
+      "cagrAt25bps": 0.030324560247288135,
+      "spyExposure": 0.11666666666666667,
+      "cashExposure": 0.36666666666666664
+    },
+    {
+      "name": "SPY buy & hold",
+      "months": 60,
+      "cagr": 0.14317381810473773,
+      "sharpe": 0.7648754076451333,
+      "volatility": 0.15139393075531998,
+      "maxDrawdown": -0.23927988368083475,
+      "totalReturn": 0.9523664978592161,
+      "turnoverPerYear": 0.2,
+      "cagrAt25bps": 0.14282677411259126,
+      "spyExposure": 1.0,
+      "cashExposure": 0.0
+    },
+    {
+      "name": "IEF buy & hold",
+      "months": 60,
+      "cagr": -0.018348370555229976,
+      "sharpe": -0.61533581717764,
+      "volatility": 0.07613822326952598,
+      "maxDrawdown": -0.21726891700779027,
+      "totalReturn": -0.0884364332466816,
+      "turnoverPerYear": 0.2,
+      "cagrAt25bps": -0.018646600313194095,
+      "spyExposure": 0.0,
+      "cashExposure": 0.0
+    },
+    {
+      "name": "GLD buy & hold",
+      "months": 60,
+      "cagr": 0.17289116445450636,
+      "sharpe": 0.9795772885644835,
+      "volatility": 0.1447648618605621,
+      "maxDrawdown": -0.15909216717409347,
+      "totalReturn": 1.2196708235326246,
+      "turnoverPerYear": 0.2,
+      "cagrAt25bps": 0.1725269734812458,
+      "spyExposure": 0.0,
+      "cashExposure": 0.0
+    },
+    {
+      "name": "TIP buy & hold",
+      "months": 60,
+      "cagr": 0.0085955699601159,
+      "sharpe": -0.33056615928842475,
+      "volatility": 0.06128914690660497,
+      "maxDrawdown": -0.13895315789522622,
+      "totalReturn": 0.043723066106680086,
+      "turnoverPerYear": 0.2,
+      "cagrAt25bps": 0.008293312575321288,
+      "spyExposure": 0.0,
+      "cashExposure": 0.0
+    },
+    {
+      "name": "DBC buy & hold",
+      "months": 60,
+      "cagr": 0.11779499624878143,
+      "sharpe": 0.6178155637128411,
+      "volatility": 0.1465587655823446,
+      "maxDrawdown": -0.22975430034211353,
+      "totalReturn": 0.7450617765762964,
+      "turnoverPerYear": 0.2,
+      "cagrAt25bps": 0.11746997188432795,
+      "spyExposure": 0.0,
+      "cashExposure": 0.0
+    },
+    {
+      "name": "60/40 SPY/IEF",
+      "months": 60,
+      "cagr": 0.07770531868205421,
+      "sharpe": 0.46112303115010456,
+      "volatility": 0.11039845706912386,
+      "maxDrawdown": -0.2052215815091285,
+      "totalReturn": 0.45378482393790764,
+      "turnoverPerYear": 0.2857910076556406,
+      "cagrAt25bps": 0.07710298384480185,
+      "spyExposure": 0.6000000000000001,
+      "cashExposure": 0.0
+    },
+    {
+      "name": "Equal asset basket",
+      "months": 60,
+      "cagr": 0.08707525787663761,
+      "sharpe": 0.7601993398682432,
+      "volatility": 0.07396051172738513,
+      "maxDrawdown": -0.12633577314063626,
+      "totalReturn": 0.5180918753653343,
+      "turnoverPerYear": 0.3258169852959081,
+      "cagrAt25bps": 0.08634060984853176,
+      "spyExposure": 0.19999999999999993,
+      "cashExposure": 0.0
+    },
+    {
+      "name": "200-day market trend",
+      "months": 60,
+      "cagr": 0.10789751781102042,
+      "sharpe": 0.7100714057125179,
+      "volatility": 0.11090574020616081,
+      "maxDrawdown": -0.17240402081010753,
+      "totalReturn": 0.6691599158948682,
+      "turnoverPerYear": 1.7999999999999998,
+      "cagrAt25bps": 0.10489448077013441,
+      "spyExposure": 0.7833333333333333,
+      "cashExposure": 0.21666666666666667
+    },
+    {
+      "name": "Cash proxy",
+      "months": 60,
+      "cagr": 0.03097014437669232,
+      "sharpe": null,
+      "volatility": 0.0060931193631211565,
+      "maxDrawdown": 0.0,
+      "totalReturn": 0.1647438987353287,
+      "turnoverPerYear": 0.0,
+      "cagrAt25bps": 0.03097014437669232,
+      "spyExposure": 0.0,
+      "cashExposure": 1.0
+    }
+  ],
+  "annualReturns": [
+    {
+      "strategy": "Predictive SPY",
+      "year": 2021,
+      "return": 0.1504037417098396
+    },
+    {
+      "strategy": "Predictive SPY",
+      "year": 2022,
+      "return": -0.13701001215799258
+    },
+    {
+      "strategy": "Predictive SPY",
+      "year": 2023,
+      "return": 0.2618952966051509
+    },
+    {
+      "strategy": "Predictive SPY",
+      "year": 2024,
+      "return": 0.248851584751123
+    },
+    {
+      "strategy": "Predictive SPY",
+      "year": 2025,
+      "return": 0.23996285382726779
+    },
+    {
+      "strategy": "Predictive rotation",
+      "year": 2021,
+      "return": 0.14999695101664923
+    },
+    {
+      "strategy": "Predictive rotation",
+      "year": 2022,
+      "return": 0.012010159882845706
+    },
+    {
+      "strategy": "Predictive rotation",
+      "year": 2023,
+      "return": 0.09699492764857487
+    },
+    {
+      "strategy": "Predictive rotation",
+      "year": 2024,
+      "return": 0.20760624793747962
+    },
+    {
+      "strategy": "Predictive rotation",
+      "year": 2025,
+      "return": 0.29918267303462076
+    },
+    {
+      "strategy": "Calibrated quadrants",
+      "year": 2021,
+      "return": 0.22108038496961946
+    },
+    {
+      "strategy": "Calibrated quadrants",
+      "year": 2022,
+      "return": -0.2763722459944742
+    },
+    {
+      "strategy": "Calibrated quadrants",
+      "year": 2023,
+      "return": 0.2618952966051509
+    },
+    {
+      "strategy": "Calibrated quadrants",
+      "year": 2024,
+      "return": 0.248851584751123
+    },
+    {
+      "strategy": "Calibrated quadrants",
+      "year": 2025,
+      "return": 0.17906027094969468
+    },
+    {
+      "strategy": "Original quadrant map",
+      "year": 2021,
+      "return": 0.1012676193607911
+    },
+    {
+      "strategy": "Original quadrant map",
+      "year": 2022,
+      "return": -0.12672272203248403
+    },
+    {
+      "strategy": "Original quadrant map",
+      "year": 2023,
+      "return": -0.01779571943032765
+    },
+    {
+      "strategy": "Original quadrant map",
+      "year": 2024,
+      "return": 0.14920856771812452
+    },
+    {
+      "strategy": "Original quadrant map",
+      "year": 2025,
+      "return": 0.1393692635784196
+    },
+    {
+      "strategy": "SPY buy & hold",
+      "year": 2021,
+      "return": 0.286149932763605
+    },
+    {
+      "strategy": "SPY buy & hold",
+      "year": 2022,
+      "return": -0.18171683839268304
+    },
+    {
+      "strategy": "SPY buy & hold",
+      "year": 2023,
+      "return": 0.2618952966051509
+    },
+    {
+      "strategy": "SPY buy & hold",
+      "year": 2024,
+      "return": 0.248851584751123
+    },
+    {
+      "strategy": "SPY buy & hold",
+      "year": 2025,
+      "return": 0.17715047417172802
+    },
+    {
+      "strategy": "IEF buy & hold",
+      "year": 2021,
+      "return": -0.03427111568055263
+    },
+    {
+      "strategy": "IEF buy & hold",
+      "year": 2022,
+      "return": -0.1515844174758756
+    },
+    {
+      "strategy": "IEF buy & hold",
+      "year": 2023,
+      "return": 0.03641660944533465
+    },
+    {
+      "strategy": "IEF buy & hold",
+      "year": 2024,
+      "return": -0.0063526862327412115
+    },
+    {
+      "strategy": "IEF buy & hold",
+      "year": 2025,
+      "return": 0.08033009481717812
+    },
+    {
+      "strategy": "GLD buy & hold",
+      "year": 2021,
+      "return": -0.0424795640000567
+    },
+    {
+      "strategy": "GLD buy & hold",
+      "year": 2022,
+      "return": -0.007721104351895214
+    },
+    {
+      "strategy": "GLD buy & hold",
+      "year": 2023,
+      "return": 0.12691582174015537
+    },
+    {
+      "strategy": "GLD buy & hold",
+      "year": 2024,
+      "return": 0.266569022336141
+    },
+    {
+      "strategy": "GLD buy & hold",
+      "year": 2025,
+      "return": 0.6367653739726593
+    },
+    {
+      "strategy": "TIP buy & hold",
+      "year": 2021,
+      "return": 0.0556564309707992
+    },
+    {
+      "strategy": "TIP buy & hold",
+      "year": 2022,
+      "return": -0.12244385338665853
+    },
+    {
+      "strategy": "TIP buy & hold",
+      "year": 2023,
+      "return": 0.03807724641230248
+    },
+    {
+      "strategy": "TIP buy & hold",
+      "year": 2024,
+      "return": 0.016511252426698375
+    },
+    {
+      "strategy": "TIP buy & hold",
+      "year": 2025,
+      "return": 0.0676918038254779
+    },
+    {
+      "strategy": "DBC buy & hold",
+      "year": 2021,
+      "return": 0.4122435321125386
+    },
+    {
+      "strategy": "DBC buy & hold",
+      "year": 2022,
+      "return": 0.19339614821364415
+    },
+    {
+      "strategy": "DBC buy & hold",
+      "year": 2023,
+      "return": -0.06225023269167529
+    },
+    {
+      "strategy": "DBC buy & hold",
+      "year": 2024,
+      "return": 0.02179666976119443
+    },
+    {
+      "strategy": "DBC buy & hold",
+      "year": 2025,
+      "return": 0.0806004194817369
+    },
+    {
+      "strategy": "60/40 SPY/IEF",
+      "year": 2021,
+      "return": 0.1493681270356253
+    },
+    {
+      "strategy": "60/40 SPY/IEF",
+      "year": 2022,
+      "return": -0.16671483714316382
+    },
+    {
+      "strategy": "60/40 SPY/IEF",
+      "year": 2023,
+      "return": 0.16766722484186913
+    },
+    {
+      "strategy": "60/40 SPY/IEF",
+      "year": 2024,
+      "return": 0.14106217170064728
+    },
+    {
+      "strategy": "60/40 SPY/IEF",
+      "year": 2025,
+      "return": 0.13924972957271953
+    },
+    {
+      "strategy": "Equal asset basket",
+      "year": 2021,
+      "return": 0.127301662086597
+    },
+    {
+      "strategy": "Equal asset basket",
+      "year": 2022,
+      "return": -0.05673833984075605
+    },
+    {
+      "strategy": "Equal asset basket",
+      "year": 2023,
+      "return": 0.07881318748642974
+    },
+    {
+      "strategy": "Equal asset basket",
+      "year": 2024,
+      "return": 0.10600076164672911
+    },
+    {
+      "strategy": "Equal asset basket",
+      "year": 2025,
+      "return": 0.1965312716794423
+    },
+    {
+      "strategy": "200-day market trend",
+      "year": 2021,
+      "return": 0.286149932763605
+    },
+    {
+      "strategy": "200-day market trend",
+      "year": 2022,
+      "return": -0.15321189941582247
+    },
+    {
+      "strategy": "200-day market trend",
+      "year": 2023,
+      "return": 0.09314830044841038
+    },
+    {
+      "strategy": "200-day market trend",
+      "year": 2024,
+      "return": 0.248851584751123
+    },
+    {
+      "strategy": "200-day market trend",
+      "year": 2025,
+      "return": 0.12264303870326398
+    },
+    {
+      "strategy": "Cash proxy",
+      "year": 2021,
+      "return": 0.0004966851994392396
+    },
+    {
+      "strategy": "Cash proxy",
+      "year": 2022,
+      "return": 0.013236362514060351
+    },
+    {
+      "strategy": "Cash proxy",
+      "year": 2023,
+      "return": 0.04877572080285075
+    },
+    {
+      "strategy": "Cash proxy",
+      "year": 2024,
+      "return": 0.05161098933365227
+    },
+    {
+      "strategy": "Cash proxy",
+      "year": 2025,
+      "return": 0.041756651927081556
+    }
+  ],
+  "conditionalReturns": [
+    {
+      "code": 0,
+      "label": "Growth \u2191 / Inflation \u2193",
+      "n": 7,
+      "meanNextMonthReturns": {
+        "CASH": 0.003253275466997163,
+        "SPY": 0.023074769075760258,
+        "IEF": 0.002738010835771267,
+        "GLD": 0.030891416630749537,
+        "TIP": 0.003858349125049073,
+        "DBC": -0.006672577872220119
+      },
+      "historicalLeader": "GLD",
+      "smallSample": true
+    },
+    {
+      "code": 1,
+      "label": "Growth \u2191 / Inflation \u2191",
+      "n": 10,
+      "meanNextMonthReturns": {
+        "CASH": 0.0014539897664840097,
+        "SPY": -0.003500972907098798,
+        "IEF": 0.0012210757709280261,
+        "GLD": 0.02536411815677908,
+        "TIP": 0.0010143882885699784,
+        "DBC": 0.015173220288485311
+      },
+      "historicalLeader": "GLD",
+      "smallSample": true
+    },
+    {
+      "code": 2,
+      "label": "Growth \u2193 / Inflation \u2191",
+      "n": 7,
+      "meanNextMonthReturns": {
+        "CASH": 0.0001944141036758218,
+        "SPY": 0.014778833899587483,
+        "IEF": -7.937523895464236e-06,
+        "GLD": -0.009518900646373079,
+        "TIP": 0.004081719012197623,
+        "DBC": 0.027774229844701997
+      },
+      "historicalLeader": "DBC",
+      "smallSample": true
+    },
+    {
+      "code": 3,
+      "label": "Growth \u2193 / Inflation \u2193",
+      "n": 14,
+      "meanNextMonthReturns": {
+        "CASH": 0.0037276277287365345,
+        "SPY": 0.018860276552164577,
+        "IEF": -0.002540300562005033,
+        "GLD": 0.004159512561812818,
+        "TIP": 0.001564869186961661,
+        "DBC": -0.0027611106311735767
+      },
+      "historicalLeader": "SPY",
+      "smallSample": false
+    },
+    {
+      "code": 4,
+      "label": "Transition",
+      "n": 21,
+      "meanNextMonthReturns": {
+        "CASH": 0.00278717443460512,
+        "SPY": 0.011216565244902131,
+        "IEF": -0.003114808732673156,
+        "GLD": 0.017664763957272022,
+        "TIP": -0.0013493998521599297,
+        "DBC": 0.01668189055195227
+      },
+      "historicalLeader": "GLD",
+      "smallSample": false
+    },
+    {
+      "code": -1,
+      "label": "Unavailable (cash fallback)",
+      "n": 1,
+      "meanNextMonthReturns": {
+        "CASH": 0.003395116603561732,
+        "SPY": 0.0007714752926752944,
+        "IEF": -0.007588228038162281,
+        "GLD": 0.021733525832731804,
+        "TIP": -0.006169139341004604,
+        "DBC": 0.0018773999578816092
+      },
+      "historicalLeader": "GLD",
+      "smallSample": true
+    }
+  ],
+  "lagChecks": [
+    {
+      "axis": "g",
+      "horizonMonths": 1,
+      "direction": "trailing",
+      "n": 179,
+      "correlation": 0.03757835780920013
+    },
+    {
+      "axis": "g",
+      "horizonMonths": 1,
+      "direction": "forward",
+      "n": 178,
+      "correlation": 0.021632673372086613
+    },
+    {
+      "axis": "g",
+      "horizonMonths": 3,
+      "direction": "trailing",
+      "n": 179,
+      "correlation": 0.08547597674899211
+    },
+    {
+      "axis": "g",
+      "horizonMonths": 3,
+      "direction": "forward",
+      "n": 177,
+      "correlation": 0.13022299265619408
+    },
+    {
+      "axis": "g",
+      "horizonMonths": 6,
+      "direction": "trailing",
+      "n": 179,
+      "correlation": 0.348796524156684
+    },
+    {
+      "axis": "g",
+      "horizonMonths": 6,
+      "direction": "forward",
+      "n": 174,
+      "correlation": 0.2354546618853986
+    },
+    {
+      "axis": "i",
+      "horizonMonths": 1,
+      "direction": "trailing",
+      "n": 178,
+      "correlation": -0.16885500741370615
+    },
+    {
+      "axis": "i",
+      "horizonMonths": 1,
+      "direction": "forward",
+      "n": 177,
+      "correlation": -0.09258471855105822
+    },
+    {
+      "axis": "i",
+      "horizonMonths": 3,
+      "direction": "trailing",
+      "n": 178,
+      "correlation": -0.233772360222651
+    },
+    {
+      "axis": "i",
+      "horizonMonths": 3,
+      "direction": "forward",
+      "n": 175,
+      "correlation": -0.21194874759910273
+    },
+    {
+      "axis": "i",
+      "horizonMonths": 6,
+      "direction": "trailing",
+      "n": 178,
+      "correlation": -0.05527703725417405
+    },
+    {
+      "axis": "i",
+      "horizonMonths": 6,
+      "direction": "forward",
+      "n": 172,
+      "correlation": -0.3839654006183123
+    }
+  ],
+  "latestPrediction": {
+    "asOf": "2026-09-29",
+    "tradeDate": "2026-09-30",
+    "targetMonth": "2026-10",
+    "spyForecastExcessReturn": 0.007018548254051495,
+    "assetForecasts": {
+      "SPY": 0.007143850868037294,
+      "IEF": -0.001767707195760796,
+      "GLD": 0.01166826796730112,
+      "TIP": -0.0002166066919469438,
+      "DBC": 0.005520587236695438
+    },
+    "allResearchOnly": true
+  },
+  "sources": [
+    {
+      "name": "Alpha Vantage monthly adjusted ETF data",
+      "url": "https://www.alphavantage.co/documentation/#monthlyadj"
+    },
+    {
+      "name": "Yahoo Finance SPY daily data",
+      "url": "https://finance.yahoo.com/quote/SPY/history/"
+    },
+    {
+      "name": "FRED/ALFRED vintage observations",
+      "url": "https://fred.stlouisfed.org/docs/api/fred/series_observations.html"
+    }
+  ],
+  "limitations": [
+    "One 60-month holdout; model comparison and limited crisis coverage can overstate robustness.",
+    "Conditional asset leaders are retrospective averages, not guarantees or statistically established winners.",
+    "No taxes, financing, spreads or intramonth execution simulation; monthly drawdowns understate intramonth losses.",
+    "Original quadrant inputs lack sufficient archived vintage coverage before 2011; no imputation creates an earlier original-regime history.",
+    "Initial universe is selected ex ante by asset class; results do not establish performance over untested assets or currencies."
+  ],
+  "protocolSha256": "b06e171fa2cd91ff8c07e3abbe2f197a9906945ac42d6ae41572ce46e53f76f2",
+  "vintageExamples": [
+    {
+      "cutoff": "2020-03-30",
+      "tradeDate": "2020-03-31",
+      "g": 0.3710993222679509,
+      "i": 0.27176182024052714,
+      "gdp_yoy": 2.334074478367998,
+      "pce_yoy": 1.8242646130538942,
+      "inputDates": {
+        "gdp": "2019-10-01",
+        "production": "2020-02-01",
+        "orders": "2020-01-01",
+        "payrolls": "2020-02-01",
+        "temp": "2020-02-01",
+        "pce": "2020-02-01",
+        "cpi": "2020-02-01",
+        "wages": "2020-02-01",
+        "shelter": "2020-02-01"
+      }
+    },
+    {
+      "cutoff": "2020-09-29",
+      "tradeDate": "2020-09-30",
+      "g": 0.5454545454545455,
+      "i": 0.26564274168723434,
+      "gdp_yoy": -9.139622784750367,
+      "pce_yoy": 1.2547185807223027,
+      "inputDates": {
+        "gdp": "2020-04-01",
+        "production": "2020-08-01",
+        "orders": "2020-07-01",
+        "payrolls": "2020-08-01",
+        "temp": "2020-08-01",
+        "pce": "2020-07-01",
+        "cpi": "2020-08-01",
+        "wages": "2020-08-01",
+        "shelter": "2020-08-01"
+      }
+    },
+    {
+      "cutoff": "2022-06-29",
+      "tradeDate": "2022-06-30",
+      "g": -0.21660542728099433,
+      "i": 0.2930800645974979,
+      "gdp_yoy": 3.5278923763051084,
+      "pce_yoy": 4.913006029285105,
+      "inputDates": {
+        "gdp": "2022-01-01",
+        "production": "2022-05-01",
+        "orders": "2022-04-01",
+        "payrolls": "2022-05-01",
+        "temp": "2022-05-01",
+        "pce": "2022-04-01",
+        "cpi": "2022-05-01",
+        "wages": "2022-05-01",
+        "shelter": "2022-05-01"
+      }
+    }
+  ]
+}

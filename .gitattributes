@@ -1,0 +1,3 @@
+* text=auto eol=lf
+# Preserve the predeclared research protocol bytes used by its SHA-256 receipt.
+scripts/research/protocol.md -text

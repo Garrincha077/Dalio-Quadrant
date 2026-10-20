@@ -1,1252 +1,2275 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dalio Quadrant — Macro Regime Dashboard</title>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700;800&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<style>
-:root {
-  --bg-primary: #0a0e17;
-  --bg-secondary: #111827;
-  --bg-card: #151d2e;
-  --bg-card-hover: #1c2740;
-  --border: #1e2a3d;
-  --border-accent: #2d3a4f;
-  --text-primary: #e8eaed;
-  --text-secondary: #a0a8b8;
-  --text-muted: #6b7280;
-  --gold: #d4a843;
-  --gold-dim: #b8922e;
-  --green: #10b981;
-  --green-dim: rgba(16, 185, 129, 0.12);
-  --red: #ef4444;
-  --red-dim: rgba(239, 68, 68, 0.12);
-  --blue: #3b82f6;
-  --blue-dim: rgba(59, 130, 246, 0.12);
-  --orange: #f59e0b;
-  --orange-dim: rgba(245, 158, 11, 0.12);
-  --q-goldilocks: #10b981;
-  --q-overheating: #f59e0b;
-  --q-stagflation: #ef4444;
-  --q-deflation: #3b82f6;
-  --font-mono: 'JetBrains Mono', monospace;
-  --font-sans: 'DM Sans', sans-serif;
-}
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html{font-size:15px}
-body{font-family:var(--font-sans);background:var(--bg-primary);color:var(--text-primary);min-height:100vh}
-::-webkit-scrollbar{width:7px}
-::-webkit-scrollbar-track{background:var(--bg-primary)}
-::-webkit-scrollbar-thumb{background:var(--border-accent);border-radius:4px}
-
-/* ═══════ HEADER ═══════ */
-.header{
-  background:linear-gradient(180deg,rgba(212,168,67,0.07) 0%,transparent 100%);
-  border-bottom:1px solid var(--border);padding:1.1rem 2rem;
-  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.8rem;
-}
-.header-left{display:flex;align-items:center;gap:0.85rem}
-.logo{
-  width:42px;height:42px;background:linear-gradient(135deg,var(--gold),var(--gold-dim));
-  border-radius:9px;display:flex;align-items:center;justify-content:center;
-  font-family:var(--font-mono);font-weight:800;font-size:1.1rem;color:var(--bg-primary);
-}
-.header h1{font-family:var(--font-mono);font-size:1.2rem;font-weight:700;letter-spacing:-0.02em}
-.header h1 span{color:var(--gold)}
-.header-sub{font-size:0.78rem;color:var(--text-muted);font-family:var(--font-mono);margin-top:2px}
-.header-sub a{color:var(--gold);text-decoration:none}
-.header-sub a:hover{text-decoration:underline}
-.header-right{display:flex;align-items:center;gap:0.6rem;flex-wrap:wrap}
-.fred-grp{
-  display:flex;align-items:center;gap:0.4rem;background:var(--bg-card);
-  border:1px solid var(--border);border-radius:6px;padding:0.35rem 0.7rem;
-}
-.fred-grp label{font-family:var(--font-mono);font-size:0.72rem;color:var(--text-muted);white-space:nowrap}
-.fred-grp input{background:transparent;border:none;color:var(--gold);font-family:var(--font-mono);font-size:0.78rem;width:190px;outline:none}
-.btn{
-  font-family:var(--font-mono);font-size:0.72rem;font-weight:600;padding:0.45rem 0.9rem;
-  border-radius:5px;border:1px solid var(--border);cursor:pointer;transition:all 0.2s;
-  text-transform:uppercase;letter-spacing:0.04em;
-}
-.btn-gold{background:linear-gradient(135deg,var(--gold),var(--gold-dim));color:var(--bg-primary);border-color:var(--gold)}
-.btn-gold:hover{filter:brightness(1.15)}
-.btn-calc{
-  background:linear-gradient(135deg,#10b981,#059669);color:#fff;border-color:#10b981;
-  font-size:0.82rem;padding:0.55rem 1.6rem;letter-spacing:0.06em;
-}
-.btn-calc:hover{filter:brightness(1.15)}
-.btn-outline{background:transparent;color:var(--text-secondary)}
-.btn-outline:hover{background:var(--bg-card);color:var(--text-primary)}
-
-/* ═══════ TABS ═══════ */
-.tab-bar{display:flex;border-bottom:1px solid var(--border);background:var(--bg-secondary);padding:0 2rem}
-.tab-btn{
-  font-family:var(--font-mono);font-size:0.78rem;font-weight:500;padding:0.8rem 1.4rem;
-  cursor:pointer;border:none;background:none;color:var(--text-muted);
-  border-bottom:2px solid transparent;transition:all 0.2s;text-transform:uppercase;letter-spacing:0.06em;
-}
-.tab-btn:hover{color:var(--text-secondary)}
-.tab-btn.active{color:var(--gold);border-bottom-color:var(--gold)}
-.tab-content{display:none}
-.tab-content.active{display:block}
-
-/* ═══════ RECESSION BANNER ═══════ */
-.recession-banner{
-  display:none;background:linear-gradient(90deg,rgba(239,68,68,0.15),rgba(239,68,68,0.05));
-  border-bottom:1px solid rgba(239,68,68,0.3);padding:0.5rem 2rem;
-  font-family:var(--font-mono);font-size:0.78rem;color:var(--red);text-align:center;
-  animation:pulsebg 3s ease-in-out infinite;
-}
-.recession-banner.active{display:block}
-@keyframes pulsebg{
-  0%,100%{background:linear-gradient(90deg,rgba(239,68,68,0.15),rgba(239,68,68,0.05))}
-  50%{background:linear-gradient(90deg,rgba(239,68,68,0.25),rgba(239,68,68,0.1))}
-}
-
-/* ═══════ MAIN ═══════ */
-.main{
-  display:grid;grid-template-columns:1fr 440px 1fr;
-  gap:1.1rem;padding:1.1rem 2rem 2rem;max-width:1900px;margin:0 auto;
-}
-@media(max-width:1400px){.main{grid-template-columns:1fr 400px 1fr;padding:1rem 1rem;gap:0.9rem}}
-@media(max-width:1100px){.main{grid-template-columns:1fr}}
-
-/* ═══════ PANEL ═══════ */
-.panel{background:var(--bg-card);border:1px solid var(--border);border-radius:10px;overflow:hidden}
-.panel-header{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:0.8rem 1rem;border-bottom:1px solid var(--border);background:rgba(255,255,255,0.015);
-}
-.panel-title{
-  font-family:var(--font-mono);font-size:0.82rem;font-weight:600;
-  text-transform:uppercase;letter-spacing:0.06em;display:flex;align-items:center;gap:0.45rem;
-}
-.panel-title .dot{width:8px;height:8px;border-radius:50%}
-.panel-score{font-family:var(--font-mono);font-size:0.92rem;font-weight:700;padding:0.2rem 0.6rem;border-radius:4px}
-.panel-body{padding:0.6rem 0.7rem}
-
-/* ═══════ INDICATOR ═══════ */
-.indicator{
-  display:grid;grid-template-columns:1fr 44px 88px 56px 32px;
-  align-items:center;gap:0.4rem;padding:0.55rem 0.6rem;border-radius:6px;
-  transition:background 0.15s;border:1px solid transparent;
-}
-.indicator:hover{background:var(--bg-card-hover);border-color:var(--border-accent)}
-.ind-name{font-size:0.85rem;color:var(--text-primary);font-weight:500;line-height:1.3}
-.ind-name .sub{
-  display:block;font-family:var(--font-mono);font-size:0.65rem;
-  color:var(--text-muted);margin-top:2px;font-weight:400;
-}
-
-/* Heatbar */
-.heatbar-wrap{width:100%;height:22px;display:flex;align-items:center;justify-content:center}
-.heatbar{
-  width:36px;height:8px;border-radius:4px;position:relative;overflow:visible;
-}
-.heatbar.growth-bar{background:linear-gradient(90deg,#ef4444 0%,#f59e0b 50%,#10b981 100%)}
-.heatbar.infl-bar{background:linear-gradient(90deg,#3b82f6 0%,#f59e0b 50%,#ef4444 100%)}
-.heatbar-thumb{
-  position:absolute;top:50%;width:5px;height:14px;
-  background:#fff;border-radius:2px;transform:translate(-50%,-50%);
-  box-shadow:0 0 5px rgba(255,255,255,0.5);transition:left 0.3s ease;
-}
-
-.indicator input[type="number"]{
-  background:var(--bg-secondary);border:1px solid var(--border);border-radius:5px;
-  color:var(--text-primary);font-family:var(--font-mono);font-size:0.88rem;font-weight:500;
-  padding:0.3rem 0.4rem;text-align:right;width:100%;outline:none;transition:border-color 0.2s;
-}
-.indicator input:focus{border-color:var(--gold)}
-.indicator input.overridden{border-color:var(--orange);background:rgba(245,158,11,0.08)}
-
-.signal-badge{
-  font-family:var(--font-mono);font-size:0.68rem;font-weight:700;text-align:center;
-  padding:0.2rem 0.25rem;border-radius:3px;text-transform:uppercase;letter-spacing:0.03em;
-}
-.signal-badge.bullish{background:var(--green-dim);color:var(--green)}
-.signal-badge.bearish{background:var(--red-dim);color:var(--red)}
-.signal-badge.neutral{background:rgba(156,163,175,0.08);color:var(--text-muted)}
-.signal-badge.warn{background:var(--orange-dim);color:var(--orange)}
-
-.ovr-btn{
-  width:28px;height:28px;background:transparent;border:1px solid var(--border);border-radius:4px;
-  color:var(--text-muted);cursor:pointer;font-size:0.72rem;
-  display:flex;align-items:center;justify-content:center;transition:all 0.15s;
-}
-.ovr-btn:hover{background:var(--bg-card-hover);color:var(--text-primary)}
-.ovr-btn.active{border-color:var(--orange);color:var(--orange);background:rgba(245,158,11,0.1)}
-
-/* ═══════ QUADRANT CENTER ═══════ */
-.quadrant-center{grid-row:1/3}
-.quadrant-viz{position:relative;width:100%;aspect-ratio:1;max-width:420px;margin:0 auto}
-.quadrant-canvas{width:100%;height:100%;border-radius:8px}
-
-.current-quadrant{
-  text-align:center;margin-top:0.85rem;padding:0.9rem;
-  border-radius:8px;border:1px solid var(--border);background:var(--bg-secondary);
-}
-.cq-label{font-family:var(--font-mono);font-size:0.7rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.4rem}
-.cq-name{font-family:var(--font-mono);font-size:1.6rem;font-weight:800;letter-spacing:-0.02em}
-.cq-scores{margin-top:0.4rem;display:flex;justify-content:center;gap:1.5rem}
-.cq-score-item{font-family:var(--font-mono);font-size:0.78rem}
-.cq-score-item .label{color:var(--text-muted)}
-.cq-score-item .val{font-weight:700;font-size:0.95rem}
-
-.quadrant-info-grid{display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;margin-top:0.85rem}
-.q-info-card{
-  padding:0.6rem 0.7rem;border-radius:6px;border:1px solid var(--border);
-  background:var(--bg-secondary);transition:all 0.3s;
-}
-.q-info-card.active{border-width:2px}
-.q-info-card .q-name{font-family:var(--font-mono);font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:0.2rem}
-.q-info-card .q-assets{font-size:0.72rem;color:var(--text-muted);line-height:1.4}
-.q-info-card.q-gold .q-name{color:var(--q-goldilocks)}
-.q-info-card.q-gold.active{border-color:var(--q-goldilocks);background:rgba(16,185,129,0.06)}
-.q-info-card.q-over .q-name{color:var(--q-overheating)}
-.q-info-card.q-over.active{border-color:var(--q-overheating);background:rgba(245,158,11,0.06)}
-.q-info-card.q-stag .q-name{color:var(--q-stagflation)}
-.q-info-card.q-stag.active{border-color:var(--q-stagflation);background:rgba(239,68,68,0.06)}
-.q-info-card.q-defl .q-name{color:var(--q-deflation)}
-.q-info-card.q-defl.active{border-color:var(--q-deflation);background:rgba(59,130,246,0.06)}
-
-/* ═══════ WARNINGS ═══════ */
-.warnings-row{grid-column:1/-1}
-.warnings-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:0.65rem}
-.warning-card{
-  display:flex;align-items:center;gap:0.7rem;padding:0.65rem 0.85rem;
-  border-radius:6px;background:var(--bg-secondary);border:1px solid var(--border);transition:all 0.3s;
-}
-.warning-card.triggered{border-color:rgba(239,68,68,0.4);background:rgba(239,68,68,0.05)}
-.warning-card.safe{border-color:rgba(16,185,129,0.2)}
-.warning-light{width:10px;height:10px;border-radius:50%;flex-shrink:0}
-.warning-card.triggered .warning-light{background:var(--red);box-shadow:0 0 8px rgba(239,68,68,0.5);animation:blink 2s ease-in-out infinite}
-.warning-card.safe .warning-light{background:var(--green)}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:0.4}}
-.warning-info .w-name{font-family:var(--font-mono);font-size:0.78rem;font-weight:600}
-.warning-info .w-val{font-family:var(--font-mono);font-size:0.68rem;color:var(--text-muted);margin-top:2px}
-.warning-card .w-input{
-  margin-left:auto;width:72px;background:var(--bg-card);border:1px solid var(--border);
-  border-radius:5px;color:var(--text-primary);font-family:var(--font-mono);
-  font-size:0.82rem;padding:0.25rem 0.35rem;text-align:right;outline:none;
-}
-.warning-card .w-input:focus{border-color:var(--gold)}
-
-/* ═══════ CALC ROW ═══════ */
-.calc-row{grid-column:1/-1;display:flex;align-items:center;justify-content:center;gap:1rem;padding:0.3rem 0}
-
-/* ═══════ HISTORY ═══════ */
-.history-table-wrap{max-height:400px;overflow-y:auto}
-.history-table{width:100%;border-collapse:collapse;font-family:var(--font-mono);font-size:0.78rem}
-.history-table th{
-  text-align:left;padding:0.5rem 0.6rem;background:var(--bg-secondary);
-  color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:0.05em;
-  font-size:0.7rem;border-bottom:1px solid var(--border);position:sticky;top:0;
-}
-.history-table td{padding:0.45rem 0.6rem;border-bottom:1px solid rgba(255,255,255,0.03);color:var(--text-secondary)}
-.history-table tr:hover td{background:var(--bg-card-hover)}
-.history-table .q-dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:0.4rem}
-
-/* ═══════ INSTRUCTIONS ═══════ */
-.instructions{max-width:1000px;margin:0 auto;padding:2rem;color:var(--text-secondary);line-height:1.75}
-.instructions h2{font-family:var(--font-mono);font-size:1.15rem;font-weight:700;color:var(--gold);margin:2.5rem 0 0.85rem 0}
-.instructions h2:first-child{margin-top:0}
-.instructions h3{font-family:var(--font-mono);font-size:0.95rem;font-weight:600;color:var(--text-primary);margin:1.5rem 0 0.6rem 0}
-.instructions p{margin-bottom:0.85rem;font-size:0.95rem}
-.instructions code{background:var(--bg-card);padding:0.15rem 0.45rem;border-radius:3px;font-family:var(--font-mono);font-size:0.85rem;color:var(--gold)}
-.instructions .formula-box{
-  background:var(--bg-card);border:1px solid var(--border);border-radius:8px;
-  padding:1.1rem 1.3rem;margin:0.85rem 0;font-family:var(--font-mono);
-  font-size:0.85rem;color:var(--text-primary);line-height:1.9;
-}
-.instructions .quad-table{width:100%;border-collapse:collapse;margin:0.85rem 0;font-family:var(--font-mono);font-size:0.82rem}
-.instructions .quad-table th,.instructions .quad-table td{border:1px solid var(--border);padding:0.7rem 0.9rem;text-align:center}
-.instructions .quad-table th{background:var(--bg-card);color:var(--gold);font-weight:600}
-.instructions .q-cell-gold{background:rgba(16,185,129,0.08);color:var(--q-goldilocks)}
-.instructions .q-cell-over{background:rgba(245,158,11,0.08);color:var(--q-overheating)}
-.instructions .q-cell-stag{background:rgba(239,68,68,0.08);color:var(--q-stagflation)}
-.instructions .q-cell-defl{background:rgba(59,130,246,0.08);color:var(--q-deflation)}
-.instructions .note-box{
-  background:rgba(212,168,67,0.08);border-left:3px solid var(--gold);
-  padding:0.85rem 1.1rem;margin:0.85rem 0;border-radius:0 6px 6px 0;font-size:0.88rem;
-}
-.instructions table.ind-table{width:100%;border-collapse:collapse;margin:0.5rem 0;font-size:0.8rem}
-.instructions table.ind-table th{background:var(--bg-card);color:var(--gold);text-align:left;padding:0.45rem 0.6rem;border:1px solid var(--border);font-weight:600}
-.instructions table.ind-table td{padding:0.4rem 0.6rem;border:1px solid var(--border);color:var(--text-secondary)}
-
-/* ═══════ FOOTER ═══════ */
-.footer-bar{
-  grid-column:1/-1;text-align:center;padding:0.6rem;
-  font-family:var(--font-mono);font-size:0.68rem;color:var(--text-muted);border-top:1px solid var(--border);
-}
-.footer-bar a{color:var(--gold);text-decoration:none}
-
-/* ═══════ LOADING ═══════ */
-.loading-overlay{
-  display:none;position:fixed;inset:0;background:rgba(10,14,23,0.85);z-index:1000;
-  justify-content:center;align-items:center;font-family:var(--font-mono);color:var(--gold);font-size:1rem;
-}
-.loading-overlay.active{display:flex}
-.spinner{width:30px;height:30px;border:3px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:spin 0.8s linear infinite;margin-right:0.8rem}
-@keyframes spin{to{transform:rotate(360deg)}}
-
-/* ═══════ TOASTS ═══════ */
-.toast-wrap{position:fixed;bottom:1.2rem;right:1.2rem;z-index:1100;display:flex;flex-direction:column;gap:0.5rem;max-width:380px}
-.toast{
-  background:var(--bg-card);border:1px solid var(--border-accent);border-left-width:3px;border-radius:7px;
-  padding:0.65rem 0.85rem;font-family:var(--font-mono);font-size:0.76rem;color:var(--text-secondary);
-  box-shadow:0 8px 24px rgba(0,0,0,0.35);white-space:pre-line;line-height:1.5;
-  opacity:0;transform:translateX(20px);transition:opacity 0.25s,transform 0.25s;
-}
-.toast.show{opacity:1;transform:translateX(0)}
-.toast.success{border-left-color:var(--green)}
-.toast.warn{border-left-color:var(--orange)}
-.toast.error{border-left-color:var(--red)}
-.toast.info{border-left-color:var(--blue)}
-
-/* ═══════ INDICATOR META (source link / as-of / direction) ═══════ */
-.src-link{color:var(--gold);text-decoration:none;font-weight:500}
-.src-link:hover{text-decoration:underline}
-.src-link.muted{color:var(--text-muted);cursor:default}
-.asof{color:var(--text-muted)}
-.dir-up{color:var(--green)}
-.dir-down{color:var(--red)}
-
-/* ═══════ MARKET PANELS (Finviz) ═══════ */
-.market-note{font-family:var(--font-mono);font-size:0.74rem;color:var(--text-secondary);margin-top:0.55rem;line-height:1.5}
-.market-note.muted{color:var(--text-muted)}
-.market-note code{background:var(--bg-secondary);padding:0.1rem 0.35rem;border-radius:3px;color:var(--gold)}
-.sector-table{width:100%;border-collapse:collapse;font-family:var(--font-mono);font-size:0.76rem}
-.sector-table th{text-align:right;padding:0.4rem 0.6rem;color:var(--text-muted);font-weight:600;font-size:0.68rem;text-transform:uppercase;letter-spacing:0.04em;border-bottom:1px solid var(--border)}
-.sector-table th:first-child{text-align:left}
-.sector-table td{padding:0.38rem 0.6rem;text-align:right;border-bottom:1px solid rgba(255,255,255,0.03);font-weight:600}
-.sector-table td:first-child{text-align:left;color:var(--text-primary);font-weight:500}
-.sector-table tr:hover td{background:var(--bg-card-hover)}
-.futures-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:0.55rem}
-.fut-tile{background:var(--bg-secondary);border:1px solid var(--border);border-radius:7px;padding:0.55rem 0.7rem}
-.fut-name{font-family:var(--font-mono);font-size:0.72rem;color:var(--text-secondary);margin-bottom:0.25rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.fut-chg{font-family:var(--font-mono);font-size:0.95rem;font-weight:700}
-</style>
-</head>
-<body>
-
-<div class="loading-overlay" id="loadingOverlay"><div class="spinner"></div><span>Fetching live data…</span></div>
-<div class="toast-wrap" id="toasts"></div>
-
-<header class="header">
-  <div class="header-left">
-    <div class="logo">DQ</div>
-    <div>
-      <h1>Dalio <span>Quadrant</span> Dashboard</h1>
-      <div class="header-sub">Growth × Inflation Regime · Data: <a href="https://macro.disciplinefunds.com" target="_blank">Discipline Funds Macro Dashboard ↗</a></div>
-    </div>
-  </div>
-  <div class="header-right">
-    <div class="fred-grp">
-      <label>FRED API:</label>
-      <input type="text" id="fredApiKey" placeholder="Optional — server uses FRED_API_KEY" />
-    </div>
-    <button class="btn btn-gold" onclick="refreshAll()">⟳ Fetch</button>
-    <button class="btn btn-outline" onclick="exportState()">Export</button>
-    <button class="btn btn-outline" onclick="document.getElementById('importFile').click()">Import</button>
-    <input type="file" id="importFile" style="display:none" accept=".json" onchange="importState(event)">
-    <button class="btn btn-outline" onclick="resetDefaults()">Reset</button>
-  </div>
-</header>
-
-<div class="tab-bar">
-  <button class="tab-btn active" data-tab="dashboard">◉ Dashboard</button>
-  <button class="tab-btn" data-tab="history">◷ History</button>
-  <button class="tab-btn" data-tab="instructions">ℹ Instructions</button>
-</div>
-
-<div class="recession-banner" id="recessionBanner">⚠ RECESSION WARNING — Multiple recession indicators triggered. Elevated probability of economic contraction.</div>
-
-<!-- ══════════ TAB: DASHBOARD ══════════ -->
-<div class="tab-content active" id="tab-dashboard">
-<main class="main">
-  <div class="calc-row">
-    <button class="btn btn-calc" onclick="doCalculate()">▶ CALCULATE & LOG</button>
-    <span style="font-family:var(--font-mono);font-size:0.72rem;color:var(--text-muted)">Enter values → press Calculate → result saved to History</span>
-  </div>
-
-  <div class="panel" id="growthPanel">
-    <div class="panel-header">
-      <div class="panel-title" style="color:var(--green)"><span class="dot" style="background:var(--green)"></span>Growth Indicators</div>
-      <div class="panel-score" id="growthScore" style="background:var(--green-dim);color:var(--green)">—</div>
-    </div>
-    <div class="panel-body" id="growthBody"></div>
-  </div>
-
-  <div class="quadrant-center">
-    <div class="panel" style="padding:1rem">
-      <div class="quadrant-viz"><canvas class="quadrant-canvas" id="quadrantCanvas"></canvas></div>
-      <div class="current-quadrant">
-        <div class="cq-label">Current Regime</div>
-        <div class="cq-name" id="cqName">Press Calculate</div>
-        <div class="cq-scores">
-          <div class="cq-score-item"><span class="label">Growth: </span><span class="val" id="cqGrowth">—</span></div>
-          <div class="cq-score-item"><span class="label">Inflation: </span><span class="val" id="cqInflation">—</span></div>
+<!doctype html>
+<html lang="en" data-app-shell="2.10.0">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta
+      name="description"
+      content="Growth and inflation momentum, credit conditions and market context from dated FRED observations. Inspired by public All Weather principles."
+    />
+    <title>Dalio Quadrant — Principles & Evidence</title>
+    <meta name="theme-color" content="#131b28" />
+    <link
+      rel="manifest"
+      href="/manifest.webmanifest"
+      crossorigin="use-credentials"
+    />
+    <link rel="icon" href="/icons/icon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #0b1019;
+        --panel: #131b28;
+        --border: #293447;
+        --text: #e8edf5;
+        --muted: #a7b3c5;
+        --gold: #e2b752;
+        --green: #60d6ab;
+        --red: #fb8995;
+        --blue: #87b6ff;
+        --orange: #f3b36c;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font:
+          15px/1.55 system-ui,
+          sans-serif;
+      }
+      button,
+      a,
+      summary,
+      input {
+        touch-action: manipulation;
+      }
+      button,
+      select {
+        font: inherit;
+      }
+      a {
+        color: var(--gold);
+        text-underline-offset: 3px;
+      }
+      button {
+        cursor: pointer;
+        background: #1a2638;
+        color: var(--text);
+        border: 1px solid #43516a;
+        border-radius: 7px;
+        padding: 9px 14px;
+      }
+      button:hover {
+        border-color: var(--gold);
+      }
+      button:disabled {
+        opacity: 0.6;
+        cursor: wait;
+      }
+      :focus-visible {
+        outline: 3px solid var(--gold);
+        outline-offset: 3px;
+      }
+      .primary {
+        background: var(--gold);
+        color: #141923;
+        border-color: var(--gold);
+        font-weight: 700;
+      }
+      header {
+        border-bottom: 1px solid var(--border);
+        padding: 22px max(22px, calc((100vw - 1440px) / 2));
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+      }
+      h1 {
+        font:
+          700 clamp(22px, 3vw, 30px) / 1.25 ui-monospace,
+          monospace;
+        margin: 0 0 6px;
+      }
+      h1 span {
+        color: var(--gold);
+      }
+      .eyebrow {
+        font:
+          600 11px/1.6 ui-monospace,
+          monospace;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+      .sub,
+      .muted {
+        color: var(--muted);
+      }
+      .sub {
+        font-size: 13px;
+      }
+      .actions {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+      .wrap {
+        max-width: 1440px;
+        margin: auto;
+        padding: 24px;
+      }
+      nav {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-bottom: 22px;
+      }
+      nav button[aria-selected="true"] {
+        border-color: var(--gold);
+        color: var(--gold);
+      }
+      h2 {
+        font-size: 17px;
+        margin: 0 0 14px;
+      }
+      h3 {
+        font-size: 15px;
+        margin: 18px 0 8px;
+      }
+      p {
+        margin: 8px 0 14px;
+      }
+      .panel {
+        min-width: 0;
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 20px;
+      }
+      .status {
+        padding: 12px 16px;
+        margin-bottom: 18px;
+        border: 1px solid #536076;
+        border-radius: 8px;
+        color: var(--muted);
+      }
+      .status.error {
+        border-color: var(--red);
+        color: var(--red);
+      }
+      .status.ok {
+        border-color: #3d7966;
+      }
+      .hero {
+        display: grid;
+        grid-template-columns: 1.1fr 1fr;
+        gap: 18px;
+        margin-bottom: 18px;
+      }
+      .state-lenses {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 18px;
+        margin-bottom: 18px;
+      }
+      .state-lenses h3 {
+        margin: 0 0 8px;
+      }
+      .lens-value {
+        font:
+          700 27px/1.5 ui-monospace,
+          monospace;
+        color: var(--gold);
+      }
+      .state-regime {
+        font:
+          700 clamp(21px, 2.5vw, 30px) / 1.3 ui-monospace,
+          monospace;
+        color: var(--gold);
+        margin: 12px 0;
+      }
+      .state-breadth {
+        margin-top: 20px;
+        padding-top: 16px;
+        border-top: 1px solid var(--border);
+      }
+      .state-breadth h3 {
+        margin: 0 0 8px;
+      }
+      .state-breadth > strong {
+        font-size: 23px;
+      }
+      .state-breadth-dots {
+        display: flex;
+        gap: 6px;
+        margin: 12px 0;
+      }
+      .state-breadth-dots span {
+        height: 7px;
+        flex: 1;
+        border-radius: 4px;
+        background: #62738e;
+      }
+      .state-breadth-dots .positive {
+        background: #60d6ab;
+      }
+      .state-breadth-dots .negative {
+        background: #fb8995;
+      }
+      .state-breadth-dots .flat {
+        background: #e2b752;
+      }
+      .state-breadth-dots .unknown {
+        background: #29354a;
+      }
+      .state-controls {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px 14px;
+        align-items: end;
+        margin: 12px 0;
+      }
+      .state-controls label {
+        display: grid;
+        gap: 4px;
+        font-size: 11px;
+        color: var(--muted);
+        flex: 1 1 135px;
+        min-width: 0;
+      }
+      .state-controls select,
+      .state-controls input {
+        min-width: 0;
+        width: 100%;
+        background: #182236;
+        color: var(--text);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 8px;
+        font: inherit;
+        font-size: 12px;
+      }
+      .state-controls button {
+        font-size: 12px;
+        padding: 8px 12px;
+      }
+      #stateChart svg,
+      #stateHistogram svg {
+        display: block;
+        width: 100%;
+        height: auto;
+      }
+      .state-mark {
+        cursor: pointer;
+      }
+      .state-mark:focus {
+        outline: none;
+      }
+      .state-mark:focus circle,
+      .state-mark:focus path {
+        stroke: white;
+        stroke-width: 3px;
+      }
+      .state-readout {
+        padding: 10px 12px;
+        border-left: 3px solid var(--gold);
+        background: #101725;
+        font-size: 12px;
+        min-height: 65px;
+      }
+      .state-context {
+        margin-top: 18px;
+        padding-top: 15px;
+        border-top: 1px solid var(--border);
+      }
+      .state-context h3 {
+        margin: 0;
+      }
+      #statePlotMode {
+        color: var(--gold);
+      }
+      #stateEvidence .state-group th {
+        background: #182236;
+        color: #d6b86a;
+        padding-top: 14px;
+        padding-left: 8px;
+        text-align: left;
+      }
+      .state-flow {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 8px;
+        margin: 14px 0;
+      }
+      .state-flow span {
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 5px 9px;
+        font-size: 13px;
+      }
+      #stateChart svg {
+        display: block;
+        width: 100%;
+      }
+      #stateEvidence caption {
+        text-align: left;
+        white-space: normal;
+        padding-bottom: 10px;
+        color: var(--muted);
+      }
+      .preferred-assets {
+        border-top: 1px solid var(--border);
+        margin-top: 20px;
+        padding-top: 16px;
+      }
+      .preferred-assets h3 {
+        margin: 4px 0;
+        font-size: 19px;
+      }
+      .asset-levels {
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .asset-levels strong {
+        color: var(--text);
+      }
+      .asset-list {
+        list-style: none;
+        padding: 0;
+        margin: 12px 0;
+      }
+      .asset-list li {
+        border-left: 2px solid var(--gold);
+        padding: 4px 0 4px 12px;
+        margin: 10px 0;
+      }
+      .asset-list span {
+        display: block;
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .research-stack {
+        display: grid;
+        gap: 18px;
+      }
+      .research-stack h2 {
+        margin-top: 10px;
+      }
+      .research-stack caption {
+        text-align: left;
+        color: var(--muted);
+        padding: 0 0 12px;
+        white-space: normal;
+      }
+      .research-stack th[scope="row"] {
+        font-weight: 500;
+        color: var(--text);
+      }
+      .audit-note {
+        white-space: normal;
+        min-width: 240px;
+      }
+      .chart-legend {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
+        font-size: 12px;
+      }
+      #researchEquity {
+        max-width: 860px;
+      }
+      .regime {
+        font:
+          700 clamp(23px, 3vw, 35px) / 1.2 ui-monospace,
+          monospace;
+        color: var(--gold);
+        margin: 12px 0;
+      }
+      .metrics {
+        display: flex;
+        gap: 24px;
+        flex-wrap: wrap;
+        margin: 20px 0;
+      }
+      .metric strong {
+        display: block;
+        font:
+          700 26px/1.4 ui-monospace,
+          monospace;
+      }
+      .metric span {
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .pos {
+        color: var(--green);
+      }
+      .neg {
+        color: var(--red);
+      }
+      .blue {
+        color: var(--blue);
+      }
+      .pill {
+        display: inline-block;
+        border: 1px solid var(--border);
+        border-radius: 5px;
+        padding: 2px 7px;
+        font:
+          11px/1.6 ui-monospace,
+          monospace;
+        color: var(--muted);
+      }
+      .pill.stale,
+      .pill.missing {
+        color: var(--orange);
+        border-color: #795734;
+      }
+      .pill.ok {
+        color: var(--green);
+      }
+      canvas {
+        display: block;
+        width: 100%;
+        height: 310px;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 18px;
+        margin-bottom: 18px;
+      }
+      .wide {
+        grid-column: 1/-1;
+      }
+      .table-wrap {
+        overflow-x: auto;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        white-space: nowrap;
+        font-size: 13px;
+      }
+      th {
+        text-align: left;
+        font-size: 11px;
+        letter-spacing: 0.04em;
+        color: var(--muted);
+        font-weight: 600;
+      }
+      td,
+      th {
+        padding: 11px 8px;
+        border-bottom: 1px solid var(--border);
+      }
+      td:first-child,
+      th:first-child {
+        padding-left: 0;
+      }
+      td:last-child,
+      th:last-child {
+        text-align: right;
+      }
+      td small {
+        display: block;
+        font:
+          10px/1.6 ui-monospace,
+          monospace;
+        color: var(--muted);
+      }
+      .market-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+      }
+      .tile {
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 15px;
+      }
+      .tile strong {
+        font:
+          700 23px/1.6 ui-monospace,
+          monospace;
+      }
+      .tile .sub {
+        font-size: 12px;
+      }
+      .tile h3 {
+        font-size: 13px;
+        margin: 0 0 8px;
+      }
+      .drivers {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+      .drivers li {
+        padding: 9px 0;
+        border-bottom: 1px solid var(--border);
+        font-size: 13px;
+      }
+      .rules {
+        max-width: 950px;
+      }
+      .rules li {
+        margin-bottom: 8px;
+      }
+      .rules details {
+        border-top: 1px solid var(--border);
+        padding: 16px 0;
+      }
+      summary {
+        cursor: pointer;
+        color: var(--gold);
+      }
+      .scenario {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+      }
+      .scenario input {
+        width: 100%;
+        accent-color: var(--gold);
+      }
+      .scenario label {
+        display: block;
+      }
+      .stress-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 12px;
+      }
+      .stress {
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 12px;
+      }
+      .stress.triggered {
+        border-color: var(--red);
+      }
+      footer {
+        font-size: 12px;
+        color: var(--muted);
+        padding: 20px 0;
+        border-top: 1px solid var(--border);
+        margin-top: 24px;
+      }
+      .note {
+        border-left: 3px solid var(--gold);
+        padding-left: 12px;
+        font-size: 13px;
+        color: var(--muted);
+      }
+      [hidden] {
+        display: none !important;
+      }
+      #historyMessage {
+        font-size: 13px;
+        color: var(--muted);
+      }
+      .context-controls {
+        display: flex;
+        gap: 14px;
+        flex-wrap: wrap;
+        margin: 12px 0 18px;
+      }
+      .context-controls label {
+        font-size: 12px;
+        color: var(--muted);
+        display: grid;
+        gap: 5px;
+      }
+      .context-controls select {
+        max-width: 100%;
+        background: #1a2638;
+        color: var(--text);
+        border: 1px solid #43516a;
+        border-radius: 6px;
+        padding: 8px;
+      }
+      .context-table td {
+        padding: 7px 8px;
+      }
+      .z-cell {
+        width: 88px;
+        min-height: 53px;
+        padding: 5px;
+        color: var(--text);
+        font-family: ui-monospace, monospace;
+      }
+      .z-cell small {
+        font-size: 10px;
+        color: var(--text);
+      }
+      .z-cell.chosen {
+        outline: 2px solid var(--gold);
+        outline-offset: 1px;
+      }
+      .context-table th:nth-child(n + 3),
+      .context-table td:nth-child(n + 3) {
+        text-align: center;
+      }
+      #contextChart {
+        height: 310px;
+      }
+      .quadrant-frame {
+        position: relative;
+      }
+      .quadrant-tooltip {
+        position: absolute;
+        z-index: 2;
+        width: 220px;
+        max-width: calc(100% - 16px);
+        padding: 9px 12px;
+        white-space: pre-line;
+        pointer-events: none;
+        color: var(--text);
+        background: #0b1019f2;
+        border: 1px solid #8b7749;
+        border-radius: 7px;
+        font-size: 12px;
+      }
+      #quadrantReadout {
+        min-height: 62px;
+        margin: 10px 0;
+      }
+      .quadrant-method {
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .pressure-layout {
+        display: grid;
+        grid-template-columns: minmax(260px, 0.85fr) minmax(0, 1.6fr);
+        gap: 28px;
+        align-items: start;
+        margin: 22px 0;
+      }
+      .pressure-summary {
+        background: #0d1522;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 22px;
+      }
+      .pressure-number {
+        font:
+          700 76px/1.1 ui-monospace,
+          monospace;
+        letter-spacing: -5px;
+        margin: 14px 0 2px;
+        color: var(--gold);
+      }
+      .pressure-number small {
+        font:
+          400 20px system-ui,
+          sans-serif;
+        letter-spacing: 0;
+        color: var(--muted);
+      }
+      #pressureBand {
+        font-size: 18px;
+        font-weight: 650;
+      }
+      .pressure-meter,
+      .pillar-track {
+        position: relative;
+        display: block;
+        height: 10px;
+        margin: 24px 7px 10px;
+        border-radius: 8px;
+        background: linear-gradient(
+          90deg,
+          #3c669b 0%,
+          #293e58 40%,
+          #293e58 60%,
+          #966437 100%
+        );
+      }
+      .pressure-meter::before,
+      .pillar-centre {
+        content: "";
+        position: absolute;
+        left: 50%;
+        top: -4px;
+        height: 18px;
+        width: 1px;
+        background: #dce3ef80;
+      }
+      #pressureMarker,
+      .pillar-track i {
+        position: absolute;
+        top: 50%;
+        width: 14px;
+        height: 14px;
+        transform: translate(-50%, -50%);
+        border: 2px solid #f2f5fa;
+        background: var(--gold);
+        border-radius: 50%;
+        box-shadow: 0 0 0 3px #0d1522;
+      }
+      #pressureMarker[hidden] {
+        display: none;
+      }
+      .pressure-scale {
+        display: flex;
+        justify-content: space-between;
+        font-size: 11px;
+        color: var(--muted);
+        gap: 6px;
+      }
+      .pressure-movement {
+        margin: 20px 0 12px;
+        border-top: 1px solid var(--border);
+        padding-top: 14px;
+      }
+      .pressure-movement strong {
+        display: block;
+        margin-top: 4px;
+        font-size: 16px;
+      }
+      #pressureReading {
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .pressure-pillar {
+        display: block;
+        width: 100%;
+        text-align: left;
+        padding: 12px 14px;
+        background: #101a29;
+        margin-bottom: 10px;
+      }
+      .pressure-pillar.chosen {
+        border-color: var(--gold);
+      }
+      .pillar-heading,
+      .pillar-foot {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+      }
+      .pillar-heading > span {
+        font:
+          600 22px ui-monospace,
+          monospace;
+      }
+      .pillar-heading small {
+        font:
+          400 11px system-ui,
+          sans-serif;
+        color: var(--muted);
+      }
+      .pillar-track {
+        margin: 12px 6px 10px;
+        height: 6px;
+      }
+      .pillar-track i {
+        width: 11px;
+        height: 11px;
+        border-width: 1px;
+      }
+      .pillar-centre {
+        height: 12px;
+        top: -3px;
+      }
+      .pillar-foot {
+        font-size: 11px;
+        color: var(--muted);
+        flex-wrap: wrap;
+        gap: 3px 12px;
+      }
+      .pressure-driver {
+        width: 100%;
+        display: grid;
+        grid-template-columns: minmax(0, 1.6fr) minmax(60px, 1fr) minmax(
+            115px,
+            0.8fr
+          );
+        align-items: center;
+        text-align: left;
+        gap: 18px;
+        padding: 12px 4px;
+        border: 0;
+        border-top: 1px solid var(--border);
+        border-radius: 0;
+        background: transparent;
+      }
+      .pressure-driver:hover {
+        background: #1a2638;
+      }
+      .pressure-driver strong {
+        font-size: 13px;
+        font-weight: 500;
+      }
+      .pressure-driver small {
+        display: block;
+        font-size: 11px;
+        color: var(--muted);
+        margin-top: 3px;
+      }
+      .driver-track {
+        position: relative;
+        height: 7px;
+        background: #223147;
+        border-radius: 3px;
+      }
+      .driver-track::after {
+        content: "";
+        position: absolute;
+        left: 50%;
+        top: -4px;
+        height: 15px;
+        width: 1px;
+        background: #c4ccdb80;
+      }
+      .driver-track i {
+        position: absolute;
+        height: 7px;
+      }
+      .driver-value {
+        text-align: right;
+        font:
+          500 13px ui-monospace,
+          monospace;
+      }
+      .driver-value small {
+        font:
+          400 11px system-ui,
+          sans-serif;
+      }
+      .context-details {
+        border-top: 1px solid var(--border);
+        padding-top: 15px;
+        margin-top: 18px;
+      }
+      .context-details summary {
+        cursor: pointer;
+        color: var(--gold);
+        font-size: 13px;
+      }
+      .context-details[open] summary {
+        margin-bottom: 16px;
+      }
+      .pressure-method {
+        font-size: 13px;
+        color: var(--muted);
+      }
+      @media (max-width: 1000px) {
+        .hero,
+        .grid,
+        .state-lenses {
+          grid-template-columns: 1fr;
+        }
+        .stress-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+      @media (max-width: 600px) {
+        .pressure-layout {
+          grid-template-columns: 1fr;
+          gap: 18px;
+        }
+        .pressure-summary {
+          padding: 18px;
+        }
+        .pressure-number {
+          font-size: 64px;
+        }
+        .pressure-driver {
+          grid-template-columns: minmax(0, 1fr) 104px;
+          gap: 8px;
+        }
+        .driver-track {
+          grid-row: 2;
+          grid-column: 1 / -1;
+          margin: 4px 0 7px;
+        }
+        .driver-value {
+          grid-row: 1;
+          grid-column: 2;
+        }
+        header {
+          align-items: flex-start;
+          flex-direction: column;
+          padding: 20px;
+        }
+        .wrap {
+          padding: 14px;
+        }
+        .panel {
+          padding: 15px;
+        }
+        .market-grid {
+          grid-template-columns: 1fr 1fr;
+        }
+        .metrics {
+          gap: 18px;
+        }
+        .tile {
+          padding: 11px;
+        }
+        .tile strong {
+          font-size: 19px;
+        }
+        nav {
+          flex-wrap: wrap;
+        }
+        canvas {
+          height: 275px;
+        }
+      }
+      .tilt-leader > strong {
+        display: block;
+        font-size: 23px;
+        color: var(--gold);
+        margin-top: 4px;
+      }
+      .tilt-ranking {
+        padding-left: 23px;
+      }
+      .tilt-ranking li {
+        padding: 7px 0;
+      }
+      .tilt-ranking span {
+        display: block;
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .state-investment {
+        border-top: 1px solid var(--border);
+      }
+      .state-investment summary {
+        cursor: pointer;
+        color: var(--gold);
+      }
+      .tilt-table {
+        min-width: 490px;
+      }
+      .tilt-components {
+        padding-left: 18px;
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .forward-panel {
+        margin-bottom: 18px;
+      }
+      .forward-panel small,
+      .forward-point-table small {
+        display: block;
+        font-weight: 400;
+        color: var(--muted);
+        font-size: 11px;
+        margin-top: 5px;
+      }
+      .forward-heatmap {
+        min-width: 850px;
+        table-layout: fixed;
+      }
+      .forward-heatmap th:first-child {
+        width: 185px;
+      }
+      .forward-heatmap td strong {
+        font-size: 19px;
+      }
+      .forward-baseline {
+        border-top: 2px solid #657389;
+      }
+      .forward-point-table {
+        min-width: 450px;
+      }
+      .forward-panel details {
+        margin-top: 16px;
+      }
+      .forward-panel summary {
+        cursor: pointer;
+        padding: 10px 0;
+        color: var(--gold);
+      }
+      .pwa-notice {
+        border: 1px solid var(--border);
+        background: var(--panel);
+        border-radius: 10px;
+        padding: 14px 18px;
+        margin-bottom: 14px;
+      }
+      .pwa-notice p {
+        margin: 6px 0;
+      }
+      #installDialog {
+        background: var(--panel);
+        color: var(--text);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        max-width: min(560px, calc(100vw - 32px));
+        padding: 24px;
+      }
+      #installDialog::backdrop {
+        background: #000a;
+      }
+      #installApp:disabled {
+        cursor: default;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div>
+        <div class="eyebrow">Principles · Evidence · Balance</div>
+        <h1>Dalio <span>Quadrant</span></h1>
+        <div class="sub">
+          US economic state, momentum & market context · FRED
         </div>
       </div>
-      <div class="quadrant-info-grid">
-        <div class="q-info-card q-stag" id="qCardStag"><div class="q-name">↙ Stagflation</div><div class="q-assets">Gold, TIPS, Commodities, Cash</div></div>
-        <div class="q-info-card q-over" id="qCardOver"><div class="q-name">↗ Overheating</div><div class="q-assets">Commodities, TIPS, EM, Real Assets</div></div>
-        <div class="q-info-card q-defl" id="qCardDefl"><div class="q-name">↘ Deflation</div><div class="q-assets">Long Treasuries, Nom. Bonds, USD</div></div>
-        <div class="q-info-card q-gold" id="qCardGold"><div class="q-name">↗ Goldilocks</div><div class="q-assets">Equities, Corp Bonds, Growth, EM</div></div>
+      <div class="actions">
+        <button id="refresh" class="primary">↻ Refresh data</button
+        ><button id="export">Export history</button>
+        <button id="installApp" type="button">Install app</button>
       </div>
-    </div>
-  </div>
-
-  <div class="panel" id="inflationPanel">
-    <div class="panel-header">
-      <div class="panel-title" style="color:var(--orange)"><span class="dot" style="background:var(--orange)"></span>Inflation Indicators</div>
-      <div class="panel-score" id="inflationScore" style="background:var(--orange-dim);color:var(--orange)">—</div>
-    </div>
-    <div class="panel-body" id="inflationBody"></div>
-  </div>
-
-  <div class="warnings-row panel">
-    <div class="panel-header">
-      <div class="panel-title" style="color:var(--red)"><span class="dot" style="background:var(--red)"></span>Recession & Financial Stress</div>
-      <div class="panel-score" id="warningCount" style="background:var(--red-dim);color:var(--red)">—</div>
-    </div>
-    <div class="panel-body"><div class="warnings-grid" id="warningsGrid"></div></div>
-  </div>
-
-  <div class="warnings-row panel">
-    <div class="panel-header">
-      <div class="panel-title" style="color:var(--blue)"><span class="dot" style="background:var(--blue)"></span>Market Confirmation — Sector Performance</div>
-      <div class="panel-score" style="background:var(--blue-dim);color:var(--blue);font-size:0.68rem">FINVIZ</div>
-    </div>
-    <div class="panel-body" id="sectorsBody"><div class="market-note muted">Sector performance loads from Finviz Elite…</div></div>
-  </div>
-
-  <div class="warnings-row panel">
-    <div class="panel-header">
-      <div class="panel-title" style="color:var(--gold)"><span class="dot" style="background:var(--gold)"></span>Futures &amp; Forex</div>
-      <div class="panel-score" style="background:rgba(212,168,67,0.12);color:var(--gold);font-size:0.68rem">FINVIZ</div>
-    </div>
-    <div class="panel-body"><div class="futures-grid" id="futuresBody"><div class="market-note muted">Futures &amp; forex load from Finviz…</div></div></div>
-  </div>
-
-  <div class="footer-bar">
-    Dalio Quadrant Framework · <a href="https://macro.disciplinefunds.com" target="_blank">Discipline Funds Macro Dashboard</a> ·
-    Last calc: <span id="lastUpdate">—</span> · <span style="color:var(--orange)">⬤ Override</span> values shown in amber
-  </div>
-</main>
-</div>
-
-<!-- ══════════ TAB: HISTORY ══════════ -->
-<div class="tab-content" id="tab-history">
-  <div style="max-width:1300px;margin:0 auto;padding:2rem">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
-      <h2 style="font-family:var(--font-mono);font-size:1.1rem;color:var(--gold)">Calculation History</h2>
-      <button class="btn btn-outline" style="color:var(--red);border-color:rgba(239,68,68,0.3)" onclick="clearHistory()">Clear History</button>
-    </div>
-    <div class="panel"><div class="panel-body">
-      <div class="history-table-wrap" id="historyWrap">
-        <table class="history-table"><thead><tr>
-          <th>#</th><th>Date</th><th>Growth</th><th>Inflation</th><th>Quadrant</th><th>Warnings</th><th>Action</th>
-        </tr></thead><tbody id="historyBody"></tbody></table>
+    </header>
+    <div class="wrap">
+      <div id="pwaUpdate" class="pwa-notice" role="status" hidden>
+        A new app version is ready.
+        <button id="updateApp" type="button">Update & reload</button>
       </div>
-      <div id="historyEmpty" style="text-align:center;padding:2.5rem;font-family:var(--font-mono);font-size:0.82rem;color:var(--text-muted)">
-        No entries yet. Enter values and press "Calculate & Log".
+      <div id="offlineConnection" class="pwa-notice" role="status" hidden>
+        Offline · saved observations and previously downloaded research may be
+        available. Reconnect to refresh the current economy and asset
+        preference.
       </div>
-    </div></div>
-  </div>
-</div>
-
-<!-- ══════════ TAB: INSTRUCTIONS ══════════ -->
-<div class="tab-content" id="tab-instructions">
-<div class="instructions">
-
-<h2>Dalio's All Weather Framework</h2>
-<p>This dashboard implements Ray Dalio's "All Weather" framework, which divides the macroeconomic environment into <strong>4 quadrants</strong> along two fundamental axes: <strong>Growth</strong> (rising vs. falling) and <strong>Inflation</strong> (rising vs. falling). Each quadrant represents a unique regime where different asset classes outperform.</p>
-
-<table class="quad-table">
-  <tr><th></th><th>Growth Falling ↓</th><th>Growth Rising ↑</th></tr>
-  <tr><th>Inflation Rising ↑</th>
-    <td class="q-cell-stag"><strong>STAGFLATION</strong><br>Gold, TIPS, Commodities, Cash</td>
-    <td class="q-cell-over"><strong>OVERHEATING</strong><br>Commodities, TIPS, EM, Real Assets</td></tr>
-  <tr><th>Inflation Falling ↓</th>
-    <td class="q-cell-defl"><strong>DEFLATION / RECESSION</strong><br>Long Treasuries, Nominal Bonds, USD</td>
-    <td class="q-cell-gold"><strong>GOLDILOCKS</strong><br>Equities, Corp Bonds, Growth Stocks</td></tr>
-</table>
-
-<div class="note-box">
-  <strong>Data Source:</strong> Most indicator values can be transcribed from the
-  <a href="https://macro.disciplinefunds.com" target="_blank" style="color:var(--gold)">Discipline Funds Macro Dashboard</a>
-  (Brian Massaro / Cullen Roche framework), which pulls data from FRED and related sources. Alternatively, enter a FRED API key for automated fetching.
-</div>
-
-<h2>Suggested All Weather Allocation Tilt</h2>
-<p>Dalio's base All Weather allocation is: 30% Equities, 40% Long-Term Treasuries, 15% Intermediate Bonds, 7.5% Gold, 7.5% Commodities. The idea is to tilt away from this base depending on the active quadrant:</p>
-<table class="quad-table">
-  <tr><th>Regime</th><th>Overweight</th><th>Underweight</th></tr>
-  <tr><td class="q-cell-gold">Goldilocks</td><td>Equities, Corp Bonds</td><td>Gold, Commodities</td></tr>
-  <tr><td class="q-cell-over">Overheating</td><td>Commodities, TIPS, Gold, EM</td><td>Long Treasuries</td></tr>
-  <tr><td class="q-cell-stag">Stagflation</td><td>Gold, TIPS, Cash</td><td>Equities, Long Bonds</td></tr>
-  <tr><td class="q-cell-defl">Deflation</td><td>Long Treasuries, Nominal Bonds</td><td>Equities, Commodities</td></tr>
-</table>
-
-<h2>Growth Score — Calculation</h2>
-<p>Each growth indicator produces a score from <code>-1</code> (deep contraction) to <code>+1</code> (strong expansion), using linear interpolation between historical thresholds:</p>
-<div class="formula-box">
-  score = (value − bearishThreshold) / (bullishThreshold − bearishThreshold) × 2 − 1<br><br>
-  If value ≥ bullishThreshold → score = +1<br>
-  If value ≤ bearishThreshold → score = −1<br><br>
-  Weighted Growth Score = Σ(score_i × weight_i) / Σ(weight_i)
-</div>
-
-<h3>Growth Indicators — Thresholds & Weights</h3>
-<table class="ind-table">
-  <tr><th>Indicator</th><th>Unit</th><th>Bearish ≤</th><th>Bullish ≥</th><th>Weight</th><th>Source</th></tr>
-  <tr><td>Real GDP</td><td>% YoY</td><td>1.0%</td><td>2.5%</td><td>1.2</td><td>FRED: A191RL1Q225SBEA</td></tr>
-  <tr><td>Nominal GDP</td><td>% YoY</td><td>3.0%</td><td>5.0%</td><td>0.8</td><td>FRED: GDP</td></tr>
-  <tr><td>ISM Manufacturing PMI</td><td>Index</td><td>47.0</td><td>53.0</td><td>1.0</td><td>Manual (ISM Report)</td></tr>
-  <tr><td>Industrial Production</td><td>% YoY</td><td>-1.0%</td><td>2.0%</td><td>0.9</td><td>FRED: INDPRO</td></tr>
-  <tr><td>New Mfg Orders</td><td>% YoY</td><td>-3.0%</td><td>3.0%</td><td>0.9</td><td>FRED: AMTMNO</td></tr>
-  <tr><td>Payroll Growth</td><td>% YoY</td><td>0.5%</td><td>2.0%</td><td>1.1</td><td>FRED: PAYEMS</td></tr>
-  <tr><td>Temp Help Services</td><td>% YoY</td><td>-4.0%</td><td>2.0%</td><td>1.0</td><td>FRED: TEMPHELPS</td></tr>
-  <tr><td>Total Loan Growth</td><td>% YoY</td><td>0.0%</td><td>5.0%</td><td>0.8</td><td>FRED: TOTLL</td></tr>
-  <tr><td>NFCI</td><td>Index</td><td>+0.0 (tight)</td><td>-0.50 (loose)</td><td>0.9</td><td>FRED: NFCI (inverted)</td></tr>
-  <tr><td>Fed Net Liquidity Δ</td><td>% YoY</td><td>-10%</td><td>+10%</td><td>0.7</td><td>Manual: WALCL−TGA−RRP</td></tr>
-</table>
-
-<h2>Inflation Score — Calculation</h2>
-<p>Each inflation indicator produces a score from <code>-1</code> (strong disinflation) to <code>+1</code> (hot inflation):</p>
-<div class="formula-box">
-  score = (value − fallingThreshold) / (risingThreshold − fallingThreshold) × 2 − 1<br><br>
-  If value ≥ risingThreshold → score = +1 (inflation rising)<br>
-  If value ≤ fallingThreshold → score = −1 (inflation falling)
-</div>
-
-<h3>Inflation Indicators — Thresholds & Weights</h3>
-<table class="ind-table">
-  <tr><th>Indicator</th><th>Unit</th><th>Falling ≤</th><th>Rising ≥</th><th>Weight</th><th>Source</th></tr>
-  <tr><td>Core PCE</td><td>% YoY</td><td>2.0%</td><td>3.0%</td><td>1.3</td><td>FRED: PCEPILFE</td></tr>
-  <tr><td>CPI</td><td>% YoY</td><td>2.0%</td><td>3.5%</td><td>1.1</td><td>FRED: CPIAUCSL</td></tr>
-  <tr><td>Roche Leading Inflation</td><td>%</td><td>1.8%</td><td>3.0%</td><td>1.2</td><td>Manual (Discipline Funds)</td></tr>
-  <tr><td>Avg Hourly Earnings</td><td>% YoY</td><td>3.0%</td><td>4.5%</td><td>0.9</td><td>FRED: CES0500000003</td></tr>
-  <tr><td>Shelter CPI</td><td>% YoY</td><td>3.0%</td><td>5.5%</td><td>0.8</td><td>FRED: CUSR0000SAH1</td></tr>
-  <tr><td>Misery Index</td><td>UE+CPI</td><td>5.5</td><td>9.0</td><td>0.7</td><td>Manual (UE Rate + CPI YoY)</td></tr>
-  <tr><td>Federal Funds Rate</td><td>%</td><td>2.0%</td><td>4.5%</td><td>0.6</td><td>FRED: FEDFUNDS</td></tr>
-</table>
-
-<h2>Fed Net Liquidity</h2>
-<p>Based on Max Anderson's methodology. Fed Net Liquidity = Federal Reserve Balance Sheet (WALCL) − Treasury General Account (WTREGEN) − Overnight Reverse Repo (RRPONTSYD). All three FRED series are updated weekly. For this dashboard, enter the <strong>YoY % change</strong> in net liquidity. Current level is approximately $5.7T. Track it on <a href="https://streetstats.finance/liquidity/fed-balance-sheet" target="_blank" style="color:var(--gold)">StreetStats</a> or via TradingView formula: <code>WALCL-WTREGEN-RRPONTSYD</code>.</p>
-
-<h2>Quadrant Determination</h2>
-<div class="formula-box">
-  Growth ≥ 0 AND Inflation &lt; 0 → <span style="color:var(--q-goldilocks)">GOLDILOCKS</span><br>
-  Growth ≥ 0 AND Inflation ≥ 0 → <span style="color:var(--q-overheating)">OVERHEATING</span><br>
-  Growth &lt; 0 AND Inflation ≥ 0 → <span style="color:var(--q-stagflation)">STAGFLATION</span><br>
-  Growth &lt; 0 AND Inflation &lt; 0 → <span style="color:var(--q-deflation)">DEFLATION</span>
-</div>
-
-<h2>Recession Warnings</h2>
-<p>Seven binary/threshold indicators that flag recession risk. If <strong>3 or more</strong> are triggered, a recession warning banner appears.</p>
-<table class="ind-table">
-  <tr><th>Indicator</th><th>Trigger</th><th>Description</th></tr>
-  <tr><td>Sahm Rule</td><td>≥ 0.50</td><td>3-month avg UE rate rises ≥ 0.5pp above 12-month low</td></tr>
-  <tr><td>10Y-2Y Yield Curve</td><td>&lt; 0</td><td>Yield curve inversion — historically precedes recessions</td></tr>
-  <tr><td>HY Credit Spreads</td><td>≥ 5.0%</td><td>High-yield OAS indicates financial stress</td></tr>
-  <tr><td>Roche Recession Rule</td><td>= 1</td><td>Cullen Roche composite recession indicator</td></tr>
-  <tr><td>Unemployment Rate</td><td>≥ 5.0%</td><td>Elevated unemployment vs. post-2010 average ~4-5%</td></tr>
-  <tr><td>NFCI Stress</td><td>≥ 0</td><td>Chicago Fed NFCI positive = tighter-than-average conditions</td></tr>
-  <tr><td>Temp Help Decline</td><td>≤ -5.0%</td><td>Leading indicator — temp layoffs precede broad layoffs</td></tr>
-</table>
-
-<h2>Mini Heatbar</h2>
-<p>Each indicator has a mini gradient bar. <strong>Growth indicators:</strong> red (bearish) → yellow → green (bullish). <strong>Inflation indicators:</strong> blue (cool/disinflation) → yellow → red (hot/inflation). The white thumb shows where the current value sits within the scoring range.</p>
-
-<h2>Workflow</h2>
-<p>1. Open <a href="https://macro.disciplinefunds.com" target="_blank" style="color:var(--gold)">Discipline Funds Macro Dashboard</a> and/or FRED</p>
-<p>2. Enter current values for each indicator (or use FRED API Fetch)</p>
-<p>3. Toggle manual overrides (✎) for indicators requiring manual input</p>
-<p>4. Press <strong>"Calculate & Log"</strong> — result is saved to History tab with full snapshot</p>
-<p>5. Track regime changes over time in the History tab and canvas trail</p>
-
-</div>
-</div>
-
-<script>
-// ═══════════════════════════════════════════════════════
-//  DATA MODEL — Historically calibrated thresholds
-// ═══════════════════════════════════════════════════════
-
-const G_IND = [
-  {id:'real_gdp',name:'Real GDP',unit:'% YoY',fred:'A191RL1Q225SBEA',def:2.4,
-   th:{bull:2.5,bear:1.0},desc:'BEA Quarterly',dir:'hb',w:1.2},
-  {id:'nominal_gdp',name:'Nominal GDP',unit:'% YoY',fred:'GDP',def:5.1,
-   th:{bull:5.0,bear:3.0},desc:'FRED GDP',dir:'hb',w:0.8},
-  {id:'ism_pmi',name:'ISM Manufacturing PMI',unit:'Index',fred:null,def:52.6,
-   th:{bull:53.0,bear:47.0},desc:'Manual — ISM Report',dir:'hb',w:1.0,
-   src:'https://www.ismworld.org/supply-management-news-and-reports/reports/ism-report-on-business/',srcLabel:'ISM'},
-  {id:'ind_prod',name:'Industrial Production',unit:'% YoY',fred:'INDPRO',def:0.8,
-   th:{bull:2.0,bear:-1.0},desc:'Fed Ind. Production',dir:'hb',w:0.9},
-  {id:'new_orders',name:'New Mfg Orders',unit:'% YoY',fred:'AMTMNO',def:1.5,
-   th:{bull:3.0,bear:-3.0},desc:'Census Bureau',dir:'hb',w:0.9},
-  {id:'payrolls',name:'Payroll Growth',unit:'% YoY',fred:'PAYEMS',def:1.4,
-   th:{bull:2.0,bear:0.5},desc:'BLS Nonfarm Payrolls',dir:'hb',w:1.1},
-  {id:'temp_help',name:'Temp Help Services',unit:'% YoY',fred:'TEMPHELPS',def:-3.5,
-   th:{bull:2.0,bear:-4.0},desc:'Leading employment',dir:'hb',w:1.0},
-  {id:'loans',name:'Total Loan Growth',unit:'% YoY',fred:'TOTLL',def:2.0,
-   th:{bull:5.0,bear:0.0},desc:'Fed H.8 Bank Credit',dir:'hb',w:0.8},
-  {id:'nfci',name:'NFCI',unit:'Index',fred:'NFCI',def:-0.56,
-   th:{bull:-0.50,bear:0.0},desc:'Chicago Fed (neg = loose)',dir:'lb',w:0.9},
-  {id:'fed_liq',name:'Fed Net Liquidity Δ',unit:'% YoY',fred:null,def:-6.0,
-   th:{bull:10.0,bear:-10.0},desc:'Auto: WALCL−TGA−RRP YoY%',dir:'hb',w:0.7,
-   src:'https://fred.stlouisfed.org/graph/?g=WALCL',srcLabel:'AUTO'},
-];
-
-const I_IND = [
-  {id:'core_pce',name:'Core PCE',unit:'% YoY',fred:'PCEPILFE',def:2.6,
-   th:{rise:3.0,fall:2.0},desc:'Fed preferred measure',w:1.3},
-  {id:'cpi',name:'CPI',unit:'% YoY',fred:'CPIAUCSL',def:2.8,
-   th:{rise:3.5,fall:2.0},desc:'BLS Consumer Prices',w:1.1},
-  {id:'roche_lii',name:'Roche Leading Inflation',unit:'%',fred:null,def:2.35,
-   th:{rise:3.0,fall:1.8},desc:'Discipline Funds LII (manual)',w:1.2,
-   src:'https://macro.disciplinefunds.com',srcLabel:'DF'},
-  {id:'wages',name:'Avg Hourly Earnings',unit:'% YoY',fred:'CES0500000003',def:3.8,
-   th:{rise:4.5,fall:3.0},desc:'BLS Wage Growth',w:0.9},
-  {id:'shelter',name:'Shelter CPI',unit:'% YoY',fred:'CUSR0000SAH1',def:4.0,
-   th:{rise:5.5,fall:3.0},desc:'Lagging, persistent',w:0.8},
-  {id:'misery',name:'Misery Index',unit:'UE+CPI',fred:null,def:6.8,
-   th:{rise:9.0,fall:5.5},desc:'Auto: UNRATE + CPI YoY',w:0.7,
-   src:'https://fred.stlouisfed.org/series/UNRATE',srcLabel:'AUTO'},
-  {id:'ffr',name:'Federal Funds Rate',unit:'%',fred:'FEDFUNDS',def:4.50,
-   th:{rise:4.5,fall:2.0},desc:'Fed policy rate',w:0.6},
-];
-
-const W_IND = [
-  {id:'sahm',name:'Sahm Rule',fred:'SAHMREALTIME',def:0.43,thr:0.5,dir:'above',desc:'Trigger ≥ 0.50'},
-  {id:'yc',name:'10Y-2Y Yield Curve',fred:'T10Y2Y',def:0.15,thr:0,dir:'below',desc:'Inverted < 0'},
-  {id:'hy',name:'HY Credit Spreads',fred:'BAMLH0A0HYM2',def:3.4,thr:5.0,dir:'above',desc:'Stress > 5.0%'},
-  {id:'roche_rec',name:'Roche Recession Rule',fred:null,def:0,thr:1,dir:'above',desc:'1 = triggered',src:'https://macro.disciplinefunds.com',srcLabel:'DF'},
-  {id:'ue',name:'Unemployment Rate',fred:'UNRATE',def:4.0,thr:5.0,dir:'above',desc:'UE > 5%'},
-  {id:'nfci_w',name:'NFCI Stress',fred:'NFCI',def:-0.56,thr:0,dir:'above',desc:'Tightening > 0'},
-  {id:'temp_w',name:'Temp Help Decline',fred:'TEMPHELPS',def:-3.5,thr:-5.0,dir:'below',desc:'Layoff signal < -5%'},
-];
-
-let state={values:{},overrides:{},fredKey:'',dates:{},dirs:{},fetchedAt:0};
-let hist=[];
-let lastRes=null;
-
-// ═══════ TABS ═══════
-document.querySelectorAll('.tab-btn').forEach(b=>{
-  b.addEventListener('click',()=>{
-    document.querySelectorAll('.tab-btn').forEach(x=>x.classList.remove('active'));
-    document.querySelectorAll('.tab-content').forEach(x=>x.classList.remove('active'));
-    b.classList.add('active');
-    document.getElementById('tab-'+b.dataset.tab).classList.add('active');
-    if(b.dataset.tab==='history')renderHistory();
-  });
-});
-
-// ═══════ INIT ═══════
-function init(){
-  const s=localStorage.getItem('dq3_state');
-  if(s)try{state=JSON.parse(s)}catch(e){}
-  const h=localStorage.getItem('dq3_hist');
-  if(h)try{hist=JSON.parse(h)}catch(e){}
-  // Ensure new state fields exist for sessions saved by older versions.
-  state.dates=state.dates||{};state.dirs=state.dirs||{};state.fetchedAt=state.fetchedAt||0;
-  [...G_IND,...I_IND].forEach(i=>{if(state.values[i.id]===undefined)state.values[i.id]=i.def});
-  W_IND.forEach(w=>{if(state.values[w.id]===undefined)state.values[w.id]=w.def});
-  if(state.fredKey)document.getElementById('fredApiKey').value=state.fredKey;
-  renderG();renderI();renderW();
-  if(hist.length>0){const l=hist[hist.length-1];drawQ(l.g,l.i,l.q);updateDisp(l.g,l.i,l.q,l.w)}
-  else drawQ(0,0,null);
-  maybeAutoRefresh();
-}
-
-// ═══════ RENDER ═══════
-function renderG(){
-  const c=document.getElementById('growthBody');c.innerHTML='';
-  G_IND.forEach(i=>c.appendChild(mkRow(i,'growth')));
-}
-function renderI(){
-  const c=document.getElementById('inflationBody');c.innerHTML='';
-  I_IND.forEach(i=>c.appendChild(mkRow(i,'inflation')));
-}
-
-// Source link / freshness / direction shown under each indicator name.
-function srcOf(ind){
-  if(ind.fred)return{url:`https://fred.stlouisfed.org/series/${ind.fred}`,label:ind.fred};
-  if(ind.src)return{url:ind.src,label:ind.srcLabel||'SOURCE'};
-  return{url:null,label:'MANUAL'};
-}
-function fmtDate(s){const d=new Date(s);if(isNaN(d))return s;return d.toLocaleDateString('en-US',{month:'short',year:'2-digit'});}
-function indMeta(ind){
-  const s=srcOf(ind);
-  const link=s.url
-    ?`<a class="src-link" href="${s.url}" target="_blank" rel="noopener">${s.label} ↗</a>`
-    :`<span class="src-link muted">${s.label}</span>`;
-  const dt=state.dates&&state.dates[ind.id];
-  const asof=dt?` · <span class="asof">${fmtDate(dt)}</span>`:'';
-  const d=state.dirs&&state.dirs[ind.id];
-  const dir=d==='up'?` <span class="dir-up">▲</span>`:d==='down'?` <span class="dir-down">▼</span>`:'';
-  return`${link} · ${ind.desc}${asof}${dir}`;
-}
-
-function mkRow(ind,type){
-  const r=document.createElement('div');r.className='indicator';
-  const isO=state.overrides[ind.id]!==undefined;
-  const v=isO?state.overrides[ind.id]:(state.values[ind.id]??ind.def);
-  const hp=heatPct(ind,v,type);
-  const barClass=type==='growth'?'growth-bar':'infl-bar';
-  r.innerHTML=`
-    <div class="ind-name">${ind.name} <span style="color:var(--text-muted);font-size:0.72rem">(${ind.unit})</span>
-      <span class="sub">${indMeta(ind)}</span></div>
-    <div class="heatbar-wrap"><div class="heatbar ${barClass}"><div class="heatbar-thumb" id="ht_${ind.id}" style="left:${hp}%"></div></div></div>
-    <input type="number" step="0.01" value="${v}" id="in_${ind.id}" class="${isO?'overridden':''}" oninput="onIn('${ind.id}','${type}',this)"/>
-    <div class="signal-badge neutral" id="sig_${ind.id}">—</div>
-    <button class="ovr-btn ${isO?'active':''}" id="ob_${ind.id}" onclick="togOvr('${ind.id}')" title="Override">✎</button>`;
-  return r;
-}
-
-function heatPct(ind,v,type){
-  let lo,hi;
-  if(type==='growth'){
-    if(ind.dir==='lb'){lo=ind.th.bull;hi=ind.th.bear;const p=(v-lo)/(hi-lo);return clamp((1-p)*100)}
-    lo=ind.th.bear;hi=ind.th.bull;
-  }else{
-    lo=ind.th.fall;hi=ind.th.rise;
-  }
-  return clamp(((v-lo)/(hi-lo))*100);
-}
-function clamp(v){return Math.max(0,Math.min(100,v))}
-
-function onIn(id,type,el){
-  const v=parseFloat(el.value);if(isNaN(v))return;
-  if(state.overrides[id]!==undefined)state.overrides[id]=v;else state.values[id]=v;
-  const ind=[...G_IND,...I_IND].find(x=>x.id===id);
-  if(ind){const t=document.getElementById('ht_'+id);if(t)t.style.left=heatPct(ind,v,type)+'%'}
-  save();
-}
-
-function renderW(){
-  const g=document.getElementById('warningsGrid');g.innerHTML='';
-  W_IND.forEach(w=>{
-    const v=state.overrides[w.id]!==undefined?state.overrides[w.id]:(state.values[w.id]??w.def);
-    const t=w.dir==='above'?v>=w.thr:v<=w.thr;
-    const c=document.createElement('div');
-    c.className=`warning-card ${t?'triggered':'safe'}`;c.id=`wc_${w.id}`;
-    c.innerHTML=`<div class="warning-light"></div>
-      <div class="warning-info"><div class="w-name">${w.name}</div><div class="w-val">${indMeta(w)}</div></div>
-      <input type="number" step="0.01" class="w-input" value="${v}" id="wi_${w.id}" onchange="updW('${w.id}',this.value)"/>`;
-    g.appendChild(c);
-  });
-}
-
-// ═══════ SCORING ═══════
-function gv(id){return state.overrides[id]!==undefined?state.overrides[id]:(state.values[id]??0)}
-
-function sG(ind){
-  const v=gv(ind.id),{bull,bear}=ind.th;
-  if(ind.dir==='lb'){if(v<=bull)return 1;if(v>=bear)return -1;return(bear-v)/(bear-bull)*2-1}
-  if(v>=bull)return 1;if(v<=bear)return -1;return(v-bear)/(bull-bear)*2-1;
-}
-function sI(ind){
-  const v=gv(ind.id),{rise,fall}=ind.th;
-  if(v>=rise)return 1;if(v<=fall)return -1;return(v-fall)/(rise-fall)*2-1;
-}
-
-// ═══════ CALCULATE ═══════
-// Score everything and update the display/canvas — WITHOUT logging to history.
-// Used both by the Calculate button and after a data fetch.
-function computeAll(){
-  let gws=0,gss=0;
-  G_IND.forEach(i=>{const s=sG(i);gss+=s*i.w;gws+=i.w;updBadge(i.id,s,'g')});
-  const gs=gws?gss/gws:0;
-
-  let iws=0,iss=0;
-  I_IND.forEach(i=>{const s=sI(i);iss+=s*i.w;iws+=i.w;updBadge(i.id,s,'i')});
-  const is_=iws?iss/iws:0;
-
-  let q;
-  if(gs>=0&&is_<0)q='goldilocks';
-  else if(gs>=0&&is_>=0)q='overheating';
-  else if(gs<0&&is_>=0)q='stagflation';
-  else q='deflation';
-
-  let wc=0;
-  W_IND.forEach(w=>{
-    const v=gv(w.id);const t=w.dir==='above'?v>=w.thr:v<=w.thr;if(t)wc++;
-    const el=document.getElementById(`wc_${w.id}`);if(el)el.className=`warning-card ${t?'triggered':'safe'}`;
-  });
-
-  updateDisp(gs,is_,q,wc);drawQ(gs,is_,q);
-  lastRes={g:gs,i:is_,q,w:wc};
-  return{gs,is_,q,wc};
-}
-
-// ═══════ CALCULATE & LOG ═══════
-function doCalculate(){
-  const {gs,is_,q,wc}=computeAll();
-  hist.push({
-    date:new Date().toISOString(),
-    g:Math.round(gs*1000)/1000,i:Math.round(is_*1000)/1000,
-    q,w:wc,vals:{...state.values},ovrs:{...state.overrides}
-  });
-  localStorage.setItem('dq3_hist',JSON.stringify(hist));
-  document.getElementById('lastUpdate').textContent=new Date().toLocaleString('en-GB');
-  save();
-}
-
-function updateDisp(gs,is_,q,wc){
-  document.getElementById('growthScore').textContent=gs.toFixed(2);
-  const ge=document.getElementById('growthScore');
-  if(gs>0.15){ge.style.background='var(--green-dim)';ge.style.color='var(--green)'}
-  else if(gs<-0.15){ge.style.background='var(--red-dim)';ge.style.color='var(--red)'}
-  else{ge.style.background='rgba(156,163,175,0.08)';ge.style.color='var(--text-muted)'}
-
-  document.getElementById('inflationScore').textContent=is_.toFixed(2);
-  const ie=document.getElementById('inflationScore');
-  if(is_>0.15){ie.style.background='var(--orange-dim)';ie.style.color='var(--orange)'}
-  else if(is_<-0.15){ie.style.background='var(--blue-dim)';ie.style.color='var(--blue)'}
-  else{ie.style.background='rgba(156,163,175,0.08)';ie.style.color='var(--text-muted)'}
-
-  const qm={goldilocks:{c:'var(--q-goldilocks)',n:'↗ GOLDILOCKS'},overheating:{c:'var(--q-overheating)',n:'↗ OVERHEATING'},
-    stagflation:{c:'var(--q-stagflation)',n:'↙ STAGFLATION'},deflation:{c:'var(--q-deflation)',n:'↘ DEFLATION'}};
-  const qi=qm[q];
-  document.getElementById('cqName').textContent=qi.n;
-  document.getElementById('cqName').style.color=qi.c;
-  document.getElementById('cqGrowth').textContent=gs.toFixed(2);
-  document.getElementById('cqGrowth').style.color=gs>=0?'var(--green)':'var(--red)';
-  document.getElementById('cqInflation').textContent=is_.toFixed(2);
-  document.getElementById('cqInflation').style.color=is_>=0?'var(--orange)':'var(--blue)';
-
-  const km={Gold:'goldilocks',Over:'overheating',Stag:'stagflation',Defl:'deflation'};
-  Object.entries(km).forEach(([k,v])=>document.getElementById('qCard'+k).classList.toggle('active',v===q));
-
-  document.getElementById('warningCount').textContent=`${wc}/${W_IND.length}`;
-  document.getElementById('recessionBanner').classList.toggle('active',wc>=3);
-}
-
-function updBadge(id,s,t){
-  const e=document.getElementById('sig_'+id);if(!e)return;
-  if(t==='g'){
-    if(s>0.3){e.className='signal-badge bullish';e.textContent='↑ Bull'}
-    else if(s<-0.3){e.className='signal-badge bearish';e.textContent='↓ Bear'}
-    else{e.className='signal-badge neutral';e.textContent='— Neut'}
-  }else{
-    if(s>0.3){e.className='signal-badge warn';e.textContent='↑ Hot'}
-    else if(s<-0.3){e.className='signal-badge bullish';e.textContent='↓ Cool'}
-    else{e.className='signal-badge neutral';e.textContent='— Neut'}
-  }
-}
-
-// ═══════ QUADRANT CANVAS ═══════
-// TL=Stagflation TR=Overheating BL=Deflation BR=Goldilocks
-function drawQ(gs,is_,aq){
-  const cv=document.getElementById('quadrantCanvas');
-  const dpr=window.devicePixelRatio||1;
-  const r=cv.getBoundingClientRect();
-  cv.width=r.width*dpr;cv.height=r.height*dpr;
-  const ctx=cv.getContext('2d');ctx.scale(dpr,dpr);
-  const w=r.width,h=r.height,cx=w/2,cy=h/2;
-
-  ctx.fillStyle='#0c1220';ctx.beginPath();ctx.roundRect(0,0,w,h,8);ctx.fill();
-
-  // Quadrant fills
-  [{x:0,y:0,w:cx,h:cy,q:'stagflation',c:[239,68,68]},
-   {x:cx,y:0,w:cx,h:cy,q:'overheating',c:[245,158,11]},
-   {x:0,y:cy,w:cx,h:cy,q:'deflation',c:[59,130,246]},
-   {x:cx,y:cy,w:cx,h:cy,q:'goldilocks',c:[16,185,129]}
-  ].forEach(q=>{
-    ctx.fillStyle=`rgba(${q.c.join(',')},${q.q===aq?0.20:0.05})`;
-    ctx.fillRect(q.x,q.y,q.w,q.h);
-  });
-
-  // Grid
-  ctx.strokeStyle='rgba(255,255,255,0.035)';ctx.lineWidth=1;
-  for(let i=1;i<8;i++){
-    ctx.beginPath();ctx.moveTo(w*i/8,0);ctx.lineTo(w*i/8,h);ctx.stroke();
-    ctx.beginPath();ctx.moveTo(0,h*i/8);ctx.lineTo(w,h*i/8);ctx.stroke();
-  }
-
-  // Axes
-  ctx.strokeStyle='rgba(255,255,255,0.15)';ctx.lineWidth=1;ctx.setLineDash([4,4]);
-  ctx.beginPath();ctx.moveTo(cx,0);ctx.lineTo(cx,h);ctx.stroke();
-  ctx.beginPath();ctx.moveTo(0,cy);ctx.lineTo(w,cy);ctx.stroke();
-  ctx.setLineDash([]);
-
-  // Labels
-  ctx.font='700 11px JetBrains Mono';
-  ctx.textAlign='left';ctx.fillStyle='rgba(239,68,68,0.50)';ctx.fillText('STAGFLATION',10,22);
-  ctx.textAlign='right';ctx.fillStyle='rgba(245,158,11,0.50)';ctx.fillText('OVERHEATING',w-10,22);
-  ctx.textAlign='left';ctx.fillStyle='rgba(59,130,246,0.50)';ctx.fillText('DEFLATION',10,h-10);
-  ctx.textAlign='right';ctx.fillStyle='rgba(16,185,129,0.50)';ctx.fillText('GOLDILOCKS',w-10,h-10);
-
-  ctx.font='500 9px JetBrains Mono';ctx.fillStyle='rgba(255,255,255,0.22)';
-  ctx.textAlign='right';ctx.fillText('GROWTH →',w-10,cy-8);
-  ctx.textAlign='left';ctx.fillText('← CONTRACTION',10,cy-8);
-  ctx.textAlign='center';ctx.fillText('INFLATION ↑',cx,15);ctx.fillText('DISINFLATION ↓',cx,h-6);
-
-  // Trail
-  if(hist.length>1){
-    const pts=hist.slice(-15);
-    ctx.strokeStyle='rgba(212,168,67,0.22)';ctx.lineWidth=1.5;ctx.beginPath();
-    pts.forEach((p,i)=>{
-      const px=cx+(p.g*cx*0.85),py=cy-(p.i*cy*0.85);
-      if(i===0)ctx.moveTo(px,py);else ctx.lineTo(px,py);
-    });ctx.stroke();
-    pts.slice(0,-1).forEach((p,i)=>{
-      const px=cx+(p.g*cx*0.85),py=cy-(p.i*cy*0.85);
-      ctx.fillStyle=`rgba(212,168,67,${0.12+(i/pts.length)*0.3})`;
-      ctx.beginPath();ctx.arc(px,py,3,0,Math.PI*2);ctx.fill();
-    });
-  }
-
-  // Current dot
-  const dx=cx+(gs*cx*0.85),dy=cy-(is_*cy*0.85);
-  const gl=ctx.createRadialGradient(dx,dy,0,dx,dy,30);
-  gl.addColorStop(0,'rgba(212,168,67,0.35)');gl.addColorStop(1,'rgba(212,168,67,0)');
-  ctx.fillStyle=gl;ctx.beginPath();ctx.arc(dx,dy,30,0,Math.PI*2);ctx.fill();
-  ctx.strokeStyle='rgba(212,168,67,0.6)';ctx.lineWidth=2;
-  ctx.beginPath();ctx.arc(dx,dy,10,0,Math.PI*2);ctx.stroke();
-  ctx.fillStyle='#d4a843';ctx.beginPath();ctx.arc(dx,dy,5,0,Math.PI*2);ctx.fill();
-
-  // Crosshair
-  ctx.strokeStyle='rgba(212,168,67,0.12)';ctx.lineWidth=1;ctx.setLineDash([2,4]);
-  ctx.beginPath();ctx.moveTo(dx,0);ctx.lineTo(dx,h);ctx.stroke();
-  ctx.beginPath();ctx.moveTo(0,dy);ctx.lineTo(w,dy);ctx.stroke();ctx.setLineDash([]);
-
-  // Label
-  ctx.font='700 12px JetBrains Mono';ctx.fillStyle='#d4a843';
-  ctx.textAlign=dx+14>w-90?'right':'left';
-  ctx.fillText(`(${gs.toFixed(2)}, ${is_.toFixed(2)})`,dx+14>w-90?dx-14:dx+14,dy-12);
-}
-
-// ═══════ HISTORY ═══════
-function renderHistory(){
-  const b=document.getElementById('historyBody');
-  const e=document.getElementById('historyEmpty');
-  const wr=document.getElementById('historyWrap');
-  b.innerHTML='';
-  if(!hist.length){e.style.display='block';wr.style.display='none';return}
-  e.style.display='none';wr.style.display='block';
-  const qc={goldilocks:'#10b981',overheating:'#f59e0b',stagflation:'#ef4444',deflation:'#3b82f6'};
-  const qn={goldilocks:'Goldilocks',overheating:'Overheating',stagflation:'Stagflation',deflation:'Deflation'};
-  hist.slice().reverse().forEach((en,idx)=>{
-    const n=hist.length-idx;
-    const d=new Date(en.date);
-    const ds=d.toLocaleDateString('en-GB')+' '+d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
-    const tr=document.createElement('tr');
-    tr.innerHTML=`<td>${n}</td><td>${ds}</td>
-      <td style="color:${en.g>=0?'var(--green)':'var(--red)'};font-weight:700">${en.g.toFixed(3)}</td>
-      <td style="color:${en.i>=0?'var(--orange)':'var(--blue)'};font-weight:700">${en.i.toFixed(3)}</td>
-      <td><span class="q-dot" style="background:${qc[en.q]}"></span>${qn[en.q]}</td>
-      <td>${en.w}/${W_IND.length}</td>
-      <td><button class="btn btn-outline" style="font-size:0.62rem;padding:0.2rem 0.5rem" onclick="loadH(${hist.length-1-idx})">Load</button></td>`;
-    b.appendChild(tr);
-  });
-}
-
-function loadH(idx){
-  const en=hist[idx];if(!en)return;
-  state.values={...en.vals};state.overrides={...en.ovrs};
-  renderG();renderI();renderW();
-  document.querySelectorAll('.tab-btn').forEach(x=>x.classList.remove('active'));
-  document.querySelectorAll('.tab-content').forEach(x=>x.classList.remove('active'));
-  document.querySelector('[data-tab="dashboard"]').classList.add('active');
-  document.getElementById('tab-dashboard').classList.add('active');
-}
-
-function clearHistory(){if(!confirm('Clear all history?'))return;hist=[];localStorage.removeItem('dq3_hist');renderHistory()}
-
-// ═══════ OVERRIDES ═══════
-function togOvr(id){
-  if(state.overrides[id]!==undefined){
-    delete state.overrides[id];
-    const inp=document.getElementById('in_'+id);if(inp){inp.value=state.values[id];inp.classList.remove('overridden')}
-    document.getElementById('ob_'+id)?.classList.remove('active');
-  }else{
-    const inp=document.getElementById('in_'+id);
-    state.overrides[id]=parseFloat(inp?.value||state.values[id]);
-    inp?.classList.add('overridden');document.getElementById('ob_'+id)?.classList.add('active');
-  }
-  save();
-}
-function updW(id,v){const n=parseFloat(v);if(!isNaN(n))state.values[id]=n;save()}
-
-// ═══════ FRED ═══════
-// Series that need a YoY % transform (FRED gives levels/indices for these).
-const YOY_MONTHLY=['PAYEMS','INDPRO','AMTMNO','TEMPHELPS','TOTLL','CPIAUCSL','CES0500000003','CUSR0000SAH1','PCEPILFE'];
-const YOY_QUARTERLY=['GDP'];
-const isYoy=s=>YOY_MONTHLY.includes(s)||YOY_QUARTERLY.includes(s);
-// Pull a few extra observations so a not-yet-released latest month or a gap
-// can't break the 12-month offset.
-const limitFor=s=>YOY_QUARTERLY.includes(s)?8:YOY_MONTHLY.includes(s)?16:5;
-
-let usedSource=null; // 'server' | 'proxy'
-
-function fetchT(url,ms){
-  const ctrl=new AbortController();const id=setTimeout(()=>ctrl.abort(),ms);
-  return fetch(url,{signal:ctrl.signal}).finally(()=>clearTimeout(id));
-}
-
-// Compute YoY by matching the observation ~`monthsBack` before the latest
-// VALID one (by date), skipping missing '.' values — far more robust than
-// using a fixed array index.
-function pickYoY(obs,monthsBack){
-  const valid=obs.map(o=>({d:o.date,v:parseFloat(o.value)})).filter(o=>!isNaN(o.v));
-  if(valid.length<2)return null;
-  const latest=valid[0];
-  const target=new Date(latest.d);target.setMonth(target.getMonth()-monthsBack);
-  let best=null,bd=Infinity;
-  for(const o of valid.slice(1)){const diff=Math.abs(new Date(o.d)-target);if(diff<bd){bd=diff;best=o}}
-  if(!best||best.v===0)return null;
-  // Only trust the YoY if we matched within ~60 days of the 1-year mark.
-  if(bd>1000*60*60*24*60)return null;
-  return((latest.v-best.v)/Math.abs(best.v))*100;
-}
-
-// Reliable fetch: same-origin serverless proxy first (no CORS, may inject the
-// key from env), then public CORS proxies as a fallback for non-Vercel hosts.
-async function fredFetch(series,lim,key){
-  try{
-    const u=`/api/fred?series_id=${encodeURIComponent(series)}&limit=${lim}&sort_order=desc`+(key?`&api_key=${encodeURIComponent(key)}`:'');
-    const res=await fetchT(u,12000);
-    if(res&&res.ok){const j=await res.json();if(j&&j.observations){usedSource=usedSource||'server';return j}}
-  }catch(e){}
-  if(key){
-    const direct=`https://api.stlouisfed.org/fred/series/observations?series_id=${encodeURIComponent(series)}&api_key=${encodeURIComponent(key)}&file_type=json&sort_order=desc&limit=${lim}`;
-    const proxies=[u=>'https://corsproxy.io/?url='+encodeURIComponent(u),u=>'https://api.allorigins.win/raw?url='+encodeURIComponent(u)];
-    for(const p of proxies){
-      try{const res=await fetchT(p(direct),12000);if(res&&res.ok){const j=await res.json();if(j&&j.observations){usedSource=usedSource||'proxy';return j}}}catch(e){}
-    }
-  }
-  return null;
-}
-
-// Bounded-concurrency runner — fetch several series at once instead of
-// one-at-a-time, so a full refresh takes seconds, not minutes.
-async function pool(items,n,worker){
-  let idx=0;
-  await Promise.all(Array.from({length:Math.min(n,items.length)},async()=>{
-    while(idx<items.length){const i=idx++;await worker(items[i])}
-  }));
-}
-
-async function fetchAllFRED(opts={}){
-  const silent=!!opts.silent;
-  const k=document.getElementById('fredApiKey').value.trim();
-  if(k){state.fredKey=k;save()}
-  usedSource=null;
-  if(!silent)document.getElementById('loadingOverlay').classList.add('active');
-
-  const all=[...G_IND,...I_IND,...W_IND].filter(i=>i.fred);
-  const series=[...new Set(all.map(i=>i.fred))]; // dedupe (NFCI, TEMPHELPS appear twice)
-  const bySeries={},failed=[];
-
-  await pool(series,5,async(sid)=>{
-    const data=await fredFetch(sid,limitFor(sid),k);
-    if(!data||!data.observations?.length){failed.push(sid);return}
-    const valid=data.observations.map(o=>({d:o.date,v:parseFloat(o.value)})).filter(o=>!isNaN(o.v));
-    if(!valid.length){failed.push(sid);return}
-    let val;
-    if(isYoy(sid)){const y=pickYoY(data.observations,12);if(y!=null)val=y}
-    if(val===undefined)val=valid[0].v;                       // latest valid level
-    if(val===undefined||isNaN(val)){failed.push(sid);return}
-    const dir=valid.length>1?(valid[0].v>valid[1].v?'up':valid[0].v<valid[1].v?'down':''):'';
-    bySeries[sid]={v:Math.round(val*100)/100,date:valid[0].d,dir};
-  });
-
-  // Apply each series value to every indicator that uses it (respect overrides).
-  all.forEach(i=>{
-    const o=bySeries[i.fred];
-    if(o&&state.overrides[i.id]===undefined){
-      state.values[i.id]=o.v;state.dates[i.id]=o.date;state.dirs[i.id]=o.dir;
-    }
-  });
-
-  // Derive indicators that have no single FRED series.
-  let derived=0;
-  if(state.overrides['misery']===undefined&&bySeries['UNRATE']&&bySeries['CPIAUCSL']){
-    state.values['misery']=Math.round((bySeries['UNRATE'].v+bySeries['CPIAUCSL'].v)*100)/100;
-    state.dates['misery']=bySeries['CPIAUCSL'].date;
-    state.dirs['misery']=bySeries['CPIAUCSL'].dir;derived++;
-  }
-  const fl=await computeFedNetLiquidity(k);
-  if(fl&&state.overrides['fed_liq']===undefined){
-    state.values['fed_liq']=fl.value;state.dates['fed_liq']=fl.date;state.dirs['fed_liq']=fl.dir;derived++;
-  }
-
-  const ok=Object.keys(bySeries).length;
-  if(ok>0)state.fetchedAt=Date.now();
-
-  if(!silent)document.getElementById('loadingOverlay').classList.remove('active');
-  renderG();renderI();renderW();save();
-  computeAll(); // refresh regime display from fresh data (without logging history)
-
-  if(!silent){
-    if(ok===0){
-      let m='No data fetched.\n'+(k?'Check that your FRED API key is valid.':'Set FRED_API_KEY in Vercel (recommended), or paste a FRED key above.');
-      if(failed.length)m+='\nFailed: '+failed.slice(0,6).join(', ');
-      toast(m,'error',7000);
-    }else{
-      let m=`Fetched ${ok}/${series.length} FRED series`+(derived?` (+${derived} derived)`:'')+'.';
-      m+='\nSource: '+(usedSource==='server'?'server proxy':usedSource==='proxy'?'public proxy':'cache')+'.';
-      m+='\nManual only: ISM PMI, Roche LII, Roche Recession.';
-      toast(m,failed.length?'warn':'success',5500);
-    }
-  }
-  return ok;
-}
-
-// Fed Net Liquidity Δ (YoY%) = WALCL − TGA(WTREGEN) − RRP(RRPONTSYD).
-// WALCL is reported in $millions, the other two in $billions → convert WALCL /1000.
-async function computeFedNetLiquidity(key){
-  const ids=['WALCL','WTREGEN','RRPONTSYD'];
-  let data=null;
-  try{
-    const u=`/api/fred?series_ids=${ids.join(',')}&limit=420&sort_order=desc`+(key?`&api_key=${encodeURIComponent(key)}`:'');
-    const res=await fetchT(u,12000);
-    if(res&&res.ok)data=await res.json();
-  }catch(e){}
-  if(!data)return null;
-  const ser={};
-  for(const id of ids){
-    const obs=(data[id]&&data[id].observations)||[];
-    const arr=obs.map(o=>({t:new Date(o.date).getTime(),v:parseFloat(o.value),d:o.date}))
-      .filter(o=>!isNaN(o.v)&&!isNaN(o.t)).sort((a,b)=>b.t-a.t);
-    if(!arr.length)return null;ser[id]=arr;
-  }
-  const near=(arr,t)=>{let best=arr[0],bd=Infinity;for(const o of arr){const df=Math.abs(o.t-t);if(df<bd){bd=df;best=o}}return best;};
-  const net=t=>near(ser.WALCL,t).v/1000 - near(ser.WTREGEN,t).v - near(ser.RRPONTSYD,t).v;
-  const t0=ser.WALCL[0].t,yr=365*24*3600*1000,wk=7*24*3600*1000;
-  const n0=net(t0),n1=net(t0-yr);
-  if(!isFinite(n0)||!isFinite(n1)||n1===0)return null;
-  const nPrev=net(t0-wk);
-  return{value:Math.round(((n0-n1)/Math.abs(n1))*10000)/100,date:ser.WALCL[0].d,dir:n0>nPrev?'up':n0<nPrev?'down':''};
-}
-
-// ═══════ FINVIZ (market confirmation) ═══════
-function fnum(s){const n=parseFloat(String(s).replace(/[%+\s]/g,''));return isNaN(n)?0:n}
-
-async function fetchFinviz(){
-  try{
-    const r=await fetchT('/api/finviz?type=groups&g=sector',12000);
-    if(r&&r.ok){const j=await r.json();if(j&&j.rows&&j.rows.length)renderSectors(j.rows);else renderFinvizPlaceholder('sectors')}
-    else renderFinvizPlaceholder('sectors');
-  }catch(e){renderFinvizPlaceholder('sectors')}
-  try{
-    const r=await fetchT('/api/finviz?type=futures',12000);
-    if(r&&r.ok){const j=await r.json();renderFutures(j&&j.futures)}
-    else renderFinvizPlaceholder('futures');
-  }catch(e){renderFinvizPlaceholder('futures')}
-}
-
-function renderSectors(rows){
-  const el=document.getElementById('sectorsBody');if(!el)return;
-  const keys=Object.keys(rows[0]||{});
-  const nameKey=keys.find(k=>/name/i.test(k))||keys[1]||keys[0];
-  const perfKeys=keys.filter(k=>/perf/i.test(k));
-  if(!nameKey||!perfKeys.length){renderFinvizPlaceholder('sectors');return}
-  const sortKey=perfKeys.find(k=>/month/i.test(k))||perfKeys[0];
-  const cols=[perfKeys.find(k=>/week/i.test(k)),perfKeys.find(k=>/month/i.test(k)),perfKeys.find(k=>/ytd/i.test(k))].filter(Boolean);
-  const sorted=[...rows].sort((a,b)=>fnum(b[sortKey])-fnum(a[sortKey]));
-  let html='<table class="sector-table"><thead><tr><th>Sector</th>'+cols.map(c=>`<th>${c.replace(/perf/i,'').trim()}</th>`).join('')+'</tr></thead><tbody>';
-  sorted.forEach(r=>{
-    html+=`<tr><td>${r[nameKey]}</td>`+cols.map(c=>{const n=fnum(r[c]);const col=n>0?'var(--green)':n<0?'var(--red)':'var(--text-muted)';return `<td style="color:${col}">${n>0?'+':''}${n.toFixed(2)}%</td>`}).join('')+'</tr>';
-  });
-  html+='</tbody></table>'+sectorRegimeNote(sorted,nameKey);
-  el.innerHTML=html;
-}
-
-function sectorRegimeNote(sorted,nameKey){
-  const top=sorted.slice(0,3).map(r=>r[nameKey]).filter(Boolean);
-  const t=top.join(' ');
-  let lean;
-  if(/energy|material|gold|metal|oil/i.test(t))lean='Energy/Materials leading → inflationary tilt (Overheating / Stagflation).';
-  else if(/util|defensive|health|staple|real estate/i.test(t))lean='Defensives leading → risk-off (Deflation / Stagflation).';
-  else if(/tech|cyclical|financ|industrial|communication|discretionary/i.test(t))lean='Cyclicals leading → risk-on (Goldilocks / Overheating).';
-  else lean='Mixed leadership — no clear regime tilt.';
-  return`<div class="market-note">Leaders: <strong>${top.join(', ')||'—'}</strong><br>${lean}<br><span class="muted">Informational — does not change the score.</span></div>`;
-}
-
-function renderFutures(data){
-  const el=document.getElementById('futuresBody');if(!el)return;
-  let arr=[];
-  if(Array.isArray(data))arr=data;
-  else if(data&&typeof data==='object')arr=Object.values(data);
-  arr=arr.filter(x=>x&&typeof x==='object');
-  if(!arr.length){renderFinvizPlaceholder('futures');return}
-  const pick=o=>({name:o.label||o.name||o.ticker||o.symbol||'',chg:parseFloat(o.change??o.changePercent??o.perfDay??o.perf??o.percentChange)});
-  let items=arr.map(pick).filter(x=>x.name);
-  const want=/gold|crude|oil|s&p|500|dollar|index|nasdaq|dow|treasur|bond|10|silver|copper|natural gas|euro|bitcoin|yen/i;
-  const curated=items.filter(x=>want.test(x.name));
-  items=(curated.length>=4?curated:items).slice(0,12);
-  if(!items.length){renderFinvizPlaceholder('futures');return}
-  el.innerHTML=items.map(x=>{
-    const n=isNaN(x.chg)?null:x.chg;const col=n>0?'var(--green)':n<0?'var(--red)':'var(--text-muted)';
-    return`<div class="fut-tile"><div class="fut-name">${x.name}</div><div class="fut-chg" style="color:${col}">${n==null?'—':(n>0?'+':'')+n.toFixed(2)+'%'}</div></div>`;
-  }).join('');
-}
-
-function renderFinvizPlaceholder(which){
-  const el=document.getElementById(which==='sectors'?'sectorsBody':'futuresBody');
-  if(el)el.innerHTML='<div class="market-note muted">Set <code>FINVIZ_API_KEY</code> (Finviz Elite auth token) in Vercel to load live '+(which==='sectors'?'sector performance.':'futures &amp; forex.')+'</div>';
-}
-
-// ═══════ TOASTS ═══════
-function toast(msg,type='info',ms=4500){
-  const wrap=document.getElementById('toasts');if(!wrap)return;
-  const t=document.createElement('div');t.className='toast '+type;t.textContent=msg;
-  wrap.appendChild(t);
-  requestAnimationFrame(()=>t.classList.add('show'));
-  setTimeout(()=>{t.classList.remove('show');setTimeout(()=>t.remove(),320)},ms);
-}
-
-// ═══════ REFRESH ORCHESTRATION ═══════
-async function refreshAll(){await fetchAllFRED();fetchFinviz()}
-async function maybeAutoRefresh(){
-  fetchFinviz(); // cheap & edge-cached — always refresh the market panels
-  const age=Date.now()-(state.fetchedAt||0);
-  if(!state.fetchedAt||age>6*3600*1000)await fetchAllFRED({silent:true});
-  else computeAll(); // show regime from cached values
-}
-
-// ═══════ STATE ═══════
-function save(){localStorage.setItem('dq3_state',JSON.stringify(state))}
-function resetDefaults(){
-  if(!confirm('Reset all values to defaults?'))return;
-  state={values:{},overrides:{},fredKey:state.fredKey,dates:{},dirs:{},fetchedAt:0};
-  [...G_IND,...I_IND].forEach(i=>state.values[i.id]=i.def);
-  W_IND.forEach(w=>state.values[w.id]=w.def);
-  lastRes=null;renderG();renderI();renderW();drawQ(0,0,null);
-  document.getElementById('cqName').textContent='Press Calculate';
-  document.getElementById('cqName').style.color='var(--text-muted)';
-  ['cqGrowth','cqInflation','growthScore','inflationScore','warningCount'].forEach(id=>document.getElementById(id).textContent='—');
-  save();
-}
-function exportState(){
-  const d={state,hist,exported:new Date().toISOString()};
-  const a=document.createElement('a');
-  a.href=URL.createObjectURL(new Blob([JSON.stringify(d,null,2)],{type:'application/json'}));
-  a.download=`dalio-quadrant-${new Date().toISOString().slice(0,10)}.json`;a.click();
-}
-function importState(e){
-  const f=e.target.files[0];if(!f)return;
-  const rd=new FileReader();
-  rd.onload=ev=>{
-    try{const d=JSON.parse(ev.target.result);if(d.state)state=d.state;if(d.hist){hist=d.hist;localStorage.setItem('dq3_hist',JSON.stringify(hist))}
-    renderG();renderI();renderW();if(hist.length){const l=hist[hist.length-1];drawQ(l.g,l.i,l.q);updateDisp(l.g,l.i,l.q,l.w)}
-    }catch(err){toast('Error loading file.','error')}};
-  rd.readAsText(f);e.target.value='';
-}
-
-window.addEventListener('resize',()=>{
-  if(lastRes)drawQ(lastRes.g,lastRes.i,lastRes.q);
-  else if(hist.length){const l=hist[hist.length-1];drawQ(l.g,l.i,l.q)}
-  else drawQ(0,0,null);
-});
-
-init();
-</script>
-</body>
+      <aside
+        id="offlineSummary"
+        class="pwa-notice"
+        aria-labelledby="offlineSummaryTitle"
+        hidden
+      >
+        <strong id="offlineSummaryTitle"
+          >Saved economic snapshot · live refresh unavailable</strong
+        >
+        <p id="offlineSummaryDate" class="sub"></p>
+        <p id="offlineSummaryValues"></p>
+        <p class="sub">
+          These are dated saved values, not current readings. The current asset
+          recommendation is withheld until fresh data loads. Saved observations
+          remain in History.
+        </p>
+      </aside>
+      <nav role="tablist" aria-label="Dashboard views">
+        <button
+          role="tab"
+          aria-selected="true"
+          aria-controls="state"
+          id="tab-state"
+        >
+          Economy now</button
+        ><button
+          role="tab"
+          aria-selected="false"
+          aria-controls="dashboard"
+          id="tab-dashboard"
+        >
+          Momentum & data</button
+        ><button
+          role="tab"
+          aria-selected="false"
+          aria-controls="context"
+          id="tab-context"
+        >
+          Long-run context</button
+        ><button
+          role="tab"
+          aria-selected="false"
+          aria-controls="research"
+          id="tab-research"
+        >
+          Backtest & prediction</button
+        ><button
+          role="tab"
+          aria-selected="false"
+          aria-controls="history"
+          id="tab-history"
+        >
+          History</button
+        ><button
+          role="tab"
+          aria-selected="false"
+          aria-controls="principles"
+          id="tab-principles"
+        >
+          Principles & method
+        </button>
+      </nav>
+      <div id="status" class="status" role="status" aria-live="polite">
+        Loading dated observations. No example values are used.
+      </div>
+      <section id="state" role="tabpanel" aria-labelledby="tab-state">
+        <div class="hero">
+          <article class="panel">
+            <div class="eyebrow">
+              Observed state · published indicator levels
+            </div>
+            <h2>Where is the economy now?</h2>
+            <div id="stateRegime" class="state-regime">
+              Waiting for fresh state data
+            </div>
+            <div class="metrics">
+              <div class="metric">
+                <strong id="stateActivity">—</strong
+                ><span>Activity vs trend · index</span>
+              </div>
+              <div class="metric">
+                <strong id="stateInflation">—</strong
+                ><span>Headline PCE · YoY</span>
+              </div>
+              <div class="metric">
+                <strong id="stateGap">—</strong
+                ><span>Inflation minus 2% · pp</span>
+              </div>
+            </div>
+            <p id="stateDates" class="sub">Waiting for dated observations.</p>
+            <p id="stateQuality" class="note">
+              Both state inputs are required.
+            </p>
+            <p id="stateDirection" class="sub">
+              State and momentum answer different questions.
+            </p>
+            <section
+              class="state-context state-investment"
+              aria-labelledby="stateInvestmentTitle"
+            >
+              <div class="eyebrow">Latest state + 3-month direction</div>
+              <h3 id="stateInvestmentTitle">Preferred asset classes</h3>
+              <label for="stateInvestmentHorizon"
+                >Investment horizon
+                <select id="stateInvestmentHorizon">
+                  <option value="3">Quarter · 3 months</option>
+                  <option value="12" selected>Year · 12 months</option>
+                  <option value="36">3 years · 36 months</option>
+                </select>
+              </label>
+              <div id="stateInvestmentResult" aria-live="polite">
+                Loading dated state and return evidence.
+              </div>
+            </section>
+            <button id="stateToMomentum">Compare momentum & assets →</button>
+            <div id="stateBreadth" class="state-breadth">
+              Waiting for activity cross-checks.
+            </div>
+            <div class="state-context">
+              <h3>Latest activity in historical context</h3>
+              <div class="state-controls">
+                <label for="stateContextWindow"
+                  >Reference window
+                  <select id="stateContextWindow" aria-label="Reference window">
+                    <option value="full">Full available history</option>
+                    <option value="20">20 years</option>
+                    <option value="10">10 years</option>
+                  </select>
+                </label>
+              </div>
+              <p id="stateContextSummary" class="sub">
+                Waiting for activity history.
+              </p>
+              <div id="stateHistogram"></div>
+              <p id="stateContextDetails" class="sub"></p>
+            </div>
+          </article>
+          <article class="panel">
+            <h2>Static activity × inflation quadrants</h2>
+            <p id="statePlotMode" class="sub">
+              Latest published state and preceding reference periods
+            </p>
+            <div class="state-controls">
+              <label for="stateCadence"
+                >Sampling
+                <select id="stateCadence" aria-label="Sampling">
+                  <option value="monthly">Monthly</option>
+                  <option value="quarterly">Quarterly</option>
+                  <option value="annual">Annual</option>
+                </select>
+              </label>
+              <label for="stateZoom"
+                >Viewport
+                <select id="stateZoom" aria-label="Viewport">
+                  <option value="standard">Standard · X ±2 / Y ±6 pp</option>
+                  <option value="close">Close · X ±0.5 / Y ±2 pp</option>
+                  <option value="full">Full history range</option>
+                </select>
+              </label>
+              <label for="stateEnd"
+                >Trail ending month
+                <input
+                  id="stateEnd"
+                  type="month"
+                  aria-describedby="statePlotMode"
+                />
+              </label>
+              <button id="stateLatest" type="button" disabled>
+                Latest data
+              </button>
+            </div>
+            <div id="stateChart"></div>
+            <p id="stateTrailStatus" class="sub">Waiting for source history.</p>
+            <div class="state-controls">
+              <label for="stateInspect"
+                >Inspect position
+                <select
+                  id="stateInspect"
+                  aria-label="Inspect position"
+                  disabled
+                ></select>
+              </label>
+            </div>
+            <p id="stateReadout" class="state-readout" aria-live="polite">
+              Waiting for dated positions.
+            </p>
+            <div id="stateForwardPoint" aria-live="polite">
+              Loading subsequent returns for the selected position.
+            </div>
+            <p id="stateMove" class="sub">
+              Waiting for two consecutive positions.
+            </p>
+            <p class="sub">
+              X: CFNAI-MA3 activity index · 0 = historical growth trend.<br />Y:
+              headline PCE YoY minus the 2% long-run anchor, in percentage
+              points.
+            </p>
+            <p class="note">
+              Historical dots pair the same completed reference month using
+              today's revised data, not information known at a historical trade.
+              Only the Latest dot uses current releases and can mix adjacent
+              months; its readout shows both dates. Below-trend activity does
+              not establish a recession. Shaded boundary buffers indicate
+              limited conviction near the anchors, not a statistical confidence
+              interval.
+            </p>
+          </article>
+        </div>
+        <article id="forwardStudy" class="panel forward-panel">
+          <div class="eyebrow">
+            Historical association · static economy state
+          </div>
+          <h2>What happened after each quadrant?</h2>
+          <p id="forwardStatus" class="sub" role="status">
+            Loading frozen forward-return research.
+          </p>
+          <div class="state-controls">
+            <label for="forwardHorizon"
+              >Holding horizon
+              <select id="forwardHorizon">
+                <option value="3">Quarter · 3 months</option>
+                <option value="12" selected>Year · 12 months</option>
+                <option value="36">3 years · 36 months</option>
+              </select>
+            </label>
+            <label for="forwardLag"
+              >Entry timing
+              <select id="forwardLag">
+                <option value="0">Reference month end</option>
+                <option value="2">2 months later · sensitivity</option>
+              </select>
+            </label>
+            <label for="forwardSample"
+              >History sample
+              <select id="forwardSample">
+                <option value="common">Common dates · all 5 assets</option>
+                <option value="asset">Maximum history · each asset</option>
+              </select>
+            </label>
+            <label for="forwardMetric"
+              >Heatmap measure
+              <select id="forwardMetric">
+                <option value="mean">Mean return</option>
+                <option value="median">Median return</option>
+                <option value="lift">Difference vs own baseline</option>
+              </select>
+            </label>
+          </div>
+          <p id="forwardTiming" class="note"></p>
+          <div
+            id="forwardHeatmap"
+            class="table-wrap"
+            tabindex="0"
+            role="region"
+            aria-label="Quadrant forward-return heatmap; scroll horizontally on small screens"
+          ></div>
+          <p class="sub">
+            Cumulative nominal USD returns, not annualised. Green / red shows
+            the sign of the selected measure. N = monthly start dates, not
+            independent observations. Below 2% inflation can still be positive;
+            that quadrant is not necessarily deflation.
+          </p>
+          <label for="forwardAsset"
+            >Inspect asset
+            <select id="forwardAsset">
+              <option value="SPY">SPY · US equities</option>
+              <option value="IEF">IEF · Treasuries</option>
+              <option value="GLD">GLD · Gold</option>
+              <option value="TIP">TIP · Inflation-linked bonds</option>
+              <option value="DBC">DBC · Commodities</option>
+            </select>
+          </label>
+          <p id="forwardFinding" class="state-readout" aria-live="polite"></p>
+          <details open>
+            <summary>Distributions, uncertainty & correlations</summary>
+            <div
+              id="forwardDetails"
+              class="table-wrap"
+              tabindex="0"
+              role="region"
+              aria-label="Selected asset distributions and uncertainty; scroll horizontally"
+            ></div>
+            <p id="forwardAssociation" class="sub"></p>
+          </details>
+          <p class="note">
+            Monthly holding windows overlap, especially at 36 months. Intervals
+            use 2,500 paired circular block resamples with blocks of max(12,
+            horizon) months. They describe uncertainty in the difference from
+            the unconditional cohort mean, not the range of the next investment
+            return. Intervals and ranks are exploratory, without
+            multiple-comparison correction. Few economic episodes, revisions and
+            changing monetary regimes limit inference. This study does not
+            retune the quadrant axes or establish a forecasting edge.
+          </p>
+          <details>
+            <summary>Coverage, sources & calculation</summary>
+            <p id="forwardCoverage" class="sub"></p>
+            <p class="sub">
+              Return = adjusted close at entry + horizon / adjusted close at
+              entry − 1. Entry is the reference month end, or two months later.
+              Every intervening monthly price must exist. No costs, tax,
+              financing or leverage. Adjusted prices are a provider total-return
+              proxy. Static axes:
+              <a
+                href="https://fred.stlouisfed.org/series/CFNAIMA3"
+                target="_blank"
+                rel="noopener"
+                >CFNAI-MA3</a
+              >
+              and
+              <a
+                href="https://fred.stlouisfed.org/series/PCEPI"
+                target="_blank"
+                rel="noopener"
+                >PCE</a
+              >. Prices:
+              <a
+                href="https://www.alphavantage.co/documentation/#monthlyadj"
+                target="_blank"
+                rel="noopener"
+                >Alpha Vantage monthly adjusted</a
+              >. Constant 2% is a retrospective anchor; the Fed's explicit
+              objective dates from 2012. This snapshot is separate from the
+              frozen momentum investment experiment.
+            </p>
+          </details>
+          <p>
+            <a href="/data/state-forward.csv" download
+              >Download all monthly start dates and outcomes · CSV</a
+            >
+          </p>
+        </article>
+        <div class="state-lenses">
+          <article id="stateNowcast" class="panel">
+            <h3>Model nowcast</h3>
+            <p class="sub">Waiting for source data.</p>
+          </article>
+          <article id="statePricing" class="panel">
+            <h3>Market pricing</h3>
+            <p class="sub">Waiting for source data.</p>
+          </article>
+          <article id="stateFinancing" class="panel">
+            <h3>Financial conditions</h3>
+            <p class="sub">Waiting for source data.</p>
+          </article>
+        </div>
+        <article class="panel" style="margin-bottom: 18px">
+          <h2>Read the layers together</h2>
+          <div class="state-flow">
+            <span>1 · Economic state</span> →
+            <span>2 · Direction / nowcast</span> →
+            <span>3 · Pricing & financing</span> →
+            <span>4 · Portfolio risk</span>
+          </div>
+          <p>
+            Above-target inflation can be falling. Below-trend activity can be
+            recovering. Investment outcomes also depend on what is priced in,
+            real yields, liquidity and portfolio exposure. These readings inform
+            scenarios; they do not select a guaranteed winning asset.
+          </p>
+          <p class="sub">
+            The public All Weather framework separates broad market exposures
+            from active forecasts and balances economic sensitivities. This
+            independent app does not reproduce a hedge fund's proprietary
+            models. The conditional forward-return study above is descriptive;
+            the separate momentum investment experiment remains experimental.
+          </p>
+          <button id="stateToResearch">Inspect investment backtests →</button>
+        </article>
+        <article class="panel" style="margin-bottom: 18px">
+          <h2>Evidence & measurement</h2>
+          <p id="stateCoverage" class="sub">Waiting for dated evidence.</p>
+          <div
+            id="stateEvidence"
+            class="table-wrap"
+            tabindex="0"
+            role="region"
+            aria-label="Economic indicator evidence; scroll horizontally on small screens"
+          >
+            No current observations.
+          </div>
+          <details class="context-details">
+            <summary>State method, anchors & sources</summary>
+            <p class="sub">
+              Static means indicator levels, rather than the three-month changes
+              used by Momentum. The activity axis uses the Chicago Fed's
+              published three-month average of its 85-indicator national
+              activity index. Zero represents growth at its historical trend,
+              not an output gap, zero GDP growth or a recession boundary. Its
+              normalisation can be revised by the publisher.
+            </p>
+            <p class="sub">
+              The inflation axis is 100 × (PCEPI / PCEPI twelve months earlier −
+              1), minus 2 percentage points. The Fed's 2% longer-run objective
+              refers to headline PCE. Core PCE appears as supporting evidence,
+              with its own label and date. The annual comparison requires the
+              exact matching month; missing bases stay unavailable.
+            </p>
+            <p class="sub">
+              Six monthly activity cross-checks follow categories used by the
+              NBER: industrial production, payroll and household employment,
+              real income excluding transfers, real consumption, and real
+              manufacturing and trade sales. Breadth counts positive annual
+              growth among fresh, completed observations, requires at least four
+              of six, and excludes readings more than two months behind the
+              freshest usable month. Zero is unchanged; missing or stale
+              readings are excluded, with coverage shown. This is our
+              descriptive count, not the NBER's recession-dating method.
+            </p>
+            <p class="sub">
+              These series overlap with the CFNAI and with each other. They
+              explain the economy's composition without being added to the
+              activity axis or treated as independent confirmations. GDP is a
+              quarterly cross-check. Core CPI, shelter, wages and the Dallas
+              Fed's published 12-month trimmed-mean PCE provide inflation
+              detail. Trimmed-mean PCE is already an annual rate; it is not
+              transformed a second time. CPI and wage growth do not share the
+              Fed's headline-PCE target.
+            </p>
+            <p class="sub">
+              The state trail has 12 numbered positions. Monthly, quarterly and
+              annual sampling select reference months; quarterly/annual past
+              buckets require their final month, while the selected ending month
+              may be within an unfinished quarter/year. Missing pairs stay as
+              unconnected gaps. The latest trail ends at the latest indicator
+              reference month, rather than the browser's calendar month.
+              Historical replay changes the chart; the left-hand cards continue
+              to show the latest released economy.
+            </p>
+            <p class="sub">
+              Standard and Close viewports use fixed native-unit scales. Full
+              history expands symmetrically around activity zero and the 2% PCE
+              anchor; selecting a viewport never changes quadrant membership.
+              Diamonds identify out-of-range points, and connecting lines are
+              clipped at the viewport rather than joining displaced diamonds.
+              The direction arrow describes the last adjacent sampled move;
+              overlapping points remain accessible through Inspect position.
+            </p>
+            <p class="sub">
+              Activity context excludes the current reference month and requires
+              at least 24 prior monthly values and 95% reference-window
+              coverage. Robust dispersion = 1.4826 × median absolute deviation
+              from the historical median. Distance from trend = activity /
+              robust dispersion; it is not a mean-centred z-score. Strength = 50
+              + (50/3) × distance, capped at 0–100. A score of 50 means exactly
+              activity zero; the endpoints mean at least three robust dispersion
+              units from zero, not observed historical minima/maxima or a
+              probability. No mean or percentile recentres the quadrant axes.
+            </p>
+            <p class="sub">
+              Both axes need a completed monthly period and must be no more than
+              90 days beyond period end, with no more than one month between
+              their reference periods. Buffers of ±0.10 activity-index units and
+              ±0.20 inflation percentage points are descriptive heuristics. They
+              are not fitted to asset returns. GDPNow requires a separately
+              verified update within 21 days and a target quarter no more than
+              45 days past quarter end; its units are quarter-on-quarter
+              annualised, not GDP YoY.
+            </p>
+            <p class="sub">
+              <a
+                href="https://www.chicagofed.org/research/data/cfnai/current-data"
+                target="_blank"
+                rel="noopener"
+                >Chicago Fed activity index</a
+              >
+              ·
+              <a
+                href="https://www.federalreserve.gov/faqs/economy_14400.htm"
+                target="_blank"
+                rel="noopener"
+                >Fed inflation objective</a
+              >
+              ·
+              <a
+                href="https://www.nber.org/research/business-cycle-dating"
+                target="_blank"
+                rel="noopener"
+                >NBER activity measures</a
+              >
+              ·
+              <a
+                href="https://fred.stlouisfed.org/series/PCETRIM12M159SFRBDAL"
+                target="_blank"
+                rel="noopener"
+                >Dallas Fed trimmed-mean PCE via FRED</a
+              >
+              ·
+              <a
+                href="https://www.bridgewater.com/research-and-insights/the-all-weather-story"
+                target="_blank"
+                rel="noopener"
+                >Bridgewater public framework</a
+              >. Reference periods differ from publication dates; source refresh
+              does not remove publication lags. Old archives without this layer
+              are not backfilled.
+            </p>
+          </details>
+        </article>
+      </section>
+      <main
+        id="dashboard"
+        role="tabpanel"
+        aria-labelledby="tab-dashboard"
+        hidden
+      >
+        <div class="hero">
+          <section class="panel">
+            <div class="eyebrow">Observed momentum · not a forecast</div>
+            <div id="regime" class="regime">Waiting for verified data</div>
+            <p id="interpretation" class="muted">
+              The regime is withheld until enough fresh growth and inflation
+              observations are available.
+            </p>
+            <div class="metrics">
+              <div class="metric">
+                <strong id="growthScore">—</strong><span>Growth momentum</span>
+              </div>
+              <div class="metric">
+                <strong id="inflationScore">—</strong
+                ><span>Inflation momentum</span>
+              </div>
+              <div class="metric">
+                <strong id="coverage">—</strong
+                ><span>Weighted data coverage</span>
+              </div>
+            </div>
+            <p class="note">
+              A high level can be falling. This model measures the change in
+              annual growth rates over three months. It does not measure
+              economic surprises versus market consensus.
+            </p>
+            <div id="balanceNote" class="sub"></div>
+            <section
+              id="preferredAssets"
+              class="preferred-assets"
+              aria-label="Preferred assets for selected position"
+            >
+              <h3>Preferred assets</h3>
+              <p class="sub">Waiting for a valid position.</p>
+            </section>
+          </section>
+          <section class="panel">
+            <h2>Growth × inflation momentum</h2>
+            <div class="context-controls">
+              <label
+                >Spacing<select id="quadrantPeriod">
+                  <option value="monthly" selected>Monthly</option>
+                  <option value="quarterly">Quarterly</option>
+                  <option value="annual">Annual</option>
+                </select></label
+              >
+              <label
+                >Positions<select id="quadrantCount">
+                  <option value="5">5</option>
+                  <option value="12" selected>12</option>
+                  <option value="20">20</option>
+                </select></label
+              >
+            </div>
+            <div class="quadrant-frame">
+              <canvas
+                id="quadrant"
+                role="img"
+                aria-label="Growth and inflation momentum trail. Use Inspect position for exact scores and dates."
+              ></canvas>
+              <div id="quadrantTip" class="quadrant-tooltip" hidden></div>
+            </div>
+            <p class="sub" id="quadrantTrailStatus">
+              Waiting for source observations.
+            </p>
+            <label class="sub"
+              >Inspect position
+              <select id="quadrantInspect" disabled>
+                <option>Waiting for data</option>
+              </select></label
+            >
+            <p class="sub" id="quadrantReadout">Waiting for verified data.</p>
+            <p class="note">
+              Historical dots: reconstructed with today's revised FRED data.
+              Current dot: latest published observations. Centre band =
+              transition.
+            </p>
+            <details class="quadrant-method">
+              <summary>Trail method</summary>
+              <p>
+                Spacing changes the sampling interval; both axes retain the same
+                three-month momentum formula, weights and 75% coverage
+                requirement. The current position is followed backward by
+                completed calendar months, quarters or years. Each completed
+                bucket uses its last valid monthly reference-period position;
+                unavailable buckets remain gaps.
+              </p>
+              <p>
+                Reconstruction uses only economic reference periods ending on or
+                before each sampled cutoff, with today's revised values. It does
+                not simulate original publication lags or historical data
+                vintages: these are retrospective reference-period positions,
+                not readings the app recorded or signals that could have been
+                traded at those dates. Inspect shows the sampled date when it
+                differs from the bucket end. Saved observed snapshots remain in
+                History.
+              </p>
+              <p>
+                Numbers run from 1 (oldest) to the selected count (Now). Older
+                points become smaller and fainter; the current point has an
+                outer ring. Select Inspect position to reach overlapping points
+                using the keyboard or on mobile.
+              </p>
+            </details>
+          </section>
+        </div>
+        <div class="grid">
+          <section class="panel">
+            <h2>What drives the result?</h2>
+            <ul id="drivers" class="drivers">
+              <li>Waiting for source data.</li>
+            </ul>
+            <p class="sub">
+              Contributions are shown within each axis. Heuristic scores, not
+              probabilities.
+            </p>
+          </section>
+          <section class="panel">
+            <h2>Evidence that could change the view</h2>
+            <div id="counterEvidence" class="sub">
+              No conclusion without data.
+            </div>
+            <div class="note">
+              Asset sensitivities describe scenarios. A quadrant is not an
+              instruction to concentrate a portfolio.
+            </div>
+          </section>
+        </div>
+        <div class="grid">
+          <section class="panel">
+            <h2>Growth — level and direction</h2>
+            <div class="table-wrap" id="growthTable"></div>
+          </section>
+          <section class="panel">
+            <h2>Inflation — level and direction</h2>
+            <div class="table-wrap" id="inflationTable"></div>
+          </section>
+        </div>
+        <section class="panel" style="margin-bottom: 18px">
+          <h2>Credit, liquidity & policy</h2>
+          <p class="sub">
+            Context outside the quadrant score. Tight policy and weakening
+            credit can coexist with slowing inflation.
+          </p>
+          <div class="table-wrap" id="creditTable"></div>
+          <p class="sub">
+            Net liquidity is an approximate Fed balance-sheet proxy: (WALCL −
+            WTREGEN) / 1000 − RRPONTSYD, in USD billions. It mixes weekly
+            averages and point observations.
+          </p>
+        </section>
+        <section class="panel" style="margin-bottom: 18px">
+          <h2>Debt & credit cycle</h2>
+          <p class="sub">
+            Debt servicing, credit supply and fiscal capacity. These ratios are
+            shown separately from the growth × inflation score.
+          </p>
+          <div class="table-wrap" id="debtTable"></div>
+          <p class="sub">
+            Positive lending standards mean net tightening. Gross federal debt
+            includes intragovernmental holdings. Federal interest / receipts
+            uses matched fiscal years; its change is over one year. Each series
+            keeps its own observation date.
+          </p>
+        </section>
+        <section class="panel" style="margin-bottom: 18px">
+          <h2>Recession & financial stress</h2>
+          <div id="stress" class="stress-grid"></div>
+          <p class="sub">
+            Independent warning lights with heuristic thresholds. The count is
+            not a recession probability. Missing signals remain unknown.
+          </p>
+        </section>
+        <section class="panel" style="margin-bottom: 18px">
+          <h2>Market context</h2>
+          <p class="sub">
+            Latest published observations and changes over approximately 30
+            calendar days. Individual publication dates and reporting delays
+            apply.
+          </p>
+          <div id="market" class="market-grid"></div>
+          <p class="sub">
+            Breakeven is a market-implied inflation measure affected by risk and
+            liquidity premia. Market context does not enter the macro score.
+          </p>
+        </section>
+        <section class="panel">
+          <h2>Scenario lab</h2>
+          <p class="sub">
+            Explore the four environments. These illustrative sliders do not
+            modify observations or history.
+          </p>
+          <div class="scenario">
+            <label
+              >Growth momentum <output id="sgValue">0.00</output
+              ><input
+                id="sg"
+                type="range"
+                min="-1"
+                max="1"
+                step="0.05"
+                value="0" /></label
+            ><label
+              >Inflation momentum <output id="siValue">0.00</output
+              ><input
+                id="si"
+                type="range"
+                min="-1"
+                max="1"
+                step="0.05"
+                value="0"
+            /></label>
+          </div>
+          <p id="scenarioResult"></p>
+        </section>
+      </main>
+      <section
+        id="context"
+        role="tabpanel"
+        aria-labelledby="tab-context"
+        hidden
+      >
+        <div class="panel">
+          <h2>Long-run macro pressure</h2>
+          <p class="sub">
+            One descriptive score, four equally weighted pillars. 50 is the
+            historical centre; higher means more pressure under the stated
+            assumptions. Individual dates and coverage still matter.
+          </p>
+          <div class="context-controls">
+            <label
+              >Reference window<select id="contextYears">
+                <option value="5">5 years</option>
+                <option value="10" selected>10 years</option>
+                <option value="20">20 years</option>
+              </select></label
+            >
+            <label
+              >Estimator<select id="contextEstimator">
+                <option value="standard">Mean / standard deviation</option>
+                <option value="robust" selected>Median / scaled MAD</option>
+              </select></label
+            >
+          </div>
+          <div class="pressure-layout">
+            <div class="pressure-summary">
+              <div class="sub" id="pressureReference">
+                Waiting for verified observations
+              </div>
+              <div class="pressure-number">
+                <span id="pressureScore">—</span><small> / 100</small>
+              </div>
+              <div id="pressureBand">Waiting for data</div>
+              <div
+                id="pressureGauge"
+                role="img"
+                aria-label="Macro pressure has not loaded"
+              >
+                <div class="pressure-meter">
+                  <i id="pressureMarker" hidden></i>
+                </div>
+                <div class="pressure-scale">
+                  <span>0 · lower</span><span>50 · centre</span
+                  ><span>100 · higher</span>
+                </div>
+              </div>
+              <div class="pressure-movement">
+                <span class="sub">Pressure momentum</span
+                ><strong id="pressureMovement">—</strong>
+              </div>
+              <p class="sub" id="pressureCoverage">No current coverage</p>
+              <p id="pressureReading">
+                The score appears when enough fresh inputs and reference history
+                are available.
+              </p>
+            </div>
+            <div>
+              <h3 style="margin-top: 0">Pressure by pillar</h3>
+              <p class="sub">
+                Same 0–100 scale · 50 at the centre. Select a pillar to see its
+                inputs. Direction uses standardized momentum.
+              </p>
+              <div id="pressurePillars">Waiting for source data.</div>
+            </div>
+          </div>
+          <h3 id="pressureDriverTitle">Pillar inputs</h3>
+          <p class="sub" id="pressureDriverNote"></p>
+          <div id="pressureDrivers"></div>
+          <button id="pressureExport" type="button" disabled>
+            Export score inputs (CSV)
+          </button>
+          <p class="note">
+            A historical pressure index, not a recession probability or
+            allocation signal. Annual fiscal inputs lag monthly data. A low
+            score can coexist with deflation or other risks outside this model.
+          </p>
+          <details class="context-details pressure-method">
+            <summary>How the composite works</summary>
+            <p>
+              Each pillar has 25% weight. Inputs are equally weighted within
+              their pillar. Growth weakness uses GDP, production, orders,
+              payrolls and temporary employment with inverted signs. Inflation
+              pressure uses core PCE, CPI, wages and shelter. Financial
+              tightness uses NFCI and bank lending standards with positive
+              signs, and lending growth and net liquidity growth with inverted
+              signs. Debt burden uses household debt service, federal debt/GDP
+              and federal interest/receipts. Fed funds stays in the detailed
+              context because a nominal policy rate alone does not establish
+              restrictiveness.
+            </p>
+            <p>
+              For the selected reference and estimator, orient each level
+              z-score toward pressure, cap it at ±3, average available inputs
+              within each pillar, then average the four pillars. Score = 50 +
+              (50 / 3) × that average. Capping limits individual outliers here;
+              the detailed heatmap retains uncapped z-scores. Robust mode uses
+              median and scaled MAD, retaining the original observations.
+            </p>
+            <p>
+              Only fresh inputs with valid reference statistics enter. At least
+              two-thirds of each pillar and 75% of the original, equally
+              weighted pillar coverage are required. Missing inputs receive no
+              neutral value; available inputs share the pillar's fixed weight.
+              All four pillars are required. The same rules independently apply
+              to momentum.
+            </p>
+            <p>
+              Momentum uses standardized changes over 3 months or 13 weeks; the
+              fiscal ratio uses one year. Building/easing uses ±0.15 z
+              thresholds. The headline score uses levels. Momentum is not a
+              change in the headline score. Below 40 = below usual pressure,
+              40–60 = near usual, 60–75 = elevated, and 75+ = high. These
+              weights, caps and labels are transparent heuristics, with no
+              forecast calibration. Pillars can offset one another; their spread
+              and inputs remain visible.
+            </p>
+            <p>
+              All inputs use the latest revised FRED history and their own
+              observation dates. Changing the reference or estimator changes the
+              comparison. This is an independent application model. General
+              methodological reference:
+              <a
+                href="https://www.oecd.org/en/publications/handbook-on-constructing-composite-indicators-methodology-and-user-guide_9789264043466-en.html"
+                target="_blank"
+                rel="noopener"
+                >OECD/JRC handbook on composite indicators</a
+              >.
+            </p>
+          </details>
+          <details class="context-details">
+            <summary>All 17 indicators — detailed z-score heatmap</summary>
+            <p class="sub">
+              Blue = below the reference centre; orange = above. These are raw
+              indicator signs, before composite orientation. The selected chart
+              measure applies to this heatmap. Select a cell to inspect its
+              history.
+            </p>
+            <div class="table-wrap" id="contextTable">
+              Waiting for long-run observations.
+            </div>
+            <p class="note">
+              Every cell shows available / required sample size. Missing years
+              are not filled. Quarterly data stay quarterly; weekly context uses
+              the last available observation in each completed month. The 20Y
+              percentile is an empirical rank, not a probability forecast.
+            </p>
+          </details>
+        </div>
+        <div class="panel" style="margin-top: 18px">
+          <div class="context-controls">
+            <label
+              >Indicator<select id="contextIndicator">
+                <option value="pce">Core PCE</option>
+              </select></label
+            >
+            <label
+              >Chart measure<select id="contextMeasure">
+                <option value="level">Level</option>
+                <option value="momentum">Momentum</option>
+              </select></label
+            >
+          </div>
+          <h2 id="contextTitle" tabindex="-1">Historical comparison</h2>
+          <button id="contextExport" type="button" disabled>
+            Export selected series (CSV)
+          </button>
+          <p class="sub" id="contextDetail">
+            Select an indicator after data loads.
+          </p>
+          <canvas
+            id="contextChart"
+            role="img"
+            aria-label="Historical indicator chart. Select a cell to inspect the numeric comparison."
+          ></canvas>
+          <p class="sub">
+            Gold: selected series. Dashed blue: reference centre and ±2
+            dispersion units for the selected window. Shading:
+            <a
+              href="https://fred.stlouisfed.org/series/USREC"
+              target="_blank"
+              rel="noopener"
+              >USREC / NBER recession chronology</a
+            >, identified retrospectively. This chart uses today's revised
+            history; it is not a real-time backtest or a buy/sell rule.
+          </p>
+        </div>
+      </section>
+      <section
+        id="research"
+        role="tabpanel"
+        aria-labelledby="tab-research"
+        hidden
+      >
+        <p id="researchStatus" class="status">
+          Loading dated research summary…
+        </p>
+        <div class="research-stack">
+          <article class="panel" id="researchOverview"></article>
+          <article class="panel">
+            <h2>Growth of $100</h2>
+            <p class="sub">
+              Year-end observations. Monthly drawdowns and all baselines are in
+              the comparison below.
+            </p>
+            <div id="researchEquity"></div>
+            <details>
+              <summary>Exact annual returns</summary>
+              <div id="researchAnnual" class="table-wrap"></div>
+            </details>
+          </article>
+          <article class="panel">
+            <h2>Strategies on the same reserved period</h2>
+            <div id="researchResults" class="table-wrap"></div>
+            <p class="sub">
+              CAGR = compounded annual return. Excess Sharpe uses the T-bill
+              carry proxy. Drawdown = worst peak-to-trough loss at monthly
+              closes; intramonth losses can be larger. Costs are assumptions,
+              not realised execution.
+            </p>
+          </article>
+          <article class="panel" id="researchPrediction"></article>
+          <article class="panel">
+            <h2>Did the expected assets actually win?</h2>
+            <div id="researchConditional" class="table-wrap"></div>
+          </article>
+          <article class="panel">
+            <h2>Does macro momentum lag the market?</h2>
+            <div id="researchLag"></div>
+          </article>
+          <article class="panel">
+            <h2>Historical economic sanity checks</h2>
+            <div id="researchAudit"></div>
+          </article>
+          <article class="panel">
+            <details>
+              <summary>Research protocol, selection and limitations</summary>
+              <div id="researchProtocol" class="sub"></div>
+            </details>
+          </article>
+        </div>
+      </section>
+      <section
+        id="history"
+        role="tabpanel"
+        aria-labelledby="tab-history"
+        hidden
+      >
+        <div class="panel">
+          <h2>Observed dataset history</h2>
+          <p id="historyMessage">
+            Loading the shared macro archive and this browser's observations.
+            The daily archive starts after the update is merged.
+          </p>
+          <div class="table-wrap" id="historyTable"></div>
+          <p class="note">
+            These are observed snapshots, not a backtest. Repeated downloads of
+            the same dataset do not add points. Version 1 logs remain in browser
+            storage but are excluded because the model changed.
+          </p>
+        </div>
+      </section>
+      <section
+        id="principles"
+        role="tabpanel"
+        aria-labelledby="tab-principles"
+        hidden
+      >
+        <article class="panel rules">
+          <h2>Principles before predictions</h2>
+          <p>
+            This independent application is inspired by public All Weather
+            principles. Its formulas are our transparent heuristics, not Ray
+            Dalio's or Bridgewater's proprietary model.
+          </p>
+          <ol>
+            <li>
+              <strong>Understand the machine.</strong> Separate growth,
+              inflation, credit and the policy response.
+            </li>
+            <li>
+              <strong>Distinguish levels, momentum and expectations.</strong>
+              Our axes measure observed momentum. Without a timestamped
+              consensus source, we do not claim to measure surprises.
+            </li>
+            <li>
+              <strong>Balance risks across environments.</strong> Equal capital
+              weights do not imply equal risk. Scenario sensitivities are not
+              allocation recommendations.
+            </li>
+            <li>
+              <strong>Make uncertainty visible.</strong> Missing, stale and
+              conflicting evidence must be visible before drawing a conclusion.
+            </li>
+            <li>
+              <strong>Write rules that can be challenged.</strong> Every score
+              has a source, comparison period, scale and weight.
+            </li>
+          </ol>
+          <details open>
+            <summary>Exact calculation and quality rules</summary>
+            <p>
+              Annual growth: 100 × (current level / year-earlier level − 1).
+              Monthly and quarterly series require the matching month one year
+              earlier. Weekly lending uses an observation on or before the date
+              52 weeks earlier, within eight days. A missing comparison is never
+              replaced with an absolute level.
+            </p>
+            <p>
+              Momentum: current YoY growth minus its value three months earlier
+              (one quarter for GDP). Individual score: clamp(momentum / scale,
+              −1, +1). Axis score: weighted mean of fresh available scores. At
+              least 75% of configured weight must be available on each axis. If
+              either absolute axis score is below 0.15, the result is labelled
+              transition.
+            </p>
+            <div id="methodTable" class="table-wrap"></div>
+            <p>
+              Scales, weights, freshness limits and the transition band are
+              explicit descriptive assumptions. A separate vintage-based test of
+              limited calibration variants and predictive models appears in
+              Backtest & prediction. It does not establish a reliable edge or
+              change this chart's scales. Correlated inflation and labour series
+              can still overlap. Manufacturing orders are nominal dollar orders,
+              so inflation can lift that growth input. It is not an independent
+              real-output measure.
+            </p>
+            <p>
+              Credit conditions, policy rates, net liquidity and stress lights
+              are shown separately. ISM and Roche manual defaults were removed;
+              this version uses only the documented automatic sources.
+            </p>
+            <p>
+              Reference dates are observation periods, not release dates. Fetch
+              time is recorded separately. Monthly and quarterly freshness ages
+              start at period end; weekly and daily ages start at the
+              observation date. These limits are heuristics, not a
+              release-calendar engine. Historical vintage data and realistic
+              trade timing are required before any backtest.
+            </p>
+          </details>
+          <details>
+            <summary>Scenario sensitivities and important distinctions</summary>
+            <p>
+              Growth accelerating / inflation slowing: equities may benefit.
+              Growth accelerating / inflation accelerating: real assets may
+              benefit. Growth slowing / inflation accelerating: inflation
+              protection may help, depending on real yields. Growth slowing /
+              inflation slowing: nominal duration may help, depending on rates
+              and pricing. None of these relationships is guaranteed.
+            </p>
+            <p>
+              The arrows indicate growth and inflation momentum, not their
+              absolute levels. Falling momentum does not establish negative
+              inflation or a recession. Earlier labels such as “Overheating”
+              overstated what this calculation could establish and were
+              replaced. A TIPS yield is not a TIPS total return; a Treasury
+              yield change is not a bond return. WTI is a spot price, not a
+              commodity portfolio return. No risk-parity weights are estimated
+              without appropriate return and covariance data.
+            </p>
+          </details>
+          <details>
+            <summary>Long-run statistics and debt-cycle context</summary>
+            <p>
+              Up to 25 years of history is requested for macro and debt
+              indicators. Each current level is compared with 5, 10 and 20
+              preceding complete calendar years, excluding the current
+              observation. Monthly windows require 60/120/240 observations;
+              quarterly windows 20/40/80; annual fiscal windows 5/10/20. The
+              series must span the entire window and contain at least 95% of
+              expected observations. Short histories or larger gaps are
+              unavailable; smaller gaps retain explicit actual/expected counts.
+            </p>
+            <p>
+              Standard z = (value − mean) / sample standard deviation (n−1).
+              Robust z = (value − median) / (1.4826 × median absolute
+              deviation). A zero dispersion gives no z-score. Percentiles use
+              the empirical midrank among preceding observations. Pandemic
+              extremes remain in the data; the robust estimator offers an
+              additional comparison.
+            </p>
+            <p>
+              Levels are annual growth rates for activity and inflation, and
+              published levels or ratios for financial conditions, policy and
+              debt. Momentum is the change over three months (13 weeks for
+              weekly source series; one year for annual fiscal ratios). Weekly
+              statistics are sampled once per completed month and are explicitly
+              dated separately from the latest weekly dashboard value. Annual
+              fiscal series have small samples. Structural changes can shift the
+              reference distribution.
+            </p>
+            <p>
+              The statistical layer does not replace or retune the quadrant's
+              heuristic weights. Credit context uses TDSP, DRTSCILM, GFDEGDQ188S
+              and 100 × FYOINT / FYFR for matching fiscal years. Debt ratios are
+              not default probabilities. Historical revisions can change
+              z-scores even when the latest observation is unchanged.
+            </p>
+          </details>
+          <details>
+            <summary>Sources and provenance</summary>
+            <p>
+              <a
+                href="https://www.bridgewater.com/research-and-insights/the-all-weather-story"
+                target="_blank"
+                rel="noopener"
+                >Bridgewater — The All Weather Story</a
+              >
+              ·
+              <a
+                href="https://www.principles.com/"
+                target="_blank"
+                rel="noopener"
+                >Ray Dalio — Principles</a
+              >
+              ·
+              <a
+                href="https://fred.stlouisfed.org/docs/api/fred/series_observations.html"
+                target="_blank"
+                rel="noopener"
+                >FRED API documentation</a
+              >
+            </p>
+            <p>
+              Each row links to its FRED series and underlying provider. Source
+              terms and attributions apply, including CBOE for VIX and ICE BofA
+              for credit spreads. FRED access does not by itself grant
+              unrestricted redistribution rights. No affiliation with Ray Dalio
+              or Bridgewater.
+            </p>
+            <p>
+              Additional references:
+              <a
+                href="https://macro.disciplinefunds.com/"
+                target="_blank"
+                rel="noopener"
+                >Discipline Funds macro dashboard</a
+              >,
+              <a
+                href="https://macro.disciplinefunds.com/leading-inflation-index/"
+                target="_blank"
+                rel="noopener"
+                >their Leading Inflation Index</a
+              >
+              and
+              <a
+                href="https://macro.disciplinefunds.com/real-time-payrolls-tracker/"
+                target="_blank"
+                rel="noopener"
+                >their Treasury payroll-tax tracker</a
+              >. Their proprietary series are not reproduced as our own
+              calculations.
+            </p>
+            <p>
+              <a
+                href="https://wmi.edu.sg/dmp-online-international/"
+                target="_blank"
+                rel="noopener"
+                >WMI — Dalio Market Principles</a
+              >
+              publicly describes separate economic/market and investment
+              principles, expectations, debt cycles and scenario testing. This
+              application draws on public descriptions; it does not reproduce
+              the paid course, proprietary simulator or datasets.
+            </p>
+          </details>
+        </article>
+      </section>
+      <footer>
+        Model <span id="version"></span> · Independent research tool · Data
+        source: Federal Reserve Bank of St. Louis (FRED) and credited providers.
+      </footer>
+    </div>
+    <dialog id="installDialog" aria-labelledby="installTitle">
+      <h2 id="installTitle">Install Dalio Macro</h2>
+      <p>
+        Open this page in Google Chrome. Use the install icon beside the address
+        bar, or Chrome's menu → Cast, save and share → Install page as app. On
+        Android, use Chrome's Install app / Add to Home screen option.
+      </p>
+      <p>
+        The app opens in its own window with an icon. Fresh economic
+        observations require internet; saved values remain explicitly dated.
+        Keep the same public address for a permanent installation.
+      </p>
+      <p id="pwaAvailability" class="sub">
+        The install prompt depends on your browser and device. If this embedded
+        browser offers no installation, open the page directly in Chrome.
+        Preview addresses stay tied to their deployment and may require Vercel
+        login.
+      </p>
+      <p>
+        <a
+          href="https://support.google.com/chrome/answer/9658361"
+          target="_blank"
+          rel="noopener"
+          >Chrome installation help</a
+        >
+      </p>
+      <button id="closeInstall" type="button">Close</button>
+    </dialog>
+    <script type="module" src="/app.mjs"></script>
+  </body>
 </html>
