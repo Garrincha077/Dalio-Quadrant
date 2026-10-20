@@ -1,5 +1,9 @@
 # Frozen research, 19 October 2026
 
+For the separate 3/12/36-month **static state** study dated 20 October 2026,
+see [STATE_FORWARD.md](STATE_FORWARD.md). It covers every monthly state,
+conditional outcomes and selected-dot returns without changing this experiment.
+
 This is an inspectable experiment, not a validated investment strategy. The
 descriptive quadrant formula remains `momentum-1`. The experiment selected limited
 variants and separate forward-return ridge models using development data only.
@@ -50,7 +54,8 @@ overlapping diagnostics suggest a descriptive component, not a fixed proven lag.
 
 Node >=22 and Python >=3.11. Install the exact numerical versions in
 `requirements.txt`. Raw provider price histories and ALFRED caches are kept in
-ignored `work/research/`; the public app contains aggregate research only.
+ignored `work/research/`; the public app contains aggregate research and derived
+static-state forward returns, without provider price levels.
 
 1. Obtain full **monthly adjusted** CSVs for SPY, IEF, GLD, TIP, DBC from the
    connected Alpha Vantage `TIME_SERIES_MONTHLY_ADJUSTED` source. Save to

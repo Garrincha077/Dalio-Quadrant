@@ -11,6 +11,7 @@ const types = {
   ".html": "text/html; charset=utf-8",
   ".mjs": "text/javascript; charset=utf-8",
   ".json": "application/json; charset=utf-8",
+  ".csv": "text/csv; charset=utf-8",
 };
 createServer(async (req, res) => {
   const url = new URL(req.url, "http://localhost");
@@ -52,9 +53,12 @@ createServer(async (req, res) => {
       "research-view.mjs",
       "state-view.mjs",
       "state-chart.mjs",
+      "forward-view.mjs",
       "data/history.json",
       "data/research-summary.json",
       "data/historical-audit.json",
+      "data/state-forward.json",
+      "data/state-forward.csv",
     ].includes(file)
   ) {
     res.writeHead(404).end("Not found");

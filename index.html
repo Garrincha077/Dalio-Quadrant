@@ -918,6 +918,41 @@
           height: 275px;
         }
       }
+      .forward-panel {
+        margin-bottom: 18px;
+      }
+      .forward-panel small,
+      .forward-point-table small {
+        display: block;
+        font-weight: 400;
+        color: var(--muted);
+        font-size: 11px;
+        margin-top: 5px;
+      }
+      .forward-heatmap {
+        min-width: 850px;
+        table-layout: fixed;
+      }
+      .forward-heatmap th:first-child {
+        width: 185px;
+      }
+      .forward-heatmap td strong {
+        font-size: 19px;
+      }
+      .forward-baseline {
+        border-top: 2px solid #657389;
+      }
+      .forward-point-table {
+        min-width: 450px;
+      }
+      .forward-panel details {
+        margin-top: 16px;
+      }
+      .forward-panel summary {
+        cursor: pointer;
+        padding: 10px 0;
+        color: var(--gold);
+      }
     </style>
   </head>
   <body>
@@ -1086,6 +1121,9 @@
             <p id="stateReadout" class="state-readout" aria-live="polite">
               Waiting for dated positions.
             </p>
+            <div id="stateForwardPoint" aria-live="polite">
+              Loading subsequent returns for the selected position.
+            </div>
             <p id="stateMove" class="sub">
               Waiting for two consecutive positions.
             </p>
@@ -1105,6 +1143,130 @@
             </p>
           </article>
         </div>
+        <article class="panel forward-panel">
+          <div class="eyebrow">
+            Historical association · static economy state
+          </div>
+          <h2>What happened after each quadrant?</h2>
+          <p id="forwardStatus" class="sub" role="status">
+            Loading frozen forward-return research.
+          </p>
+          <div class="state-controls">
+            <label for="forwardHorizon"
+              >Holding horizon
+              <select id="forwardHorizon">
+                <option value="3">Quarter · 3 months</option>
+                <option value="12" selected>Year · 12 months</option>
+                <option value="36">3 years · 36 months</option>
+              </select>
+            </label>
+            <label for="forwardLag"
+              >Entry timing
+              <select id="forwardLag">
+                <option value="0">Reference month end</option>
+                <option value="2">2 months later · sensitivity</option>
+              </select>
+            </label>
+            <label for="forwardSample"
+              >History sample
+              <select id="forwardSample">
+                <option value="common">Common dates · all 5 assets</option>
+                <option value="asset">Maximum history · each asset</option>
+              </select>
+            </label>
+            <label for="forwardMetric"
+              >Heatmap measure
+              <select id="forwardMetric">
+                <option value="mean">Mean return</option>
+                <option value="median">Median return</option>
+                <option value="lift">Difference vs own baseline</option>
+              </select>
+            </label>
+          </div>
+          <p id="forwardTiming" class="note"></p>
+          <div
+            id="forwardHeatmap"
+            class="table-wrap"
+            tabindex="0"
+            role="region"
+            aria-label="Quadrant forward-return heatmap; scroll horizontally on small screens"
+          ></div>
+          <p class="sub">
+            Cumulative nominal USD returns, not annualised. Green / red shows
+            the sign of the selected measure. N = monthly start dates, not
+            independent observations. Below 2% inflation can still be positive;
+            that quadrant is not necessarily deflation.
+          </p>
+          <label for="forwardAsset"
+            >Inspect asset
+            <select id="forwardAsset">
+              <option value="SPY">SPY · US equities</option>
+              <option value="IEF">IEF · Treasuries</option>
+              <option value="GLD">GLD · Gold</option>
+              <option value="TIP">TIP · Inflation-linked bonds</option>
+              <option value="DBC">DBC · Commodities</option>
+            </select>
+          </label>
+          <p id="forwardFinding" class="state-readout" aria-live="polite"></p>
+          <details open>
+            <summary>Distributions, uncertainty & correlations</summary>
+            <div
+              id="forwardDetails"
+              class="table-wrap"
+              tabindex="0"
+              role="region"
+              aria-label="Selected asset distributions and uncertainty; scroll horizontally"
+            ></div>
+            <p id="forwardAssociation" class="sub"></p>
+          </details>
+          <p class="note">
+            Monthly holding windows overlap, especially at 36 months. Intervals
+            use 2,500 paired circular block resamples with blocks of max(12,
+            horizon) months. They describe uncertainty in the difference from
+            the unconditional cohort mean, not the range of the next investment
+            return. Intervals and ranks are exploratory, without
+            multiple-comparison correction. Few economic episodes, revisions and
+            changing monetary regimes limit inference. This study does not
+            retune the quadrant axes or establish a forecasting edge.
+          </p>
+          <details>
+            <summary>Coverage, sources & calculation</summary>
+            <p id="forwardCoverage" class="sub"></p>
+            <p class="sub">
+              Return = adjusted close at entry + horizon / adjusted close at
+              entry − 1. Entry is the reference month end, or two months later.
+              Every intervening monthly price must exist. No costs, tax,
+              financing or leverage. Adjusted prices are a provider total-return
+              proxy. Static axes:
+              <a
+                href="https://fred.stlouisfed.org/series/CFNAIMA3"
+                target="_blank"
+                rel="noopener"
+                >CFNAI-MA3</a
+              >
+              and
+              <a
+                href="https://fred.stlouisfed.org/series/PCEPI"
+                target="_blank"
+                rel="noopener"
+                >PCE</a
+              >. Prices:
+              <a
+                href="https://www.alphavantage.co/documentation/#monthlyadj"
+                target="_blank"
+                rel="noopener"
+                >Alpha Vantage monthly adjusted</a
+              >. Constant 2% is a retrospective anchor; the Fed's explicit
+              objective dates from 2012. This snapshot is separate from the
+              frozen momentum investment experiment.
+            </p>
+          </details>
+          <p>
+            <a href="/data/state-forward.csv" download
+              >Download all monthly start dates and outcomes · CSV</a
+            >
+          </p>
+        </article>
         <div class="state-lenses">
           <article id="stateNowcast" class="panel">
             <h3>Model nowcast</h3>
@@ -1137,8 +1299,8 @@
             The public All Weather framework separates broad market exposures
             from active forecasts and balances economic sensitivities. This
             independent app does not reproduce a hedge fund's proprietary
-            models. The existing asset-return research remains experimental; it
-            has not investment-backtested this new static state classifier.
+            models. The conditional forward-return study above is descriptive;
+            the separate momentum investment experiment remains experimental.
           </p>
           <button id="stateToResearch">Inspect investment backtests →</button>
         </article>

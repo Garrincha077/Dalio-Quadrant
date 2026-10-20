@@ -9,6 +9,7 @@ import {
   renderActivityHistogram,
   statePointLabel,
 } from "./state-chart.mjs";
+import { createForwardView } from "./forward-view.mjs";
 const $ = (id) => document.getElementById(id);
 const finite = Number.isFinite;
 const fmt = (n, d = 2) => (finite(n) ? n.toFixed(d) : "—");
@@ -47,6 +48,7 @@ function observation(d) {
     : "";
 }
 export function createStateView() {
+  const forwardView = createForwardView();
   let snapshot = null,
     slots = [],
     selected = "latest",
@@ -80,6 +82,7 @@ export function createStateView() {
     $("stateReadout").textContent = chosen
       ? statePointLabel(chosen)
       : "Waiting for source history.";
+    forwardView.inspect(chosen);
     const outside = slots.filter(
       (s) =>
         s.point &&

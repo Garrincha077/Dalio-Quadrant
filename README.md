@@ -137,6 +137,30 @@ their state method/version and provenance; old records are not backfilled. State
 updates and GDPNow revisions change the dataset signature. The existing frozen
 investment backtests test `momentum-1`, **not** the new state classifier.
 
+### Static state and subsequent returns
+
+Economy now additionally includes a separate frozen **state-forward-1** study,
+dated 20 October 2026. Every one of 712 same-month revised states (May 1967–August
+2026) has explicit 3/12/36-month outcomes or missing-history/unfinished labels.
+Available ETF prices constrain realised returns to December 1999 onward for SPY
+and March 2006 onward for a common five-asset basket. Complete prices end September
+2026; the 36-month common reference cohort ends September 2023, not 2026.
+
+Choose common dates or each asset's maximum history, reference-month or two-month
+delayed entry, and mean/median/difference from the asset's own cohort baseline.
+Selecting a state-trail dot shows its subsequent outcomes; changing dot sampling
+does not change the study's full monthly sample. Cumulative adjusted-price returns
+are in USD, not annualised, with no trading costs. Exact anchors are retained
+separately from the four quadrant ranks. Derived outcomes are downloadable as CSV.
+
+Conditional distributions, point-biserial and continuous correlations, categorical
+eta² and paired moving-block intervals address association and overlapping labels.
+They are exploratory, not multiple-test adjusted or point-in-time strategy evidence.
+Both entry modes use revised economic data; a fixed two-month delay does not remove
+revision bias. None of these results retunes the axes or frozen investment models.
+See [findings and reproduction](scripts/research/STATE_FORWARD.md) and the separate
+[static-state specification](scripts/research/state-forward-protocol.md).
+
 Sources: [Chicago Fed CFNAI](https://www.chicagofed.org/research/data/cfnai/current-data),
 [Fed inflation objective](https://www.federalreserve.gov/faqs/economy_14400.htm),
 [NBER activity measures](https://www.nber.org/research/business-cycle-dating),
