@@ -22,13 +22,16 @@ Node 22 or newer, no package dependencies:
 
 `api/dashboard.js` requests 40 distinct FRED series in five bounded workers,
 plus GDPNow's series metadata to verify the FRED source update timestamp:
-up to 25 years for macro, debt and recession context, and 30 months for static-state,
+up to 25 years for macro, debt and recession context, and 30 months for supporting static-state,
 nowcast and daily market/stress series. Daily RRP inputs receive a 10,000-observation limit so the
 long liquidity history is not silently truncated. The response includes
 normalized data, quality flags, statistical profiles and the computed regime.
 Responses without source errors are edge cached for one hour. Partial failures
 are not cached. The browser refreshes on opening and every six hours while
 visible; it also refreshes when returning to an old session.
+The two state axes, `CFNAIMA3` and `PCEPI`, additionally request their full available
+monthly history from 1959 (actual CFNAI-MA3 starts in May 1967). This adds no series
+requests; the longer data supports the state trail and historical distribution.
 
 - Real GDP uses `GDPC1` levels and the matching quarter a year earlier.
 - Monthly series require matching year-earlier months. Weekly `TOTLL` uses 52
@@ -82,6 +85,40 @@ or year-earlier bases are filled. Descriptive buffers ±0.10 activity units and
 ±0.20 inflation pp flag sensitivity near an anchor; they are not confidence
 intervals, recession thresholds or return-optimised parameters. Values near trend
 are labelled near trend, rather than confidently assigning a strong/weak regime.
+
+Economy now also has a 12-position numbered fading trail, direction arrow/readout,
+monthly/quarterly/annual sampling, arbitrary historical ending month and return to
+latest data. Historical dots require activity and PCE YoY for the exact same
+completed reference month; quarterly/annual prior samples require the bucket's final
+month. The ending sample can be within an unfinished quarter/year. The live final
+dot preserves the current axes' existing one-month alignment allowance and labels
+both actual dates. Its reference month, rather than the fetch month, anchors the
+trail. Missing pairs stay as numbered unconnected gaps. Inspect position exposes
+all overlapping points to keyboards and touch users.
+
+Standard viewports are fixed at activity ±2 and PCE-minus-2 ±6 pp; Close uses
+±0.5/±2 pp. Full history uses symmetric bounds covering all available extrema.
+Only the viewport changes: neither mean, percentile nor zoom changes activity zero,
+PCE 2% or quadrant membership. Off-range diamonds are explicitly flagged; connecting
+lines clip their true coordinates rather than connecting displaced boundary marks.
+The final consecutive segment has a direction arrow when it is long enough to
+remain visible outside its dots; the dated move readout also covers small moves.
+
+Latest activity context uses full/20/10-year prior monthly references, excluding
+the current month. At least 24 observations and 95% expected coverage are required.
+The histogram groups values outside ±2 into edge bins, with exact extrema in text.
+Robust dispersion is 1.4826 × MAD about the reference median; distance from economic
+zero is activity / robust dispersion. Descriptive strength is
+`50 + (50/3) * distance`, clipped to [0,100]. Thus exactly zero maps to 50 even when
+the historical mean/median differs. This is not a mean-centred z-score, percentile,
+probability or investment signal. Zero dispersion/insufficient histories withhold it.
+
+The state trail and context use today's revised history. They are descriptive
+reference-period replays, not publication-vintage trading tests. The fixed 2% anchor
+before its formal 2012 adoption is an analytical reference, not a claim about an
+official contemporary target. Full historical arrays are served as `stateHistory`
+and kept out of compact macro archive records. Existing investment research is
+unchanged and has not validated this descriptive strength measure.
 
 GDPNow is a **separate model nowcast**, with its target quarter and q/q annualised
 units. The FRED quarterly observation label is not a publication timestamp.

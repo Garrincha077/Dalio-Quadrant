@@ -1,3 +1,14 @@
+import {
+  buildStateTrail,
+  stateScale,
+  activityContext,
+  stateMove,
+} from "./lib/state-history.mjs";
+import {
+  renderStateChart,
+  renderActivityHistogram,
+  statePointLabel,
+} from "./state-chart.mjs";
 const $ = (id) => document.getElementById(id);
 const finite = Number.isFinite;
 const fmt = (n, d = 2) => (finite(n) ? n.toFixed(d) : "—");
@@ -30,60 +41,96 @@ const updated = (s) =>
         timeZone: "UTC",
       }) + " UTC"
     : "Update date unavailable";
-function chart(state) {
-  const w = window.matchMedia("(max-width: 600px)").matches ? 340 : 600,
-    h = 360,
-    cx = w / 2,
-    cy = 170;
-  const xMax = Math.max(
-    1,
-    Math.ceil(Math.abs(state?.available ? state.activity.value : 0) * 1.3 * 2) /
-      2,
-  );
-  const yMax = Math.max(
-    2,
-    Math.ceil(Math.abs(state?.available ? state.inflationGap : 0) * 1.3),
-  );
-  const dx = (w - 88) / 2,
-    dy = 112,
-    x = (v) => cx + (v / xMax) * dx,
-    y = (v) => cy - (v / yMax) * dy;
-  const label = state?.available
-    ? `${state.regime.name}. Activity ${fmt(state.activity.value)}, ${month(state.activity.date)}; headline PCE ${fmt(state.inflation.value)} percent YoY, ${month(state.inflation.date)}. Inflation gap ${signed(state.inflationGap)} percentage points.`
-    : "No valid current state point. Both fresh inputs and compatible periods are required.";
-  let svg = `<svg viewBox="0 0 ${w} ${h}" role="img" aria-label="${esc(label)}"><title>${esc(label)}</title><rect width="${w}" height="${h}" fill="#101725"/>`;
-  for (const [color, a, b] of [
-    ["#fb899512", 0, 40],
-    ["#f3b36c12", cx, 40],
-    ["#87b6ff12", 0, cy],
-    ["#60d6ab12", cx, cy],
-  ])
-    svg += `<rect x="${a}" y="${b}" width="${cx}" height="130" fill="${color}"/>`;
-  const rules = state?.rules || { activityBuffer: 0.1, inflationBuffer: 0.2 };
-  svg += `<rect x="${x(-rules.activityBuffer)}" y="40" width="${x(rules.activityBuffer) - x(-rules.activityBuffer)}" height="260" fill="#a7b3c512"/><rect x="0" y="${y(rules.inflationBuffer)}" width="${w}" height="${y(-rules.inflationBuffer) - y(rules.inflationBuffer)}" fill="#a7b3c512"/>`;
-  svg += `<path d="M0 ${cy} H${w} M${cx} 40 V300" stroke="#62738e" stroke-dasharray="4 4"/>`;
-  for (const a of [-xMax, -xMax / 2, 0, xMax / 2, xMax])
-    svg += `<path d="M${x(a)} 300 v4" stroke="#62738e"/><text x="${x(a)}" y="320" text-anchor="middle" font-size="11" fill="#a7b3c5">${fmt(a, 1)}</text>`;
-  for (const b of [-yMax, 0, yMax])
-    svg += `<text x="5" y="${y(b) + 4}" font-size="10" fill="#a7b3c5">${signed(b, 0)} pp</text>`;
-  svg += `<g font-size="10" fill="#b7c3d6"><text x="9" y="19">BELOW-TREND ACTIVITY</text><text x="9" y="32">INFLATION ABOVE 2%</text><text x="${w - 9}" y="19" text-anchor="end">ABOVE-TREND ACTIVITY</text><text x="${w - 9}" y="32" text-anchor="end">INFLATION ABOVE 2%</text><text x="9" y="340">BELOW-TREND ACTIVITY</text><text x="9" y="353">INFLATION BELOW 2%</text><text x="${w - 9}" y="340" text-anchor="end">ABOVE-TREND ACTIVITY</text><text x="${w - 9}" y="353" text-anchor="end">INFLATION BELOW 2%</text></g>`;
-  if (state?.available) {
-    const px = x(state.activity.value),
-      py = y(state.inflationGap);
-    svg += `<circle cx="${px}" cy="${py}" r="13" fill="#e2b752"/><circle cx="${px}" cy="${py}" r="19" fill="none" stroke="#e2b752"/><text x="${Math.min(w - 52, px + 24)}" y="${Math.max(56, py - 16)}" fill="#f0cf7e" font-size="12">Latest</text>`;
-  } else
-    svg += `<text x="${cx}" y="130" text-anchor="middle" fill="#a7b3c5" font-size="12">State unavailable</text>`;
-  return svg + "</svg>";
-}
 function observation(d) {
   return d
     ? `<tr><th scope="row">${d.source ? `<a href="${esc(d.source)}" target="_blank" rel="noopener">${esc(d.name)}</a>` : esc(d.name)}</th><td>${fmt(d.value)} ${esc(d.unit)}</td><td>${d.frequency === "quarterly" ? quarter(d.date) : month(d.date)}</td><td><span class="pill ${d.status === "ok" ? "ok" : "stale"}">${esc(d.status)}</span></td></tr>`
     : "";
 }
 export function createStateView() {
-  let snapshot = null;
+  let snapshot = null,
+    slots = [],
+    selected = "latest",
+    replayEnd = null;
   function redraw() {
-    $("stateChart").innerHTML = chart(snapshot?.economicState);
+    const history = snapshot?.stateHistory?.history || [];
+    slots = buildStateTrail(snapshot, {
+      cadence: $("stateCadence").value,
+      end: replayEnd,
+    });
+    if (!slots.some((s) => s.key === selected))
+      selected = slots.at(-1)?.key || "latest";
+    const scale = stateScale($("stateZoom").value, history);
+    $("stateChart").innerHTML = renderStateChart(
+      slots,
+      scale,
+      selected,
+      window.matchMedia("(max-width: 600px)").matches,
+    );
+    $("stateInspect").replaceChildren(
+      ...slots.map((s) => {
+        const option = document.createElement("option");
+        option.value = s.key;
+        option.textContent = `${s.sequence} · ${s.label}${s.point ? "" : " · unavailable"}`;
+        return option;
+      }),
+    );
+    $("stateInspect").value = selected;
+    $("stateInspect").disabled = !slots.length;
+    const chosen = slots.find((s) => s.key === selected);
+    $("stateReadout").textContent = chosen
+      ? statePointLabel(chosen)
+      : "Waiting for source history.";
+    const outside = slots.filter(
+      (s) =>
+        s.point &&
+        (Math.abs(s.point.activity) > scale.activity ||
+          Math.abs(s.point.inflationGap) > scale.inflation),
+    );
+    $("stateTrailStatus").textContent =
+      `${slots.filter((s) => s.point).length}/${slots.length || 12} positions · 1 oldest → 12 ${replayEnd ? "selected end" : "latest"}. ${outside.length ? `${outside.length} outside this viewport: diamonds mark the boundary; choose Full history for exact placement. ` : ""}Gaps are not connected.`;
+    $("statePlotMode").textContent = replayEnd
+      ? `Historical replay ending ${replayEnd} · latest-revised reference periods`
+      : "Latest published state and preceding reference periods";
+    $("stateLatest").disabled = !replayEnd;
+    const last = slots.at(-1);
+    if (!replayEnd && last) $("stateEnd").value = last.date.slice(0, 7);
+    $("stateEnd").min = history[0]?.date.slice(0, 7) || "";
+    $("stateEnd").max =
+      [
+        snapshot?.economicState?.activity?.date,
+        snapshot?.economicState?.inflation?.date,
+      ]
+        .filter(Boolean)
+        .sort()
+        .at(-1)
+        ?.slice(0, 7) || "";
+    $("stateEnd").disabled = !history.length;
+    const move = stateMove(slots);
+    $("stateMove").textContent = move
+      ? `Last sampled move ${move.arrow} · Activity ${signed(move.activity)} index · PCE ${signed(move.inflation)} pp · from ${move.from}. Observed change, not a forecast.`
+      : "Direction unavailable across the last gap; no arrow bridges it.";
+    renderContext();
+  }
+  function renderContext() {
+    const d = snapshot?.economicState?.activity;
+    if (d?.status !== "ok") {
+      $("stateContextSummary").textContent = "Waiting for fresh activity data.";
+      $("stateHistogram").innerHTML = "";
+      $("stateContextDetails").textContent = "";
+      return;
+    }
+    const c = activityContext(
+      snapshot?.stateHistory?.history,
+      d.date,
+      d.value,
+      $("stateContextWindow").value,
+    );
+    $("stateContextSummary").textContent = c.robustSd
+      ? `Activity ${signed(d.value)} · ${signed(c.distance)} robust dispersion units from zero · Strength ${fmt(c.strength, 1)}/100 (50 = trend).`
+      : "Insufficient history or zero robust dispersion in this reference window.";
+    $("stateHistogram").innerHTML = renderActivityHistogram(c, d.value);
+    $("stateContextDetails").textContent =
+      `${c.n}/${c.expected} prior monthly observations · ${month(c.first)} – ${month(c.last)}. ${c.robustSd ? `Percentile ${fmt(c.percentile, 1)} · SD ${fmt(c.sd)} · robust dispersion ${fmt(c.robustSd)} · historical range ${signed(c.min)} to ${signed(c.max)}.` : ""} Gold line: latest activity. White dashed line: zero. Extreme values are grouped in edge bins. Percentile and strength are descriptive context, not probabilities; neither changes the axes.`;
   }
   function render(next) {
     snapshot = next;
@@ -141,6 +188,42 @@ export function createStateView() {
       `<h3>Financial conditions</h3><strong class="lens-value">${nfci?.status === "ok" ? signed(nfci.value) : "Unavailable"}</strong><p class="sub"><a href="https://fred.stlouisfed.org/series/NFCI" target="_blank" rel="noopener">NFCI</a> · ${nfci?.date || "No observation"}<br>Fed net-liquidity proxy: ${liquidity?.status === "ok" ? signed(liquidity.value) + "% YoY" : "unavailable"} · ${liquidity?.date || "no observation"}</p><p class="sub">Negative NFCI means looser-than-average financial conditions. The liquidity proxy uses <a href="https://fred.stlouisfed.org/series/WALCL" target="_blank" rel="noopener">Fed assets</a>, <a href="https://fred.stlouisfed.org/series/WTREGEN" target="_blank" rel="noopener">TGA</a> and <a href="https://fred.stlouisfed.org/series/RRPONTSYD" target="_blank" rel="noopener">RRP</a>. They do not change the static quadrant.</p>`;
     redraw();
   }
+  for (const id of ["stateCadence", "stateZoom"])
+    $(id).addEventListener("change", () => redraw());
+  $("stateContextWindow").addEventListener("change", renderContext);
+  $("stateEnd").addEventListener("change", () => {
+    const value = $("stateEnd").value;
+    if (!value || value < $("stateEnd").min || value > $("stateEnd").max) {
+      $("stateEnd").value = replayEnd || $("stateEnd").max;
+      return;
+    }
+    replayEnd = value === $("stateEnd").max ? null : value;
+    selected = "";
+    redraw();
+  });
+  $("stateLatest").addEventListener("click", () => {
+    replayEnd = null;
+    selected = "latest";
+    redraw();
+  });
+  $("stateInspect").addEventListener("change", () => {
+    selected = $("stateInspect").value;
+    redraw();
+  });
+  const inspectMark = (event) => {
+    const mark = event.target.closest?.("[data-state-key]");
+    if (
+      !mark ||
+      (event.type === "keydown" && !["Enter", " "].includes(event.key))
+    )
+      return;
+    event.preventDefault();
+    selected = mark.dataset.stateKey;
+    redraw();
+    $("stateInspect").focus();
+  };
+  $("stateChart").addEventListener("click", inspectMark);
+  $("stateChart").addEventListener("keydown", inspectMark);
   for (const [id, target] of [
     ["stateToMomentum", "tab-dashboard"],
     ["stateToResearch", "tab-research"],

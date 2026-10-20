@@ -219,6 +219,72 @@
       .state-breadth-dots .unknown {
         background: #29354a;
       }
+      .state-controls {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px 14px;
+        align-items: end;
+        margin: 12px 0;
+      }
+      .state-controls label {
+        display: grid;
+        gap: 4px;
+        font-size: 11px;
+        color: var(--muted);
+        flex: 1 1 135px;
+        min-width: 0;
+      }
+      .state-controls select,
+      .state-controls input {
+        min-width: 0;
+        width: 100%;
+        background: #182236;
+        color: var(--text);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 8px;
+        font: inherit;
+        font-size: 12px;
+      }
+      .state-controls button {
+        font-size: 12px;
+        padding: 8px 12px;
+      }
+      #stateChart svg,
+      #stateHistogram svg {
+        display: block;
+        width: 100%;
+        height: auto;
+      }
+      .state-mark {
+        cursor: pointer;
+      }
+      .state-mark:focus {
+        outline: none;
+      }
+      .state-mark:focus circle,
+      .state-mark:focus path {
+        stroke: white;
+        stroke-width: 3px;
+      }
+      .state-readout {
+        padding: 10px 12px;
+        border-left: 3px solid var(--gold);
+        background: #101725;
+        font-size: 12px;
+        min-height: 65px;
+      }
+      .state-context {
+        margin-top: 18px;
+        padding-top: 15px;
+        border-top: 1px solid var(--border);
+      }
+      .state-context h3 {
+        margin: 0;
+      }
+      #statePlotMode {
+        color: var(--gold);
+      }
       #stateEvidence .state-group th {
         background: #182236;
         color: #d6b86a;
@@ -952,18 +1018,88 @@
             <div id="stateBreadth" class="state-breadth">
               Waiting for activity cross-checks.
             </div>
+            <div class="state-context">
+              <h3>Latest activity in historical context</h3>
+              <div class="state-controls">
+                <label for="stateContextWindow"
+                  >Reference window
+                  <select id="stateContextWindow" aria-label="Reference window">
+                    <option value="full">Full available history</option>
+                    <option value="20">20 years</option>
+                    <option value="10">10 years</option>
+                  </select>
+                </label>
+              </div>
+              <p id="stateContextSummary" class="sub">
+                Waiting for activity history.
+              </p>
+              <div id="stateHistogram"></div>
+              <p id="stateContextDetails" class="sub"></p>
+            </div>
           </article>
           <article class="panel">
             <h2>Static activity × inflation quadrants</h2>
+            <p id="statePlotMode" class="sub">
+              Latest published state and preceding reference periods
+            </p>
+            <div class="state-controls">
+              <label for="stateCadence"
+                >Sampling
+                <select id="stateCadence" aria-label="Sampling">
+                  <option value="monthly">Monthly</option>
+                  <option value="quarterly">Quarterly</option>
+                  <option value="annual">Annual</option>
+                </select>
+              </label>
+              <label for="stateZoom"
+                >Viewport
+                <select id="stateZoom" aria-label="Viewport">
+                  <option value="standard">Standard · X ±2 / Y ±6 pp</option>
+                  <option value="close">Close · X ±0.5 / Y ±2 pp</option>
+                  <option value="full">Full history range</option>
+                </select>
+              </label>
+              <label for="stateEnd"
+                >Trail ending month
+                <input
+                  id="stateEnd"
+                  type="month"
+                  aria-describedby="statePlotMode"
+                />
+              </label>
+              <button id="stateLatest" type="button" disabled>
+                Latest data
+              </button>
+            </div>
             <div id="stateChart"></div>
+            <p id="stateTrailStatus" class="sub">Waiting for source history.</p>
+            <div class="state-controls">
+              <label for="stateInspect"
+                >Inspect position
+                <select
+                  id="stateInspect"
+                  aria-label="Inspect position"
+                  disabled
+                ></select>
+              </label>
+            </div>
+            <p id="stateReadout" class="state-readout" aria-live="polite">
+              Waiting for dated positions.
+            </p>
+            <p id="stateMove" class="sub">
+              Waiting for two consecutive positions.
+            </p>
             <p class="sub">
               X: CFNAI-MA3 activity index · 0 = historical growth trend.<br />Y:
               headline PCE YoY minus the 2% long-run anchor, in percentage
               points.
             </p>
             <p class="note">
-              This is the latest published economic state. Below-trend activity
-              does not establish a recession. Shaded boundary buffers indicate
+              Historical dots pair the same completed reference month using
+              today's revised data, not information known at a historical trade.
+              Only the Latest dot uses current releases and can mix adjacent
+              months; its readout shows both dates. Below-trend activity does
+              not establish a recession. Shaded boundary buffers indicate
               limited conviction near the anchors, not a statistical confidence
               interval.
             </p>
@@ -1055,6 +1191,36 @@
               detail. Trimmed-mean PCE is already an annual rate; it is not
               transformed a second time. CPI and wage growth do not share the
               Fed's headline-PCE target.
+            </p>
+            <p class="sub">
+              The state trail has 12 numbered positions. Monthly, quarterly and
+              annual sampling select reference months; quarterly/annual past
+              buckets require their final month, while the selected ending month
+              may be within an unfinished quarter/year. Missing pairs stay as
+              unconnected gaps. The latest trail ends at the latest indicator
+              reference month, rather than the browser's calendar month.
+              Historical replay changes the chart; the left-hand cards continue
+              to show the latest released economy.
+            </p>
+            <p class="sub">
+              Standard and Close viewports use fixed native-unit scales. Full
+              history expands symmetrically around activity zero and the 2% PCE
+              anchor; selecting a viewport never changes quadrant membership.
+              Diamonds identify out-of-range points, and connecting lines are
+              clipped at the viewport rather than joining displaced diamonds.
+              The direction arrow describes the last adjacent sampled move;
+              overlapping points remain accessible through Inspect position.
+            </p>
+            <p class="sub">
+              Activity context excludes the current reference month and requires
+              at least 24 prior monthly values and 95% reference-window
+              coverage. Robust dispersion = 1.4826 × median absolute deviation
+              from the historical median. Distance from trend = activity /
+              robust dispersion; it is not a mean-centred z-score. Strength = 50
+              + (50/3) × distance, capped at 0–100. A score of 50 means exactly
+              activity zero; the endpoints mean at least three robust dispersion
+              units from zero, not observed historical minima/maxima or a
+              probability. No mean or percentile recentres the quadrant axes.
             </p>
             <p class="sub">
               Both axes need a completed monthly period and must be no more than
