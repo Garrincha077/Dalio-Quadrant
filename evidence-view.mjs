@@ -1,4 +1,4 @@
-import { MODEL_LABELS, filterResearchRows, evaluateRankingRows, validDateRange, cumulativeSeries } from "./lib/research-evidence.mjs";
+import { MODEL_LABELS, filterResearchRows, evaluateRankingRows, validDateRange, cumulativeSeries, scoreForwardRecord } from "./lib/research-evidence.mjs";
 const $ = (id) => document.getElementById(id);
 const esc = (v) => String(v ?? "—").replace(/[&<>"']/g,(c) => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[c]);
 const num = (v) => Number.isFinite(v) ? v.toFixed(2) : "—";
@@ -155,7 +155,10 @@ export function createEvidenceView() {
     const checks=audit.independentChecks;
     $("evidenceAudit").innerHTML=`<p><strong>${checks.forecastChecks.toLocaleString()} forecast checks</strong> and <strong>${checks.strategyChecks.toLocaleString()} monthly strategy checks</strong> were recomputed independently from private source inputs. ${checks.frozenPriceComparisons.toLocaleString()} frozen v1 return comparisons have maximum difference ${(10000*checks.maxFrozenReturnDifference).toFixed(3)} basis points.</p><p class="sub">${audit.limitations.map(esc).join(" ")}</p>`;
     $("evidenceSources").innerHTML=table("Macro observations and first ALFRED vintage · these are different dates",["Series","Observation history","First ALFRED vintage","Count"],audit.macroSources.map((s) => tr([`<a href="${esc(s.source)}" target="_blank" rel="noopener">${esc(s.id)}</a>`,`${s.first}–${s.last}`,esc(s.vintageStart),s.n])));
-    $("evidenceLedger").innerHTML=ledger.forecasts.length ? table("Immutable pre-execution records",["Recorded","Model","Execution","Horizon","Leading asset"],ledger.forecasts.map((r) => tr([esc(r.recordedAt),esc(MODEL_LABELS[r.model]||r.model),esc(r.executionAt),r.horizon,esc(r.ranking[0])]))) : '<p class="note">No genuine forward forecast has been recorded yet. Historical backtest rows stay in the research dataset. The first ledger entry must be saved after its information cutoff and before its planned execution.</p>';
+    $("evidenceLedger").innerHTML=ledger.forecasts.length ? table("Immutable pre-execution records and matured outcomes",["Recorded / model","Execution / horizon","Leading asset","Realised rank correlation","Selected / equal five / SPY"],ledger.forecasts.map((r) => {
+      const score=scoreForwardRecord(r,ledger.outcomes.find((o) => o.forecastId===r.id));
+      return tr([`${esc(r.recordedAt)}<br>${esc(MODEL_LABELS[r.model]||r.model)}`,`${esc(r.executionAt)}<br>${r.horizon} months`,esc(r.ranking[0]),score?num(score.rankIC):"Outcome not recorded",score?`${pct(score.selected)} / ${pct(score.equalFive)} / ${pct(score.spy)}`:"—"]);
+    }))+ '<p class="sub">Recorded ranks are scored only against appended mature outcomes. These are cumulative asset returns before trading costs and risk scaling; they are separate from the monthly strategy backtest.</p>' : '<p class="note">No genuine forward forecast has been recorded yet. Historical backtest rows stay in the research dataset. The first ledger entry must be saved after its information cutoff and before its planned execution.</p>';
   }
   function renderForecast() {
     const study=data.horizons[$("evidenceHorizon").value],model=$("evidenceModel").value,month=$("evidenceDecision").value;

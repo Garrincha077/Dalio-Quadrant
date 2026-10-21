@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { createHash } from "node:crypto";
-import { filterResearchRows, rankIC, evaluateRankingRows, validDateRange } from "../lib/research-evidence.mjs";
+import { filterResearchRows, rankIC, evaluateRankingRows, validDateRange, scoreForwardRecord } from "../lib/research-evidence.mjs";
 import { vintagePoints } from "../scripts/research/v2/vintage-points.mjs";
 
 test("point-in-time inputs cannot borrow a current revision or an unavailable vintage", () => {
@@ -23,6 +23,15 @@ test("rank correlation treats ties as ties and withholds incomplete outcomes", (
   assert.equal(rankIC([1,1,3],[1,1,3]),1);
   assert.equal(rankIC([1,1,1],[1,2,3]),null);
   assert.equal(rankIC([1,2,3],[1,null,3]),null);
+});
+test("forward scoring uses immutable recorded ranks and withholds missing outcomes", () => {
+  const record={ranking:["SPY","IEF","GLD","TIP","DBC"]};
+  assert.equal(scoreForwardRecord(record,null),null);
+  assert.equal(scoreForwardRecord(record,{returns:{SPY:.1}}),null);
+  const score=scoreForwardRecord(record,{returns:{SPY:.1,IEF:.2,GLD:.3,TIP:.4,DBC:.5}});
+  assert.equal(score.rankIC,-1);
+  assert.equal(score.selected,.1);
+  assert.equal(score.equalFive,.3);
 });
 test("view dates do not mutate forecasts, training membership or the common cohort", () => {
   const rows=[{month:"2000-01",common:true,predictions:{state:[1,2,3]},outcomes:[3,2,1]}, {month:"2025-01",common:true,predictions:{state:[1,2,3]},outcomes:[1,2,3]}, {month:"2025-02",common:false,predictions:{state:[1,2,3]},outcomes:[3,2,1]}];
