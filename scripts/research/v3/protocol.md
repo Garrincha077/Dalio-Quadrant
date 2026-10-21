@@ -119,3 +119,21 @@ value (incremental price). Apply Holm across all four primary hypotheses. This
 amendment changes no target, training minimum, regularisation, trading rule,
 cost or evidence status. Publish fixed-decade diagnostics and the declared
 20-year sensitivity without selecting a winner by its historical result.
+
+## Source-outage handling — before any extension results
+
+If a required provider is unavailable, the normal build refuses to replace a
+verified public artifact. An explicit --allow-gaps build may publish only
+verified available scores, with missing value sources shown as missing and the
+full seven-model experiment withheld. Cached original-vintage CPI from the
+verified v2 acquisition may be reused with its hash and fetched-as-of date;
+the latest-history response is usable only for that identical as-of cutoff.
+
+Independently of provider availability, publish a separate exploratory price-
+only experiment: historical mean, macro, price alone, macro + price. Its common
+mask requires the four macro and five price inputs, not missing value inputs.
+It uses exactly the same targets, ridge, maturity, trading, costs and 20-year
+sensitivity. Its comparisons (macro + price against macro and historical mean)
+are exploratory at every horizon and do not substitute for the four declared
+primary value/price tests. The UI must identify the experiment and its actual
+cohort. No source gap can become a neutral zero or a fabricated model result.
