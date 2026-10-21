@@ -71,6 +71,7 @@ let snapshot = null,
   history = [],
   refreshing = false,
   sharedLoaded = false;
+let retryTimer = null;
 try {
   const stored = JSON.parse(localStorage.getItem("dq_v2_history") || "[]");
   if (Array.isArray(stored))
@@ -276,6 +277,8 @@ function drawQuadrant() {
 }
 async function refresh() {
   if (refreshing) return;
+  clearTimeout(retryTimer);
+  retryTimer = null;
   refreshing = true;
   $("refresh").disabled = true;
   text("status", "Refreshing source observations…");
@@ -286,7 +289,15 @@ async function refresh() {
         signal: AbortSignal.timeout(60000),
       }),
       s = await response.json();
-    if (!response.ok) throw new Error(s.error || "Refresh failed.");
+    if (!response.ok) {
+      const error = new Error(s.error || "Refresh failed.");
+      if (s.errorCode === "FRED_NOT_CONFIGURED") error.retryAfterSeconds = 0;
+      else {
+        const retry = Number(s.retryAfterSeconds || response.headers.get("Retry-After"));
+        error.retryAfterSeconds = Number.isFinite(retry) && retry > 0 ? Math.max(30, Math.min(900, retry)) : 60;
+      }
+      throw error;
+    }
     if (s.version !== VERSION || !Array.isArray(s.indicators)) {
       checkForPwaUpdate();
       throw new Error("Unexpected data version. Please reload.");
@@ -317,7 +328,7 @@ async function refresh() {
     const usable = s.indicators.filter((d) => d.status === "ok").length;
     text(
       "status",
-      `Fetched ${when(s.fetchedAt)} · ${usable}/${s.indicators.length} indicators within freshness limits${s.errors?.length ? ` · Unavailable series: ${s.errors.join(", ")}` : ""}. Observation periods are shown per row.`,
+      `${s.errors?.length ? "Partial refresh" : "Fetched"} ${when(s.fetchedAt)} · ${usable}/${s.indicators.length} indicators within freshness limits${s.errors?.length ? ` · Unavailable series: ${s.errors.join(", ")}` : ""}. Observation periods are shown per row.`,
     );
     $("status").className =
       `status ${s.errors?.length || s.regime.id === "unavailable" ? "error" : "ok"}`;
@@ -337,19 +348,27 @@ async function refresh() {
     ["drivers", "counterEvidence", "stress", "market", "balanceNote"].forEach(
       (id) => text(id, ""),
     );
-    text("status", error.message);
+    const delay = error.retryAfterSeconds ?? (navigator.onLine ? 60 : 0);
+    if (delay) retryTimer = setTimeout(() => {
+      retryTimer = null;
+      if (!document.hidden && navigator.onLine) refresh();
+    }, delay * 1000);
+    text("status", `${error.message}${delay ? ` Automatic retry at ${new Date(Date.now() + delay * 1000).toLocaleTimeString()}. Refresh data retries now.` : ""}`);
     $("status").className = "status error";
     drawQuadrant();
     longRun.clear();
     stateView.render(null);
     renderLayerEvidence(null);
-    showOfflineSummary();
+    await showOfflineSummary();
   } finally {
     refreshing = false;
     $("refresh").disabled = false;
   }
 }
-$("refresh").addEventListener("click", refresh);
+$("refresh").addEventListener("click", () => {
+  refresh();
+  assetScoresView.load();
+});
 window.addEventListener("online", refresh);
 $("export").addEventListener("click", () => {
   const blob = new Blob(

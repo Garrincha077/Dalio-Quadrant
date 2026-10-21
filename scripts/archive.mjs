@@ -1,6 +1,7 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { loadDashboard } from "../lib/fred.mjs";
 import { appendArchive } from "../lib/archive.mjs";
+import { verifiedReadings } from "../lib/verified-readings.mjs";
 if (!process.env.FRED_API_KEY)
   throw new Error("Set FRED_API_KEY for the scheduled archive.");
 let previous = [];
@@ -13,6 +14,11 @@ const snapshot = await loadDashboard(process.env.FRED_API_KEY, {
     archiveOnly: true,
   }),
   next = appendArchive(previous, snapshot);
+const fallback = verifiedReadings(snapshot);
+if (fallback) {
+  await mkdir("data", { recursive: true });
+  await writeFile("data/last-verified.json", JSON.stringify(fallback) + "\n");
+}
 if (next === previous) {
   console.log("No changed macro observations. Archive unchanged.");
 } else {

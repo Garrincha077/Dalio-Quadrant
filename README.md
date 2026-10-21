@@ -1,5 +1,22 @@
 # Dalio Quadrant — Principles & Evidence
 
+## Provider outage and verified saved readings · v2.12.1
+
+FRED maintenance can return HTML with HTTP 200. The server detects that response,
+stops the remaining request queue and returns HTTP 503 plus `Retry-After: 300`.
+A refresh returning no observations is an error, never a successful-looking
+"Fetched" message. Partial observations are labelled as a partial refresh.
+
+During a failed live refresh, a separate read-only panel loads the last verified
+published readings even on a device with no local history. The initial record is
+the actual successful fetch of 21 October 2026 at 12:04 UTC, with 34 valid
+indicators. It preserves its original time/version and does not populate today's
+live state or asset recommendation. Successful scheduled archives update the
+published fallback; failed sources cannot replace it. Automatic retry respects
+the server delay while the app is visible, and Refresh data retries immediately.
+The same button reloads the published asset research. API responses are never
+served from the PWA cache; saved readings and asset artifacts refresh online.
+
 ## Separate value and price scores · v2.12
 
 The **Value & price** tab adds asset-specific valuation/yield proxies alongside
