@@ -75,8 +75,11 @@ break online usage. Server-side FRED credentials remain unchanged.
 
 ## Data and calculation
 
-`api/dashboard.js` requests 40 distinct FRED series in five bounded workers,
+`api/dashboard.js` requests 40 distinct FRED series in eight bounded workers,
 plus GDPNow's series metadata to verify the FRED source update timestamp:
+the state anchors and momentum inputs run first. A 45-second overall budget and
+8-second request timeouts leave room under the 60-second function limit; timed-out
+or unrequested series remain explicitly unavailable and prevent success caching.
 up to 25 years for macro, debt and recession context, and 30 months for supporting static-state,
 nowcast and daily market/stress series. Daily RRP inputs receive a 10,000-observation limit so the
 long liquidity history is not silently truncated. The response includes
