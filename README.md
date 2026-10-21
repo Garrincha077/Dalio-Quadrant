@@ -1,5 +1,24 @@
 # Dalio Quadrant — Principles & Evidence
 
+## Separate value and price scores · v2.12
+
+The **Value & price** tab adds asset-specific valuation/yield proxies alongside
+completed-month log-price z-scores, with separate directions, original source
+dates, native observation counts, a history chart and fixed 20-year sensitivity.
+Both normalisations exclude the current observation from their reference sample.
+Their coefficients are learned from past matured outcomes, never manually
+combined into an overall buy/sell score.
+
+Seven fixed models test the value and price contributions on identical dates.
+A separate four-model exploratory price study uses only verified macro and price
+inputs. Existing frozen v1/v2 results remain unchanged. On 21 October 2026 FRED
+returned HTTP-200 maintenance pages during new source acquisition: the release
+shows missing value sources explicitly and withholds the full experiment.
+Verified price scores for all five ETFs, the gold real-price proxy and the
+exploratory price study remain available. No missing value is filled with zero.
+
+See the [v3 reproduction guide and source limits](scripts/research/v3/README.md).
+
 ## State, momentum and maximum-history evidence · v2.11
 
 The **Backtest & prediction** view now opens with a same-date comparison of static
@@ -50,7 +69,7 @@ Use a stable public production origin for permanent installation. Vercel preview
 URLs create distinct installations tied to their particular origin and can need
 authentication; no bypass token or changing preview URL is embedded in the manifest.
 
-`sw.mjs` precaches 33 public shell/research assets atomically. Failed, redirected,
+`sw.mjs` precaches the public shell/research assets atomically. Failed, redirected,
 wrong-MIME or wrong-version HTML responses do not replace a working shell. It
 never caches `/api/*`, auth/share-token or third-party requests. Dashboard requests
 use `cache: no-store`; no live API response is reused as an offline reading.

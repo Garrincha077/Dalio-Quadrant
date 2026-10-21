@@ -11,6 +11,7 @@ import { createAssetsView } from "./assets-view.mjs";
 import { createResearchView } from "./research-view.mjs";
 import { createStateView } from "./state-view.mjs";
 import { createEvidenceView, renderLayerEvidence } from "./evidence-view.mjs";
+import { createAssetScoresView } from "./asset-scores-view.mjs";
 import { setupPwa, checkForPwaUpdate } from "./pwa.mjs";
 import {
   saveOfflineSummary,
@@ -26,8 +27,13 @@ const quadrantView = createQuadrantView((slot) =>
 );
 const researchView = createResearchView((s) => assetsView.setResearch(s));
 const evidenceView = createEvidenceView();
+const assetScoresView = createAssetScoresView();
 renderLayerEvidence(null);
 document.addEventListener("click", (event) => {
+  if (event.target.closest("[data-open-asset-scores]")) {
+    document.getElementById("tab-asset-scores").click();
+    document.getElementById("assetScores").scrollIntoView({ behavior: "smooth", block: "start" });
+  }
   if (event.target.closest("[data-open-research]")) {
     document.getElementById("tab-research").click();
     document.getElementById("evidenceResearch").scrollIntoView({ behavior: "smooth", block: "start" });
@@ -409,3 +415,4 @@ document.addEventListener("visibilitychange", () => {
 refresh();
 researchView.load();
 evidenceView.load();
+assetScoresView.load();

@@ -9,7 +9,11 @@
     "research:v2:sources": "node scripts/research/v2/run.mjs sources",
     "research:v2": "node scripts/research/v2/run.mjs build",
     "research:v2:verify": "node scripts/research/v2/verify.mjs",
-    "test:research:v2": "python scripts/research/v2/test_research.py"
+    "test:research:v2": "python scripts/research/v2/test_research.py",
+    "research:v3:sources": "python scripts/research/v3/acquire.py",
+    "research:v3": "node scripts/research/v3/run.mjs",
+    "research:v3:verify": "node scripts/research/v3/verify.mjs",
+    "test:research:v3": "python scripts/research/v3/test_research.py"
   },
   "engines": {
     "node": ">=22"
