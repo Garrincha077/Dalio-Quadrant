@@ -10,6 +10,7 @@ import { createQuadrantView } from "./quadrant-view.mjs";
 import { createAssetsView } from "./assets-view.mjs";
 import { createResearchView } from "./research-view.mjs";
 import { createStateView } from "./state-view.mjs";
+import { createEvidenceView, renderLayerEvidence } from "./evidence-view.mjs";
 import { setupPwa, checkForPwaUpdate } from "./pwa.mjs";
 import {
   saveOfflineSummary,
@@ -24,6 +25,14 @@ const quadrantView = createQuadrantView((slot) =>
   assetsView.render(snapshot, slot),
 );
 const researchView = createResearchView((s) => assetsView.setResearch(s));
+const evidenceView = createEvidenceView();
+renderLayerEvidence(null);
+document.addEventListener("click", (event) => {
+  if (event.target.closest("[data-open-research]")) {
+    document.getElementById("tab-research").click();
+    document.getElementById("evidenceResearch").scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+});
 const $ = (id) => document.getElementById(id),
   finite = Number.isFinite;
 const fmt = (v, d = 2) => (finite(v) ? v.toFixed(d) : "—");
@@ -143,6 +152,7 @@ function render() {
     g = s.growth.score,
     i = s.inflation.score;
   stateView.render(s);
+  renderLayerEvidence(s);
   text("regime", s.regime.name);
   text("growthScore", signed(g));
   text("inflationScore", signed(i));
@@ -326,6 +336,7 @@ async function refresh() {
     drawQuadrant();
     longRun.clear();
     stateView.render(null);
+    renderLayerEvidence(null);
     showOfflineSummary();
   } finally {
     refreshing = false;
@@ -380,6 +391,7 @@ window.addEventListener("resize", () => {
   longRun.redraw();
   researchView.redraw();
   stateView.redraw();
+  evidenceView.redraw();
 });
 setInterval(
   () => {
@@ -396,3 +408,4 @@ document.addEventListener("visibilitychange", () => {
 });
 refresh();
 researchView.load();
+evidenceView.load();

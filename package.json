@@ -5,7 +5,11 @@
   "scripts": {
     "dev": "node --env-file-if-exists=.env.local scripts/dev.mjs",
     "test": "node --test",
-    "snapshot": "node scripts/snapshot.mjs"
+    "snapshot": "node scripts/snapshot.mjs",
+    "research:v2:sources": "node scripts/research/v2/run.mjs sources",
+    "research:v2": "node scripts/research/v2/run.mjs build",
+    "research:v2:verify": "node scripts/research/v2/verify.mjs",
+    "test:research:v2": "python scripts/research/v2/test_research.py"
   },
   "engines": {
     "node": ">=22"

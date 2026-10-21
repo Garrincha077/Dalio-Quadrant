@@ -33,7 +33,8 @@ export function createStateTiltView() {
       return;
     }
     const lead = r.ranking[0];
-    host.innerHTML = `<div class="tilt-leader"><span class="sub">First research preference · ${r.horizon}-month horizon</span><strong>${r.preference ? `${esc(lead.name)} · ${lead.asset}` : "No positive historical asset preference"}</strong></div>
+    host.innerHTML = `<div class="tilt-leader"><span class="evidence-badge">Historical association · not a validated forecast</span><p class="sub">${r.horizon}-month historical analogue · source prices through ${r.priceCutoff}</p><strong>${r.preference ? r.closeLeaders ? `Close historical candidates · ${lead.asset} / ${r.ranking[1].asset}` : `${esc(lead.name)} · ${lead.asset}` : "No positive historical asset preference"}</strong></div>
+      <p class="sub">Leading candidate's historical downside: P10 ${percent(lead.p10)} · negative outcomes ${share(lead.lossFrequency)}. These describe weighted past outcomes; they are not a forecast loss range or probability. ${r.boundaryDisagreement ? "Neighbouring states favour different assets; the leader is sensitive to the boundary." : ""}</p>
       <p class="sub">Latest reference ${r.reference} · activity ${signed(r.current.activity)}, PCE ${r.current.inflation.toFixed(2)}%. Trend ${r.trend.from} → ${r.trend.to}: activity ${directions[r.trend.activityDirection]} (${signed(r.trend.activity)} index), inflation ${directions[r.trend.inflationDirection]} (${signed(r.trend.inflation)} pp).</p>
       <ol class="tilt-ranking">${r.ranking
         .slice(0, 3)

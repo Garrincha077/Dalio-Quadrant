@@ -65,6 +65,8 @@ createServer(async (req, res) => {
       "quadrant-view.mjs",
       "assets-view.mjs",
       "research-view.mjs",
+      "evidence-view.mjs",
+      "lib/research-evidence.mjs",
       "state-view.mjs",
       "state-chart.mjs",
       "forward-view.mjs",
@@ -75,6 +77,10 @@ createServer(async (req, res) => {
       "data/historical-audit.json",
       "data/state-forward.json",
       "data/state-forward.csv",
+      "data/research-v2.json",
+      "data/research-history.json",
+      "data/evidence-audit.json",
+      "data/forecast-ledger.json",
     ].includes(file)
   ) {
     res.writeHead(404).end("Not found");

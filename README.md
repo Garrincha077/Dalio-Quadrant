@@ -1,5 +1,23 @@
 # Dalio Quadrant — Principles & Evidence
 
+## State, momentum and maximum-history evidence · v2.11
+
+The **Backtest & prediction** view now opens with a same-date comparison of static
+state, momentum and their combination, alongside a source coverage table and
+independent calculation checks. It separates revised historical associations,
+retrospective point-in-time model checks and genuinely recorded forward forecasts.
+The original frozen research remains available in a labelled expandable section.
+
+Historical context reaches US annual data from 1870 and a separate monthly broad
+equity proxy from 1926. State-conditioned monthly research starts in 1967; original
+CFNAI releases start in 2001. The matched 12M predictive test starts in 2017 after
+training and maturity gates. These histories are not interchangeable.
+
+The combination's predictive advantage remains unconfirmed. See the
+[v2 method, source limits, reproduction and forward ledger](scripts/research/v2/README.md).
+JST-derived annual context is separately attributed under CC BY-NC-SA 4.0;
+no academic proxy is silently spliced into ETF histories.
+
 Independent US macro monitor inspired by the public All Weather framework. Uses
 FRED for the live macro dashboard; no Finviz Elite, public CORS proxy, AI provider
 or browser API key. The separate dated research experiment uses adjusted ETF
