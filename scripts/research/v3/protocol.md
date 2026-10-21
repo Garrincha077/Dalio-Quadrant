@@ -74,9 +74,10 @@ added signal rather than changing the allocation rule at the same time. Missing
 forecasts after inception stay as cash. Reference portfolios use the same sample
 and risk/cost rules. Display filters never refit a model.
 
-The two primary tests compare macro + value with macro and with historical mean
-at 12 months using paired rank IC differences and a Holm correction across the
-two hypotheses. Circular calendar-block bootstrap: 2,500 replicates, block
+The two initial primary tests compare macro + value with macro and with
+historical mean at 12 months. The price-score amendment below expands the family
+to four tests before any model results are calculated. Circular calendar-block
+bootstrap: 2,500 replicates, block
 max(12, horizon) months, seed 20261021. Missing interior calendar months remain
 missing inside the bootstrap. Fewer than max(24, 2*horizon) matched starts withhold
 the interval. All other tests, including 20-year normalisation, are exploratory.
@@ -92,3 +93,29 @@ provider price levels and credentials private. Independently reconstruct scores,
 labels, rank IC and net policy returns from private inputs before publication.
 Latest observed value scores are dated research snapshots, not live quotes or
 calibrated probabilities. No historical row is inserted into the forward ledger.
+
+## Price z-score amendment — 21 October 2026, before model results
+
+The user additionally requested price z-scores. Keep these separate from value:
+positive price z means above the asset's own historical log-price level, whereas
+positive value z means relatively cheaper / higher yield. No contrarian or
+trend-following direction is imposed on the learned price coefficient.
+
+Use completed-month unadjusted ETF closes, never total-return adjusted levels.
+Check provider corporate-action split history for the five ETFs before allowing
+these price-level measures into the study. Correct historical closes for any
+verified splits on/before the cutoff, or withhold affected measurements if a
+split cannot be reconciled. No partial current-month close is used. Price
+timestamps must be <= cutoff and the reference month must have completed. Apply
+log before the same 10-year/20-year sample-z normalisation and 60-prior-month
+minimum. Report price percentiles and source dates, without calling the scores
+valuation or future-return probabilities.
+
+Add price alone, macro + own price z, and macro + own value z + own price z,
+giving seven small, fixed models. All share the same macro/value/price training
+eligibility and evaluation dates. Add two primary 12-month paired tests: the
+full model versus macro + price (incremental value), and full versus macro +
+value (incremental price). Apply Holm across all four primary hypotheses. This
+amendment changes no target, training minimum, regularisation, trading rule,
+cost or evidence status. Publish fixed-decade diagnostics and the declared
+20-year sensitivity without selecting a winner by its historical result.
