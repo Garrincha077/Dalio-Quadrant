@@ -58,21 +58,55 @@ These are retrospective reconstructions; previous research was already seen.
 No historical row is added to the immutable forward ledger. A positive historical
 estimate does not establish a reliable predictive edge.
 
-## Current source availability, 21 October 2026
+## Source verification, 22 October 2026
 
 FRED began returning **Site Maintenance** HTML with HTTP 200 while acquiring
-the new original-vintage sources. The downloader rejects these responses instead
-of caching them as data. The public artifact consequently has `sourceStatus:
-partial`, with six explicit missing sources. The seven-model experiment is
-withheld. Original CPI vintages already verified for v2 were reused by hash;
+the new original-vintage sources on 21 October. The downloader rejected these
+responses instead of caching them as data. That initial partial artifact had
+six source gaps and withheld the full experiment. FRED recovered on 22 October;
+all seven required sources are now verified and `sourceStatus` is `complete`.
+The frozen study retains its 21 October information cutoff. Original CPI
+vintages already verified for v2 were reused by hash;
 its latest response is used only for the identical original as-of cutoff.
 
-Verified available research includes price scores for all five ETFs, gold's
-real-price proxy and the four-model price study. Its 12M matched period is
-April 2017–September 2025, 102 overlapping starts. Macro + price rank IC is about
-0.060 versus 0.164 for macro alone; the difference's 95% interval includes zero.
-The result does not support promoting the price signal as a proven improvement.
-Do not choose a different window or sign after seeing this result.
+Value and price scores are now available for all five assets. The equity
+duplicate check reconciles 54 cutoffs with the same latest quarter, with maximum
+relative difference 0.0000194%. Three further cutoffs (September–November 2015)
+have an older latest quarter in the discontinued alias. Those are reported as
+archive lag, not as mismatched levels: the canonical replacement is used in the
+research. The rounding tolerance is unchanged. Neither series is mixed inside
+one cutoff, and no prediction result was used to select this data correction.
+
+Nine 2013–14 decision months still have stale original profits data for the
+equity measure. They remain missing, shortening the full comparison relative
+to the separate price experiment. Source acquisition being complete does not
+mean every historical feature is complete.
+
+## Completed primary result
+
+The full 12M ranking sample is January 2018–September 2025: 93 overlapping starts.
+Monthly trading-policy returns below cover February 2018–September 2026 (104
+holding months), after 10 bp per risky buy/sell leg and the same volatility rule.
+
+| Model | Mean rank IC | Policy CAGR | Policy excess Sharpe |
+| --- | ---: | ---: | ---: |
+| Historical average | 0.183 | 9.95% | 0.667 |
+| State + momentum | 0.172 | 10.79% | 0.724 |
+| Value only | 0.068 | 9.95% | 0.667 |
+| Price z only | 0.009 | 9.16% | 0.590 |
+| Macro + value | 0.045 | 9.16% | 0.590 |
+| Macro + price | 0.060 | 9.16% | 0.582 |
+| Macro + value + price | 0.057 | 9.16% | 0.582 |
+
+All four primary 12M block intervals include zero; all Holm-adjusted p-values
+are 1. The full model's incremental-value rank-IC difference versus macro + price
+is -0.0032 (95% interval -0.0473 to 0.0376). This is not evidence of an incremental
+predictive edge. The fixed 20-year sensitivity gives full-model IC 0.042 on the
+same sample and does not replace the primary 10-year window.
+
+The separate exploratory price-only sample remains April 2017–September 2025,
+102 starts: its macro + price IC is 0.060 versus 0.164 for macro alone. These
+samples are different and must not be compared as if they were the same cohort.
 
 ## Reproduce
 
@@ -107,9 +141,34 @@ versioned, dated research artifact, not live market quotes.
 `features.py` privately constructs measures and normalisations; `backtest.py`
 builds a private candidate. `verify.mjs` independently reconstructs native
 measures, 10Y/20Y scores, percentiles, return labels, rank IC and net policies from
-the actual private sources, then atomically publishes `data/asset-scores.json`.
-The current partial artifact passes 3,312 score, 1,365 asset-outcome and 2,268
-net monthly policy checks. Computational consistency does not establish an edge.
+the actual private sources. It independently reconstructs each exact matured
+training cohort and refits the winsorised/standardised ridge in JavaScript,
+including the 20-year sensitivity, before atomically publishing
+`data/asset-scores.json`. The complete artifact passes 5,546 score, 16,545 model
+estimate, 609 training-cohort, 2,595 asset-outcome and 5,238 monthly net-policy
+checks. Computational consistency does not establish an edge.
+
+## Inspect estimates and prepare prospective validation
+
+The dashboard exposes each dated model estimate alongside its realised excess
+outcome when mature, its deviation from the same-date historical-average
+estimate, and the actual input scores. Historical reconstructions are labelled;
+unmatured outcomes stay unavailable. This does not generate a calibrated
+probability of profit or a future return interval.
+
+The immutable ledger accepts this verified v3 artifact as well as v2:
+
+```bash
+python scripts/research/v2/ledger.py --from-research data/asset-scores.json \
+  --model full --horizon 12 --trade-date YYYY-MM-DD --execution-at YYYY-MM-DDTHH:MM:SSZ
+```
+
+This is a preparation command: a genuine planned decision must first be acquired
+and built after its actual preceding-day information cutoff. The current
+historical rows cannot be backfilled into the forward ledger. The ledger verifies
+the complete artifact, input/protocol hashes and actual recording clock; it
+preserves the five estimates, ranked assets and model-artifact hash. New future
+records are needed to evaluate performance prospectively.
 
 ## Source receipt
 

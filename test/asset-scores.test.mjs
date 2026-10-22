@@ -35,6 +35,7 @@ test("published value/price study pins its protocol and independently reconciles
   assert.equal(d.audit.checkedInputSha256, d.inputSha256);
   assert.equal(d.status, "retrospective-walk-forward");
   assert.ok(d.audit.scoreChecks > 0 && d.audit.forecastChecks > 0 && d.audit.strategyChecks > 0);
+  assert.ok(d.audit.predictionChecks > 0 && d.audit.trainingChecks > 0);
   for (const main of Object.values(d.horizons)) for (const study of [main, main.priceOnly]) {
     assert.equal(new Set(Object.values(study.models).map((m) => m.n)).size, 1);
     for (const result of compareScoreModels(study, study.forecastRows, rankIC)) {
@@ -44,6 +45,19 @@ test("published value/price study pins its protocol and independently reconciles
     }
     for (const r of study.forecastRows) assert.ok(r.training >= 60 && r.cutoff < r.tradeDate);
     for (const t of main.priceOnly.comparisons) assert.equal(t.exploratory, true);
+  }
+});
+
+test("equity duplicate checks compare the latest published quarters and retain source-lag decisions", async () => {
+  const d = JSON.parse(await readFile(new URL("../data/asset-scores.json", import.meta.url)));
+  const audit = d.equityDuplicateAudit;
+  assert.equal(audit.n, audit.checks.length);
+  for (const check of audit.checks) assert.ok(check.relativeDifference <= .0001);
+  for (const gap of audit.unmatchedPeriods || []) {
+    assert.notEqual(gap.oldPeriod, gap.newPeriod);
+    const row = d.scoreHistory.find((r) => r.cutoff === gap.cutoff);
+    assert.equal(row.assets.SPY.value.sourceLeg, "NCBEILQ027S");
+    assert.ok(Number.isFinite(row.assets.SPY.value.z));
   }
 });
 

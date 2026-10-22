@@ -5,12 +5,14 @@ import { createHash } from "node:crypto";
 import assert from "node:assert/strict";
 import { standardScore } from "../../../lib/asset-scores.mjs";
 import { rankIC } from "../../../lib/research-evidence.mjs";
+import { mean, ridgeForecast } from "./independent-math.mjs";
 const root = new URL("../../../", import.meta.url);
 const read = async (p) => JSON.parse(await readFile(new URL(p, root), "utf8"));
 const hash = async (p) => createHash("sha256").update(await readFile(new URL(p, root))).digest("hex");
 const data = await read("work/research-v3/research-candidate.json");
 const source = await read("work/research-v3/source-manifest.json");
 const base = await read("work/research-v2/features.json");
+const valueFeatures = await read("work/research-v3/features.json");
 assert.equal(await hash("scripts/research/v3/protocol.md"), data.protocolSha256);
 assert.equal(await hash("work/research-v3/features.json"), data.inputSha256);
 assert.equal(await hash("work/research-v3/source-manifest.json"), data.sourceManifestSha256);
@@ -52,6 +54,20 @@ function monthly(id, cutoff) {
 function quarters(id, cutoff, divisor = 1) {
   return new Map([...original(id, cutoff)].map(([d, v]) => [quarterIndex(d), v / divisor]).filter(([k]) => end(quarterMonth(k)) <= cutoff));
 }
+// Compare the latest reference quarter of both duplicates before reconciling
+// their levels. A new release may revise Q1 while the old alias still stops at Q1.
+for (const check of data.equityDuplicateAudit.checks) {
+  const old = [...quarters("MVEONWMVBSNNCB", check.cutoff)], fresh = [...quarters("NCBEILQ027S", check.cutoff, 1000)];
+  assert.equal(old.at(-1)[0], fresh.at(-1)[0]);
+  close(Math.abs(old.at(-1)[1] / fresh.at(-1)[1] - 1), check.relativeDifference);
+}
+assert.equal(data.equityDuplicateAudit.n, data.equityDuplicateAudit.checks.length);
+for (const check of data.equityDuplicateAudit.unmatchedPeriods || []) {
+  const old = [...quarters("MVEONWMVBSNNCB", check.cutoff)], fresh = [...quarters("NCBEILQ027S", check.cutoff, 1000)];
+  assert.notEqual(old.at(-1)[0], fresh.at(-1)[0]);
+  const score = data.scoreHistory.find((r) => r.cutoff === check.cutoff)?.assets.SPY.value;
+  assert.equal(score?.sourceLeg, "NCBEILQ027S");
+}
 function closes(asset, cutoff) {
   if (!source.actions[asset]) return new Map();
   return new Map(prices[asset].filter((r) => r.date <= cutoff && r.month < cutoff.slice(0, 7) && end(r.month) <= cutoff).map((r) => {
@@ -74,7 +90,7 @@ function measures(cutoff) {
   return {SPY: equity, IEF: monthly("GS10", cutoff), TIP: monthly("FII10", cutoff),
     GLD: ratio(closes("GLD", cutoff), cpi), DBC: ratio(monthly("PPIACO", cutoff), cpi)};
 }
-let scoreChecks = 0, forecastChecks = 0, strategyChecks = 0;
+let scoreChecks = 0, forecastChecks = 0, strategyChecks = 0, predictionChecks = 0, trainingChecks = 0;
 function checkScore(published, values, cutoff, direction, years, quarterly, zKey) {
   const sorted = [...values].filter(([, v]) => Number.isFinite(v)).sort(([a], [b]) => a < b ? -1 : 1);
   if (!sorted.length) { assert.equal(published[zKey], null); return; }
@@ -105,10 +121,55 @@ for (const row of [...data.scoreHistory, data.latest]) {
     checkScore(row.assets[a].price, new Map([...closes(a, row.cutoff)].map(([p, v]) => [p, Math.log(v)])), row.cutoff, 1, years, false, years === 10 ? "z" : "z20");
   }
 }
-for (const [h, main] of Object.entries(data.horizons)) for (const study of [main, main.priceOnly]) {
+for (const [h, main] of Object.entries(data.horizons)) for (const [studyIndex, study] of [main, main.priceOnly].entries()) {
+  const months = base.rows.map((r) => r.tradeDate.slice(0, 7));
+  const labelRows = base.rows.map((row, t) => {
+    if (t + Number(h) >= base.rows.length || months[t + Number(h)] !== shift(months[t], Number(h))) return null;
+    let cash = 1;
+    for (let k = t; k < t + Number(h); k++) {
+      if (!Number.isFinite(base.rows[k].cashYield) || months[k + 1] !== shift(months[k], 1)) return null;
+      const days = (Date.parse(base.rows[k + 1].tradeDate) - Date.parse(base.rows[k].tradeDate)) / 86400000;
+      cash *= (1 + base.rows[k].cashYield / 100) ** (days / 365);
+    }
+    const values = data.assets.map((a) => {
+      const observations = Array.from({length: Number(h) + 1}, (_, k) => prices[a].find((p) => p.month === shift(months[t], k))?.adjusted);
+      return observations.every(Number.isFinite) ? observations.at(-1) / observations[0] - cash : null;
+    });
+    return values.every(Number.isFinite) ? {values, matureAt: end(months[t + Number(h)])} : null;
+  });
+  const macro = base.rows.map((r) => [r.activity, r.inflationGap, r.growth, r.inflation]);
+  const keys = Object.keys(study.models);
+  const eligibility = (yearKey) => base.rows.map((_, i) => macro[i].every(Number.isFinite) && data.assets.every((a) =>
+    Number.isFinite(valueFeatures.rows[i].assets[a].price[yearKey]) && (studyIndex === 1 || Number.isFinite(valueFeatures.rows[i].assets[a].value[yearKey]))));
+  const eligible = eligibility("z"), eligible20 = eligibility("z20");
+  const inputs = (i, a, model, yearKey) => [
+    ...(["macro", "macro-value", "macro-price", "full"].includes(model) ? macro[i] : []),
+    ...(["value", "macro-value", "full"].includes(model) ? [valueFeatures.rows[i].assets[a].value[yearKey]] : []),
+    ...(["price", "macro-price", "full"].includes(model) ? [valueFeatures.rows[i].assets[a].price[yearKey]] : []),
+  ];
+  const independent = (t, train, yearKey) => Object.fromEntries(keys.map((model) => [model, data.assets.map((a, j) => {
+    const target = train.map((i) => labelRows[i].values[j]);
+    return model === "mean" ? mean(target) : ridgeForecast(train.map((i) => inputs(i, a, model, yearKey)), target, inputs(t, a, model, yearKey));
+  })]));
+  const sensitivity = Object.fromEntries(keys.map((m) => [m, []]));
   const matched = study.forecastRows.filter((r) => r.common);
   for (const row of study.forecastRows) {
     assert.ok(row.cutoff < row.tradeDate && row.training >= 60);
+    const t = base.rows.findIndex((r) => r.tradeDate === row.tradeDate);
+    assert.ok(eligible[t]);
+    const train = base.rows.flatMap((_, i) => eligible[i] && labelRows[i] && labelRows[i].matureAt <= row.cutoff ? [i] : []);
+    assert.equal(row.training, train.length); trainingChecks++;
+    const recomputed = independent(t, train, "z");
+    for (const model of keys) for (let a = 0; a < data.assets.length; a++) {
+      close(recomputed[model][a], row.predictions[model][a]); predictionChecks++;
+    }
+    if (row.common && eligible20[t]) {
+      const train20 = base.rows.flatMap((_, i) => eligible20[i] && labelRows[i] && labelRows[i].matureAt <= row.cutoff ? [i] : []);
+      if (train20.length >= 60) {
+        const p20 = independent(t, train20, "z20");
+        for (const model of keys) sensitivity[model].push(rankIC(p20[model], labelRows[t].values));
+      }
+    }
     if (row.outcomes.every(Number.isFinite)) {
       const t = base.rows.findIndex((r) => r.tradeDate === row.tradeDate);
       let cash = 1;
@@ -126,6 +187,8 @@ for (const [h, main] of Object.entries(data.horizons)) for (const study of [main
   for (const [m, stats] of Object.entries(study.models)) {
     assert.equal(stats.n, matched.length);
     if (matched.length) close(matched.reduce((s, r) => s + rankIC(r.predictions[m], r.outcomes), 0) / matched.length, stats.meanRankIC);
+    assert.equal(sensitivity[m].length, study.sensitivity.n);
+    if (sensitivity[m].length) close(mean(sensitivity[m]), study.sensitivity.twentyYears[m].meanRankIC);
   }
   for (const policy of Object.values(study.strategies)) {
     if (!policy?.available) continue;
@@ -142,7 +205,7 @@ for (const [h, main] of Object.entries(data.horizons)) for (const study of [main
     close(wealth ** (12 / policy.rows.length) - 1, policy.cagr); close(dd, policy.maxDrawdown);
   }
 }
-data.audit = {status: "Actual-source reconstruction passed", scoreChecks, forecastChecks, strategyChecks,
+data.audit = {status: "Actual-source reconstruction passed", scoreChecks, forecastChecks, strategyChecks, predictionChecks, trainingChecks,
   checkedProtocolSha256: data.protocolSha256, checkedInputSha256: data.inputSha256,
   sourceStatus: data.sourceStatus, missingSources: source.failures.map((f) => f.id)};
 const temporary = new URL("data/asset-scores.json.tmp", root);

@@ -135,6 +135,19 @@ def matched_log_ratio(a, b):
     return np.log(f.a / f.b)
 
 
+def compare_equity_duplicates(old, new, cutoff):
+    """Do not compare one release's revision with a duplicate still on a prior quarter."""
+    if old.empty or new.empty:
+        return None
+    if old.index[-1] != new.index[-1]:
+        return {"cutoff": cutoff, "status": "different-latest-periods",
+            "oldPeriod": str(old.index[-1]), "newPeriod": str(new.index[-1])}
+    if new.iloc[-1] <= 0:
+        raise ValueError("Invalid equity market value in duplicate audit")
+    return {"cutoff": cutoff, "status": "matched", "period": str(old.index[-1]),
+        "relativeDifference": float(abs(old.iloc[-1] / new.iloc[-1] - 1))}
+
+
 def build(allow_gaps=False):
     manifest = json.loads((WORK / "source-manifest.json").read_text())
     if manifest["failures"] and not allow_gaps:
@@ -152,6 +165,7 @@ def build(allow_gaps=False):
             raise ValueError("Prices changed after split-history audit")
     base = json.loads((BASE / "features.json").read_text())
     overlap = []
+    unmatched_periods = []
 
     def row(cutoff, trade_date=None):
         ids = ["NFCPATAX", "NCBEILQ027S", "MVEONWMVBSNNCB", "GS10", "FII10", "CPIAUCSL", "PPIACO"]
@@ -161,11 +175,8 @@ def build(allow_gaps=False):
         # Compare only while both duplicate legs are actively updating, not a
         # discontinued 2018 snapshot against 2026 revisions.
         if len(old) and len(new) and cutoff <= "2018-03-08":
-            pair = pd.concat([old.rename("old"), new.rename("new")], axis=1).dropna()
-            if len(pair):
-                latest = pair.iloc[-1]
-                overlap.append({"cutoff": cutoff, "period": str(pair.index[-1]),
-                    "relativeDifference": float(abs(latest.old / latest.new - 1))})
+            check = compare_equity_duplicates(old, new, cutoff)
+            (overlap if check["status"] == "matched" else unmatched_periods).append(check)
         market_value = new if leg == "NCBEILQ027S" else old
         measure = {"SPY": equity_measure(history["NFCPATAX"], market_value),
             "IEF": history["GS10"], "TIP": history["FII10"],
@@ -194,11 +205,12 @@ def build(allow_gaps=False):
         raise ValueError("Documented equity duplicate failed overlap reconciliation")
     output = {"version": "value-price-features-3", "asOf": manifest["asOf"], "definitions": DEFINITIONS,
         "rows": rows, "latest": latest, "equityDuplicateAudit": {"n": len(overlap),
-            "maxRelativeDifference": worst, "checks": overlap}, "sourceManifestSha256": sha(WORK / "source-manifest.json")}
+            "maxRelativeDifference": worst, "checks": overlap, "unmatchedPeriods": unmatched_periods}, "sourceManifestSha256": sha(WORK / "source-manifest.json")}
     (WORK / "features.json").write_text(json.dumps(output, separators=(",", ":"), allow_nan=False))
     print(json.dumps({"decisions": len(rows), "valueComplete": sum(all(r["assets"][a]["value"]["z"] is not None for a in ASSETS) for r in rows),
         "priceComplete": sum(all(r["assets"][a]["price"]["z"] is not None for a in ASSETS) for r in rows),
-        "equityDuplicateAudit": {"n": len(overlap), "maxRelativeDifference": worst}}))
+        "equityDuplicateAudit": {"n": len(overlap), "maxRelativeDifference": worst,
+            "differentLatestPeriods": len(unmatched_periods)}}))
     return output
 
 

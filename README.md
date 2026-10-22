@@ -1,5 +1,26 @@
 # Dalio Quadrant — Principles & Evidence
 
+## Complete value/price experiment and dated forecasts · v2.13
+
+FRED recovered on 22 October 2026. All seven required original-vintage series
+are now verified, value scores are available for all five assets and the full
+seven-model comparison is published. Its frozen information cutoff remains
+21 October; live dashboard data is fetched separately and works again.
+
+The primary 12M experiment has 93 overlapping starts from January 2018 to
+September 2025. Rank IC is 0.057 for macro + value + price, 0.172 for macro alone
+and 0.183 for historical averages. None of the four primary differences is
+statistically supported after correction. The result does not establish an
+incremental predictive edge. The 20-year sensitivity is retained without changing
+the primary window or tuning parameters after seeing these outcomes.
+
+The tab now exposes dated estimates, their deviation from the historical-mean
+estimate, mature realised outcomes and the actual value/price inputs. Independent
+JavaScript verification also refits every published model estimate from the
+private sources, checks its exact matured training membership and recomputes the
+20-year sensitivity. The forward-ledger command accepts the verified value/price
+artifact and continues to reject historical backfills.
+
 ## Provider outage and verified saved readings · v2.12.1
 
 FRED maintenance can return HTML with HTTP 200. The server detects that response,
@@ -30,7 +51,7 @@ Seven fixed models test the value and price contributions on identical dates.
 A separate four-model exploratory price study uses only verified macro and price
 inputs. Existing frozen v1/v2 results remain unchanged. On 21 October 2026 FRED
 returned HTTP-200 maintenance pages during new source acquisition: the release
-shows missing value sources explicitly and withholds the full experiment.
+showed missing value sources explicitly and withheld the full experiment.
 Verified price scores for all five ETFs, the gold real-price proxy and the
 exploratory price study remain available. No missing value is filled with zero.
 

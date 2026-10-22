@@ -78,6 +78,17 @@ class Scores(unittest.TestCase):
         self.assertEqual(result.index.tolist(), [ix[2]])
         self.assertAlmostEqual(result.iloc[0], np.log(15))
 
+    def test_equity_duplicate_audit_requires_the_same_latest_reference_quarter(self):
+        quarters = pd.period_range('2015Q1', periods=2, freq='Q')
+        old = pd.Series([22443.89], index=quarters[:1])
+        replacement = pd.Series([22384.033, 22137.801], index=quarters)
+        check = f.compare_equity_duplicates(old, replacement, '2015-09-29')
+        self.assertEqual(check['status'], 'different-latest-periods')
+        self.assertNotIn('relativeDifference', check)
+        same = f.compare_equity_duplicates(old, pd.Series([22443.893], index=quarters[:1]), '2015-08-30')
+        self.assertEqual(same['status'], 'matched')
+        self.assertLess(same['relativeDifference'], .0001)
+
     def test_split_adjustment_excludes_future_actions_and_current_month(self):
         frame = pd.DataFrame({"timestamp": ["2000-01-31", "2000-02-29", "2000-03-31", "2000-04-20"],
             "close": [100, 50, 55, 999], "adjusted close": [1, 2, 3, 4]})

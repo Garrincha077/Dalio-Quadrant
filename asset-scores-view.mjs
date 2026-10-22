@@ -69,6 +69,7 @@ export function createAssetScoresView() {
           <p>Value describes the starting yield or relative valuation. Price z describes how far an asset's log price is from its own preceding history. Neither score is a forecast probability or an automatic trade.</p>
           <div class="evidence-three"><div><span class="evidence-badge">Value z</span><p>Positive = relatively cheaper / higher yield.</p></div><div><span class="evidence-badge">Price z</span><p>Positive = above its historical log-price reference.</p></div><div><span class="evidence-badge">Tested separately</span><p>The model learns each signal's relationship with future returns.</p></div></div>
           <p class="note"><strong>Predictive advantage remains unconfirmed.</strong> The comparisons below use historical reconstructions. Scores are dated observations, with different proxy quality across assets.</p>
+          ${data.sourceStatus === "complete" && data.horizons["12"].models.full.n ? `<p class="sub"><strong>Primary 12-month result:</strong> ${data.horizons["12"].models.full.n} shared overlapping starts, ${data.horizons["12"].models.full.first}–${data.horizons["12"].models.full.last}. Rank correlation is ${num(data.horizons["12"].models.full.meanRankIC, 3)} for macro + value + price, ${num(data.horizons["12"].models.macro.meanRankIC, 3)} for macro alone and ${num(data.horizons["12"].models.mean.meanRankIC, 3)} for the historical-average model. More inputs have not established a better forecast.</p>` : ""}
           ${data.sourceStatus === "partial" ? `<p class="note"><strong>Value sources incomplete.</strong> Original-vintage acquisition is unavailable for ${data.sourceFailures.map((s) => esc(s.id)).join(", ")}. Missing values are withheld. The full seven-model experiment waits for these sources; the separate exploratory price experiment uses verified existing prices and macro inputs.</p>` : ""}
           <label for="assetScoreDate">Inspect information date<select id="assetScoreDate"><option value="latest">Latest research snapshot · ${esc(data.asOf)}</option>${data.scoreHistory.slice().reverse().map((r) => `<option value="${r.month}">${r.month} · information through ${r.cutoff}</option>`).join("")}</select></label>
           <p id="assetScoreDateNote" class="sub" role="status" aria-live="polite"></p><div id="assetScoreCards" class="asset-score-grid"></div>
@@ -84,13 +85,20 @@ export function createAssetScoresView() {
           <h3>Monthly policy after costs</h3><div id="assetScoreStrategies"></div><p class="sub">Identical winner-or-cash rule for every model; 10% annual volatility target using 36 prior completed months, no leverage. Costs 10 bp per risky buy/sell leg; stress 25 bp. Realised risks can differ. Holding months and forecast-outcome windows differ. Date filters do not retrain or restart holdings.</p>
           <details><summary>Which assets did the policies actually hold?</summary><div id="assetScoreSelections"></div></details>
         </article>
+        <article class="panel"><h2>Inspect a dated forecast and its outcome</h2><div class="state-controls evidence-controls"><label for="assetForecastModel">Model<select id="assetForecastModel"></select></label><label for="assetForecastDate">Decision month<select id="assetForecastDate"></select></label><button type="button" id="assetForecastInputs">Inspect these input scores</button></div><div id="assetForecastResult"></div><p class="sub">These estimates were reconstructed later from then-available inputs. They are separate from genuine forecasts recorded before a future trade. Values are research estimates of cumulative excess return over cash, not calibrated probabilities.</p></article>
         <article class="panel"><h2>Does each signal add information?</h2><div id="assetScoreTests"></div><p id="assetScoreTestNote" class="sub"></p><details><summary>20-year normalisation sensitivity</summary><div id="assetScoreSensitivity"></div><p class="sub">Same evaluation dates for the 10- and 20-year scores. This fixed exploratory check does not replace the primary 10-year model.</p></details><details><summary>Fixed calendar-decade diagnostics</summary><div id="assetScoreDecades"></div></details></article>
         <article class="panel"><h2>Coverage and reproducibility</h2><div id="assetScoreCoverage"></div><details><summary>Original sources and split checks</summary><div id="assetScoreSources"></div></details>
-          <p class="sub">Independent actual-source checks: ${data.audit.scoreChecks.toLocaleString()} score calculations, ${data.audit.forecastChecks.toLocaleString()} forward-return calculations and ${data.audit.strategyChecks.toLocaleString()} net monthly strategy returns. These checks establish computational consistency, not a predictive edge.</p>
+          <p class="sub">Independent actual-source checks: ${data.audit.scoreChecks.toLocaleString()} score calculations, ${(data.audit.predictionChecks || 0).toLocaleString()} refitted model estimates, ${(data.audit.trainingChecks || 0).toLocaleString()} matured training cohorts, ${data.audit.forecastChecks.toLocaleString()} forward-return calculations and ${data.audit.strategyChecks.toLocaleString()} net monthly strategy returns. These checks establish computational consistency, not a predictive edge.</p>
           <p><a href="/data/asset-scores.json" download>Download scores, forecasts and evidence · JSON</a> · <a href="https://github.com/Garrincha077/Dalio-Quadrant/blob/codex/history-predictive-evidence/scripts/research/v3/protocol.md" target="_blank" rel="noopener">Read the fixed protocol</a></p><p class="sub">Protocol hash: ${esc(data.protocolSha256)}. Research date ${esc(data.asOf)}; no live market quotes. Provider price levels and credentials are excluded.</p>
         </article>`;
       $("assetScoreDate").addEventListener("change", renderScores);
       $("assetScoreAsset").addEventListener("change", renderChart);
+      for (const id of ["assetForecastModel", "assetForecastDate"]) $(id).addEventListener("change", renderForecast);
+      $("assetForecastInputs").addEventListener("click", () => {
+        $("assetScoreDate").value = $("assetForecastDate").value;
+        renderScores();
+        $("assetScoreCards").scrollIntoView({behavior: "smooth", block: "start"});
+      });
       for (const id of ["assetScoreExperiment", "assetScoreHorizon", "assetScorePeriod", "assetScoreFrom", "assetScoreTo"]) $(id).addEventListener("change", renderResearch);
       $("assetScoreDefinitions").innerHTML = table("Asset-specific value measures", ["Asset / type", "Measure and formula", "Limits"], data.assets.map((a) => {
         const d = data.definitions[a];
@@ -99,11 +107,11 @@ export function createAssetScoresView() {
       $("assetScoreCoverage").innerHTML = table("First eligible scores; source and minimum-history limits remain visible", ["Asset", "Value score decisions", "Price score decisions"], data.assets.map((a) => tr([a, ...["value", "price"].map((k) => {
         const rows = data.scoreHistory.filter((r) => Number.isFinite(r.assets[a][k].z));
         return rows.length ? `${rows[0].month}–${rows.at(-1).month} · ${rows.length} starts` : "Unavailable";
-      })])));
+      })]))) + `<p class="sub">Full experiment: ${data.horizons["12"].coverage.completeInputs}/${data.horizons["12"].coverage.decisions} decision months have complete macro, value and price inputs. The 60-matured-start training requirement and 12-month outcome maturity leave ${data.horizons["12"].models.full.n} shared completed starts. Complete source acquisition does not fill historical gaps: ${data.scoreHistory.filter((r) => r.assets.SPY.value.reason?.includes("stale")).length} equity-value decisions have stale original reference data and remain unavailable.</p>`;
       $("assetScoreSources").innerHTML = table("Original FRED/ALFRED sources", ["Series", "Observation history", "First archived vintage", "Units"], data.sources.map((s) => tr([`<a href="${esc(s.url)}" target="_blank" rel="noopener">${esc(s.id)}</a>`, `${s.observationFirst}–${s.observationLast}`, s.firstVintage, esc(s.units)]))) + table("ETF split-history audit", ["Asset", "Verified coverage", "Splits"], data.assets.map((a) => {
         const audit = data.splitAudits[a];
         return tr([audit ? `<a href="${esc(audit.source)}" target="_blank" rel="noopener">${a}</a>` : a, audit ? `${audit.first}–${audit.last}` : "Unavailable", audit ? audit.splits.length : "Unavailable"]);
-      })) + `<p class="sub">Equity duplicate: ${data.equityDuplicateAudit.n ? `${data.equityDuplicateAudit.n} simultaneous vintage comparisons; maximum relative difference ${num(data.equityDuplicateAudit.maxRelativeDifference * 100, 6)}%.` : "Reconciliation awaits the original sources."} Old series units are billions; replacement units millions, converted explicitly.</p>`;
+      })) + `<p class="sub">Equity duplicate: ${data.equityDuplicateAudit.n ? `${data.equityDuplicateAudit.n} comparisons with the same latest quarter; maximum relative difference ${num(data.equityDuplicateAudit.maxRelativeDifference * 100, 6)}%.` : "Reconciliation awaits the original sources."} Old series units are billions; replacement units millions, converted explicitly.${data.equityDuplicateAudit.unmatchedPeriods?.length ? ` Another ${data.equityDuplicateAudit.unmatchedPeriods.length} cutoffs had different latest quarters and are listed below. The current replacement series is used for those decisions; the older alias is not mixed into it.` : ""}</p>` + (data.equityDuplicateAudit.unmatchedPeriods?.length ? table("Duplicate archive lag · excluded from level reconciliation, retained in research with canonical source", ["Information cutoff", "Old alias latest quarter", "Replacement latest quarter"], data.equityDuplicateAudit.unmatchedPeriods.map((r) => tr([r.cutoff, r.oldPeriod, r.newPeriod]))) : "");
       renderScores(); renderChart(); renderResearch();
     } catch {
       host.innerHTML = '<article class="panel"><h2>Asset score evidence unavailable</h2><p>Verified value and price research could not be loaded. No neutral scores or substitute results are shown.</p><button type="button" id="assetScoreRetry">Retry asset research</button></article>';
@@ -138,12 +146,20 @@ export function createAssetScoresView() {
     $("assetScoreFromLabel").hidden = $("assetScoreToLabel").hidden = period !== "custom";
     if (period === "custom" && !validDateRange(start, end)) {
       $("assetScoreResearchStatus").textContent = "Choose a valid From/Through date range. Results are withheld until it is valid.";
-      for (const id of ["assetScoreModels", "assetScoreStrategies", "assetScoreSelections", "assetScoreChart"]) $(id).innerHTML = "";
+      for (const id of ["assetScoreModels", "assetScoreStrategies", "assetScoreSelections", "assetScoreChart", "assetForecastResult"]) $(id).innerHTML = "";
+      for (const id of ["assetForecastModel", "assetForecastDate", "assetForecastInputs"]) $(id).disabled = true;
       return;
     }
     const filter = {period, start, end}, rows = filterResearchRows(study.forecastRows, filter), matched = rows.filter((r) => r.common);
     $("assetScoreResearchStatus").textContent = matched.length ? `${priceOnly ? "Exploratory price experiment" : "Full value + price experiment"} · ${h}-month forecasts · ${matched[0].month}–${matched.at(-1).month} · ${matched.length} overlapping starts · retrospective. Filters do not retrain.` : data.sourceStatus === "partial" && !priceOnly ? "Full value + price comparison withheld: required original-vintage value sources are unavailable." : "No completed common forecasts in this view. Widen the date range.";
     $("assetScoreCohortNote").textContent = `${priceOnly ? "The four exploratory price models share macro and price eligibility; missing value inputs are excluded from this separate experiment." : "All seven models share complete macro, value and price eligibility."} Mature training outcomes and evaluation dates match within each experiment. Each asset receives only its own value/price input. Rank correlation orders five assets; top-choice excess is the realised cumulative return above cash. Starts overlap.`;
+    const priorModel = $("assetForecastModel").value, priorDate = $("assetForecastDate").value;
+    $("assetForecastModel").innerHTML = modelKeys.map((m) => `<option value="${m}">${esc(data.modelLabels[m])}</option>`).join("");
+    $("assetForecastModel").value = modelKeys.includes(priorModel) ? priorModel : focus;
+    $("assetForecastDate").innerHTML = rows.slice().reverse().map((r) => `<option value="${r.month}">${r.month}${r.outcomes.every(Number.isFinite) ? "" : " · outcome not complete"}</option>`).join("");
+    if (rows.some((r) => r.month === priorDate)) $("assetForecastDate").value = priorDate;
+    for (const id of ["assetForecastModel", "assetForecastDate", "assetForecastInputs"]) $(id).disabled = !rows.length;
+    renderForecast();
     $("assetScoreModels").innerHTML = table("Same dates, training eligibility and targets", ["Model", "Rank correlation", "Top-choice excess over cash", "Starts"], compareScoreModels(study, rows, rankIC).map((r) => tr([data.modelLabels[r.model], num(r.meanRankIC), pct(r.topAssetExcess), r.n])));
     $("assetScoreStrategies").innerHTML = table("Same-risk-rule monthly policies on the selected holding months", ["Policy", "CAGR", "Sharpe", "Volatility", "Max drawdown", "CAGR · 25 bp", "Annual turnover", "Months"], Object.entries(study.strategies).map(([m, policy]) => {
       const stats = policy?.available ? policyStats(filterResearchRows(policy.rows, filter)) : null;
@@ -158,6 +174,22 @@ export function createAssetScoresView() {
     $("assetScoreSensitivity").innerHTML = table(`Fixed 20Y sensitivity · ${study.sensitivity.n} shared starts`, ["Model", "10Y rank IC", "20Y rank IC"], modelKeys.map((m) => tr([data.modelLabels[m], num(study.sensitivity.tenYears[m].meanRankIC), num(study.sensitivity.twentyYears[m].meanRankIC)])));
     $("assetScoreDecades").innerHTML = table("Fixed decades · full matched history", ["Period", "Actual coverage", "Starts", ...modelKeys.map((m) => data.modelLabels[m])], Object.entries(study.periods).map(([period, models]) => tr([period, `${models[focus].first}–${models[focus].last}`, models[focus].n, ...modelKeys.map((m) => num(models[m].meanRankIC))])));
     renderChart();
+  }
+  function renderForecast() {
+    const h = $("assetScoreHorizon").value, priceOnly = $("assetScoreExperiment").value === "price";
+    const study = priceOnly ? data.horizons[h].priceOnly : data.horizons[h];
+    const model = $("assetForecastModel").value, month = $("assetForecastDate").value;
+    if ($("assetScorePeriod").value === "custom" && !validDateRange($("assetScoreFrom").value, $("assetScoreTo").value)) return;
+    const record = study.forecastRows.find((r) => r.month === month);
+    if (!record || !record.predictions[model]?.every(Number.isFinite)) {
+      $("assetForecastResult").innerHTML = '<p class="sub">No estimate is available in this experiment and date range.</p>';
+      return;
+    }
+    const inputs = data.scoreHistory.find((r) => r.month === month);
+    const order = data.assets.map((asset, i) => ({asset, estimate: record.predictions[model][i],
+      difference: record.predictions[model][i] - record.predictions.mean[i], actual: record.outcomes[i]})).sort((a, b) => b.estimate - a.estimate);
+    const ic = rankIC(record.predictions[model], record.outcomes);
+    $("assetForecastResult").innerHTML = `<p class="note"><span class="evidence-badge">Historical reconstruction</span> ${esc(data.modelLabels[model])} · information through ${record.cutoff} · hypothetical execution ${record.tradeDate} · ${record.training} matured training starts. ${ic === null ? "Outcomes are not yet complete; accuracy is withheld." : `Realised rank correlation ${num(ic, 3)}.`}</p>` + table(`${h}-month cumulative return above cash`, ["Rank / asset", "Model estimate", "Difference from historical-average estimate", "Realised excess outcome", "Value z at cutoff", "Price z at cutoff"], order.map((r, i) => tr([`${i + 1} · ${r.asset}`, pct(r.estimate), pct(r.difference), Number.isFinite(r.actual) ? pct(r.actual) : "Not yet complete", signed(inputs?.assets[r.asset].value.z), signed(inputs?.assets[r.asset].price.z)])));
   }
   return {load};
 }

@@ -58,6 +58,17 @@ def append_outcome(ledger, forecast_id, outcome, recorded_at):
 
 def research_record(path, model, horizon, trade_date, execution_at):
     data=json.loads(Path(path).read_text())
+    if data.get('version') == 'value-price-research-3':
+        audit = data.get('audit', {})
+        if (data.get('sourceStatus') != 'complete' or audit.get('status') != 'Actual-source reconstruction passed'
+            or audit.get('checkedInputSha256') != data.get('inputSha256')
+            or audit.get('checkedProtocolSha256') != data.get('protocolSha256')):
+            raise ValueError('Value/price forward tracking requires a complete, independently verified artifact')
+        input_hash = data['inputSha256']
+    elif data.get('version') == 'state-momentum-research-2':
+        input_hash = data['sources']['featureSha256']
+    else:
+        raise ValueError('Unsupported research artifact version')
     rows=data['horizons'][str(horizon)]['forecastRows']
     row=next((r for r in rows if r['tradeDate']==trade_date),None)
     if row is None: raise ValueError('No estimate for planned execution; acquire the known cutoff and rebuild first')
@@ -67,9 +78,10 @@ def research_record(path, model, horizon, trade_date, execution_at):
         raise ValueError('Model estimate is unavailable')
     ranking=sorted(zip(data['assets'],predictions),key=lambda p:(-p[1],p[0]))
     return {'model':model,'cutoff':row['cutoff'],'tradeDate':trade_date,'executionAt':execution_at,
-        'horizon':horizon,'protocolSha256':data['protocolSha256'],'inputSha256':data['sources']['featureSha256'],
+        'horizon':horizon,'protocolSha256':data['protocolSha256'],'inputSha256':input_hash,
         'modelArtifactSha256':hashlib.sha256(Path(path).read_bytes()).hexdigest(),
-        'ranking':[a for a,_ in ranking], 'estimates':dict(zip(data['assets'],predictions))}
+        'ranking':[a for a,_ in ranking], 'estimates':dict(zip(data['assets'],predictions)),
+        'researchVersion': data['version'], 'modelLabel': data.get('modelLabels', {}).get(model)}
 
 
 if __name__=='__main__':

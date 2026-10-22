@@ -1,5 +1,7 @@
 """Causality, calendar, risk and immutable-ledger tests; no network/private inputs."""
 import importlib.util
+import hashlib
+import json
 from pathlib import Path
 import tempfile
 import unittest
@@ -121,6 +123,28 @@ class Ledger(unittest.TestCase):
         self.assertEqual(len(result['outcomes']),1)
         returns['SPY']=.06
         with self.assertRaises(ValueError):l.append_outcome(result,id,returns,'2027-11-02T00:00:00Z')
+
+    def test_value_price_artifact_preserves_verified_provenance_and_cannot_backfill(self):
+        artifact={'version':'value-price-research-3','sourceStatus':'complete','assets':r.ASSETS,
+            'protocolSha256':'a'*64,'inputSha256':'b'*64,'modelLabels':{'full':'Macro + value + price z'},
+            'audit':{'status':'Actual-source reconstruction passed','checkedInputSha256':'b'*64,'checkedProtocolSha256':'a'*64},
+            'horizons':{'12':{'forecastRows':[{'tradeDate':'2026-09-30','cutoff':'2026-09-29',
+                'predictions':{'full':[.03,.01,.05,.02,.04]}}]}}}
+        with tempfile.TemporaryDirectory() as folder:
+            path=Path(folder)/'research.json';path.write_text(json.dumps(artifact))
+            record=l.research_record(path,'full',12,'2026-09-30','2026-09-30T20:00:00Z')
+            self.assertEqual(record['inputSha256'],'b'*64)
+            self.assertEqual(record['modelArtifactSha256'],hashlib.sha256(path.read_bytes()).hexdigest())
+            self.assertEqual(record['ranking'],['GLD','DBC','SPY','TIP','IEF'])
+            self.assertEqual(record['modelLabel'],'Macro + value + price z')
+            with self.assertRaises(ValueError):l.append_forecast(self.empty(),record,'2026-10-22T10:00:00Z')
+
+    def test_value_price_record_refuses_partial_or_unverified_artifacts(self):
+        artifact={'version':'value-price-research-3','sourceStatus':'partial','audit':{}}
+        with tempfile.TemporaryDirectory() as folder:
+            path=Path(folder)/'research.json';path.write_text(json.dumps(artifact))
+            with self.assertRaisesRegex(ValueError,'independently verified'):
+                l.research_record(path,'full',12,'2026-09-30','2026-09-30T20:00:00Z')
 
 
 class Chicago(unittest.TestCase):
