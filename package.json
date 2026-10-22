@@ -13,7 +13,10 @@
     "research:v3:sources": "python scripts/research/v3/acquire.py",
     "research:v3": "node scripts/research/v3/run.mjs",
     "research:v3:verify": "node scripts/research/v3/verify.mjs",
-    "test:research:v3": "python scripts/research/v3/test_research.py"
+    "test:research:v3": "python scripts/research/v3/test_research.py",
+    "research:v4": "node scripts/research/v4/run.mjs",
+    "research:v4:verify": "node scripts/research/v4/verify.mjs",
+    "test:research:v4": "python -m unittest discover -s scripts/research/v4 -p 'test_*.py'"
   },
   "engines": {
     "node": ">=22"

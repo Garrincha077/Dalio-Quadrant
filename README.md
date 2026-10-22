@@ -1,5 +1,26 @@
 # Dalio Quadrant — Principles & Evidence
 
+## Causal experiment lab · v2.14
+
+The Backtest & prediction tab now opens a separate research lab. It retains all
+120 predictor configurations and 18 additional portfolio-selection procedures:
+market trend/risk, macro changes, interactions, separate value/price inputs,
+future risk and direct net-utility selection. Settings are selected only from
+earlier outcomes known by each historical decision cutoff. All previous frozen
+studies remain unchanged.
+
+No incremental macro edge is established. The 12M utility interaction policy
+earns 5.88% net CAGR versus 5.76% for the paired market selector, but the matched
+historical-mean policy earns 6.29%; the Sharpe-difference interval crosses zero.
+Some 3M ranking and risk comparisons improve, while simple references remain
+competitive or better. The UI exposes losses as well as improvements, dated
+decisions, actual weights/costs, calendar folds and every configuration.
+
+[Research protocols, complete results and reproduction](scripts/research/v4/README.md)
+describe the separate rounds, source limitations and cumulative multiple-test
+correction. Independent JavaScript verification reconstructs 76,380 estimates,
+4,253 selector decisions and 11,071 monthly policy rows before publication.
+
 ## Complete value/price experiment and dated forecasts · v2.13
 
 FRED recovered on 22 October 2026. All seven required original-vintage series

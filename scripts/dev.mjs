@@ -67,6 +67,8 @@ createServer(async (req, res) => {
       "research-view.mjs",
       "evidence-view.mjs",
       "asset-scores-view.mjs",
+      "research-lab-view.mjs",
+      "lib/research-lab.mjs",
       "lib/asset-scores.mjs",
       "lib/verified-readings.mjs",
       "lib/research-evidence.mjs",
@@ -85,6 +87,7 @@ createServer(async (req, res) => {
       "data/evidence-audit.json",
       "data/forecast-ledger.json",
       "data/asset-scores.json",
+      "data/research-lab.json",
       "data/last-verified.json",
     ].includes(file)
   ) {
