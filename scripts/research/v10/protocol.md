@@ -73,6 +73,8 @@ related. No overlapping count is called an independent sample size.
 For each asset/horizon identify retrospective top-decile outcomes on the same
 complete feature cohort, compare at-start feature distributions with all other
 outcomes, and show all candidate features (including unhelpful/missing ones).
+Each feature uses its own complete target/input cohort and its own top-decile
+cutoff; requiring every later feature would silently remove the 2008 crisis.
 This is descriptive outcome-conditioned discovery, not a live top-decile rule.
 A second view lists local highest-return entry examples, labelled hindsight,
 without using those dates to optimize a rule. Describe common versus differing
