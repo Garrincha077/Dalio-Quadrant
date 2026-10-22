@@ -43,6 +43,10 @@ jobs:
         run: python -m unittest discover -s scripts/research/v6 -p 'test_*.py'
       - name: Verify causal risk forecasts and immutable prospective issuance
         run: python -m unittest discover -s scripts/research/v7 -p 'test_*.py'
+      - name: Verify forecast risk guards and leverage constraints
+        run: python -m unittest discover -s scripts/research/v8 -p 'test_*.py'
+      - name: Verify one-year return models, chronology and utility caps
+        run: python -m unittest discover -s scripts/research/v9 -p 'test_*.py'
   archive:
     if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
     needs: verify

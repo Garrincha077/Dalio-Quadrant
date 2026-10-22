@@ -522,7 +522,7 @@ matches with FRED and extends the separate three-input historical cohort to
 Results include net returns, skipped entries and further losses; predictive edge
 is unconfirmed. See [method, findings and reproduction](scripts/research/v5/README.md).
 
-## Recovery strategies and predictive risk (v2.16.2)
+## Recovery strategies and predictive risk (v2.17.0)
 
 The Recovery & risk tab retains all 51 recovery-policy attempts and 63 forward-
 risk model procedures. Recovery timing did not establish economic improvement.
@@ -533,3 +533,21 @@ remain unconfirmed. Twelve forecasts are now frozen in a genuinely future pilot
 starting27 October2026, with the older input timing disclosed and no invented
 outcomes. See [recovery research](scripts/research/v6/README.md) and
 [risk forecasts and prospective pilot](scripts/research/v7/README.md).
+
+## Further practical guards and annual-return research
+
+The additional-research section retains six forecast-risk guard policies and
+12 continuous one-year return models with30 matched portfolio paths. The full
+longer-history economic criteria remain unmet. Some shorter2016–2026 price/macro
+comparisons improve but fail the complete reference set and remain exploratory.
+The earlier four-week risk evidence and12 issued future forecasts are preserved.
+See [risk guards](scripts/research/v8/README.md) and
+[annual returns](scripts/research/v9/README.md) for every result and reproduction.
+
+A separate annual pilot now freezes all12 return estimates before its planned
+27 October2026–26 October2027 target. They share one future annual outcome and
+retain the disclosed extra week of input lag. Frozen model parameters and the
+original Git source snapshot independently reproduce every estimate. Outcomes
+remain pending; this adds no claim of confirmed return alpha. The additional
+research section displays the complete annual ledger alongside the historical
+comparisons; the existing12 risk forecasts remain unchanged.
