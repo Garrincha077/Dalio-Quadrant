@@ -13,6 +13,7 @@ import { createStateView } from "./state-view.mjs";
 import { createEvidenceView, renderLayerEvidence } from "./evidence-view.mjs";
 import { createAssetScoresView } from "./asset-scores-view.mjs";
 import { createResearchLabView } from "./research-lab-view.mjs";
+import { createBottomingView } from "./bottoming-view.mjs";
 import { setupPwa, checkForPwaUpdate } from "./pwa.mjs";
 import {
   saveOfflineSummary,
@@ -30,6 +31,7 @@ const researchView = createResearchView((s) => assetsView.setResearch(s));
 const evidenceView = createEvidenceView();
 const assetScoresView = createAssetScoresView();
 const researchLabView = createResearchLabView();
+const bottomingView = createBottomingView();
 renderLayerEvidence(null);
 document.addEventListener("click", (event) => {
   if (event.target.closest("[data-open-asset-scores]")) {
@@ -371,6 +373,7 @@ $("refresh").addEventListener("click", () => {
   refresh();
   assetScoresView.load();
   researchLabView.load();
+  bottomingView.load();
 });
 window.addEventListener("online", refresh);
 $("export").addEventListener("click", () => {
@@ -439,3 +442,4 @@ researchView.load();
 evidenceView.load();
 assetScoresView.load();
 researchLabView.load();
+bottomingView.load();

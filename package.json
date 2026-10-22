@@ -16,7 +16,10 @@
     "test:research:v3": "python scripts/research/v3/test_research.py",
     "research:v4": "node scripts/research/v4/run.mjs",
     "research:v4:verify": "node scripts/research/v4/verify.mjs",
-    "test:research:v4": "python -m unittest discover -s scripts/research/v4 -p 'test_*.py'"
+    "test:research:v4": "python -m unittest discover -s scripts/research/v4 -p 'test_*.py'",
+    "research:v5": "node scripts/research/v5/run.mjs",
+    "research:v5:verify": "node scripts/research/v5/verify.mjs",
+    "test:research:v5": "python -m unittest discover -s scripts/research/v5 -p 'test_*.py'"
   },
   "engines": {
     "node": ">=22"

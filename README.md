@@ -512,3 +512,12 @@ Capital allocation and risk allocation are different. Scenario sensitivities
 are illustrative, not allocation recommendations. Every displayed series links
 to its FRED provider and terms; a free API key is not a blanket redistribution
 license, including for CBOE VIX and ICE BofA data. No affiliation or endorsement.
+
+## Bottoming 0–3 and extended HY history (v2.15.0)
+
+The Bottoming tab implements the supplied weekly RSI/VIX/HY severity rules and
+a source-audited event study. The user-provided HY archive has 601 exact daily
+matches with FRED and extends the separate three-input historical cohort to
+2003–2026. Original-vintage coverage and RSI/VIX ablations remain separate.
+Results include net returns, skipped entries and further losses; predictive edge
+is unconfirmed. See [method, findings and reproduction](scripts/research/v5/README.md).

@@ -37,6 +37,8 @@ jobs:
         run: python scripts/research/v3/test_research.py
       - name: Verify causal model search, risk targets and net utility selection
         run: python -m unittest discover -s scripts/research/v4 -p 'test_*.py'
+      - name: Verify bottoming events, timing, costs and archive rejection
+        run: python -m unittest discover -s scripts/research/v5 -p 'test_*.py'
   archive:
     if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
     needs: verify
