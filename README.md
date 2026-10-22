@@ -521,3 +521,15 @@ matches with FRED and extends the separate three-input historical cohort to
 2003–2026. Original-vintage coverage and RSI/VIX ablations remain separate.
 Results include net returns, skipped entries and further losses; predictive edge
 is unconfirmed. See [method, findings and reproduction](scripts/research/v5/README.md).
+
+## Recovery strategies and predictive risk (v2.16.0)
+
+The Recovery & risk tab retains all 51 recovery-policy attempts and 63 forward-
+risk model procedures. Recovery timing did not establish economic improvement.
+The four-week VIX risk model reduced forecast loss by 21% versus fitted past
+volatility, with positive gains in every declared period and corrected paired
+block evidence. Incremental HY value, annual-risk superiority and return alpha
+remain unconfirmed. Twelve forecasts are now frozen in a genuinely future pilot
+starting27 October2026, with the older input timing disclosed and no invented
+outcomes. See [recovery research](scripts/research/v6/README.md) and
+[risk forecasts and prospective pilot](scripts/research/v7/README.md).

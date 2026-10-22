@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" data-app-shell="2.15.0">
+<html lang="en" data-app-shell="2.16.0">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
@@ -90,6 +90,13 @@
       #evidenceResearch caption { text-align: left; color: var(--muted); padding: 12px 0; font-size: 12px; }
       #evidenceResearch details { margin-top: 16px; }
       #evidenceResearch .sub { overflow-wrap: anywhere; }
+      #recoveryResearch { display: grid; gap: 18px; }
+      #recoveryResearch table { min-width: 680px; }
+      #recoveryResearch caption { text-align: left; color: var(--muted); padding: 12px 0; }
+      #recoveryResearch .sub { overflow-wrap: anywhere; }
+      #recoveryResearch select { max-width: 100%; }
+      #recoveryResearch details { margin-top: 16px; }
+      #recoveryResearch svg { width: 100%; max-height: 300px; margin-top: 18px; }
       #bottomingView { display: grid; gap: 18px; }
       #bottomingView table { min-width: 640px; }
       #bottomingView caption { text-align: left; padding: 12px 0; color: var(--muted); }
@@ -1168,10 +1175,14 @@
           Principles & method
         </button>
         <button role="tab" aria-selected="false" aria-controls="bottoming" id="tab-bottoming">Bottoming 0–3</button>
+        <button role="tab" aria-selected="false" aria-controls="recovery" id="tab-recovery">Recovery &amp; risk</button>
       </nav>
       <div id="status" class="status" role="status" aria-live="polite">
         Loading dated observations. No example values are used.
       </div>
+      <section id="recovery" role="tabpanel" aria-labelledby="tab-recovery" hidden>
+        <div id="recoveryResearch" aria-label="Recovery strategies and forward-risk research"></div>
+      </section>
       <section id="bottoming" role="tabpanel" aria-labelledby="tab-bottoming" hidden>
         <div id="bottomingView" aria-label="Bottoming levels and historical event study"></div>
       </section>

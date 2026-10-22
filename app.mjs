@@ -14,6 +14,7 @@ import { createEvidenceView, renderLayerEvidence } from "./evidence-view.mjs";
 import { createAssetScoresView } from "./asset-scores-view.mjs";
 import { createResearchLabView } from "./research-lab-view.mjs";
 import { createBottomingView } from "./bottoming-view.mjs";
+import { createRecoveryView } from "./recovery-view.mjs";
 import { setupPwa, checkForPwaUpdate } from "./pwa.mjs";
 import {
   saveOfflineSummary,
@@ -32,6 +33,7 @@ const evidenceView = createEvidenceView();
 const assetScoresView = createAssetScoresView();
 const researchLabView = createResearchLabView();
 const bottomingView = createBottomingView();
+const recoveryView = createRecoveryView();
 renderLayerEvidence(null);
 document.addEventListener("click", (event) => {
   if (event.target.closest("[data-open-asset-scores]")) {
@@ -108,6 +110,7 @@ document.querySelectorAll("[role=tab]").forEach((button) =>
       .forEach(
         (p) => (p.hidden = p.id !== button.getAttribute("aria-controls")),
       );
+    if (button.id === "tab-recovery") recoveryView.load();
     if (button.id === "tab-dashboard") drawQuadrant();
     if (button.id === "tab-state") stateView.redraw();
     if (button.id === "tab-context") longRun.redraw();
@@ -374,6 +377,7 @@ $("refresh").addEventListener("click", () => {
   assetScoresView.load();
   researchLabView.load();
   bottomingView.load();
+  if (!$("recovery").hidden) recoveryView.load();
 });
 window.addEventListener("online", refresh);
 $("export").addEventListener("click", () => {

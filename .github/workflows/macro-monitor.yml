@@ -39,6 +39,10 @@ jobs:
         run: python -m unittest discover -s scripts/research/v4 -p 'test_*.py'
       - name: Verify bottoming events, timing, costs and archive rejection
         run: python -m unittest discover -s scripts/research/v5 -p 'test_*.py'
+      - name: Verify recovery timing, self-financing trades and feature availability
+        run: python -m unittest discover -s scripts/research/v6 -p 'test_*.py'
+      - name: Verify causal risk forecasts and immutable prospective issuance
+        run: python -m unittest discover -s scripts/research/v7 -p 'test_*.py'
   archive:
     if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
     needs: verify
