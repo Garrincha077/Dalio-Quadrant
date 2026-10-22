@@ -552,7 +552,7 @@ remain pending; this adds no claim of confirmed return alpha. The additional
 research section displays the complete annual ledger alongside the historical
 comparisons; the existing12 risk forecasts remain unchanged.
 
-## Shock levels × macro regime × asset opportunity (v2.18.0)
+## Shock levels × macro regime × asset opportunity (v2.18.1)
 
 The new **Shock & assets** tab tests the user's L3 long-horizon hypothesis across
 SPY, IEF, GLD, TIP and DBC. It combines exact levels0–3, static macro states,

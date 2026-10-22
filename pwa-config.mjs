@@ -1,4 +1,4 @@
-export const PWA_VERSION = "2.18.0";
+export const PWA_VERSION = "2.18.1";
 export const CACHE_PREFIX = "dalio-shell-";
 export const CACHE_NAME = CACHE_PREFIX + PWA_VERSION;
 export const SHELL_PATHS = [
