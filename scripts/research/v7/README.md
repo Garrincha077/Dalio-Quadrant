@@ -109,3 +109,8 @@ The Recovery & risk tab includes horizon/cohort/model/date controls, every polic
 calibration, prospective dates, fixed periods, all recovery failures and receipts.
 Desktop,390px mobile, source failure/retry and offline loading are verified.
 The large research files load on demand, then cache after successful visits.
+
+Risk portfolio paths are split into nine horizon/cohort JSON files. The main
+forecast artifact contains a SHA-256 receipt for each. All paths are independently
+verified before publication; the browser checks their hashes before rendering
+and fetches only the selected cohort. Successfully visited paths work offline.

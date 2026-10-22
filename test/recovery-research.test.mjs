@@ -46,3 +46,12 @@ test('compact risk paths reconstruct exact fees and shared calendar states',()=>
  const original={...row,eventActive:false,coreOn:true},d={horizons:{4:{main:{strategies:{vix:{rows:[original]}}}}}},packed=packPolicies(d,{risk:true});
  assert.equal(packed.policyColumns.length,7);assert.deepEqual(policyRows(packed.horizons[4].main.strategies.vix,packed,[{gap40:.1}]),[original]);
 });
+
+test('every risk portfolio shard matches its published source receipt',async()=>{
+ const {createHash}=await import('node:crypto'),d=JSON.parse(await readFile(new URL('../data/risk-research.json',import.meta.url)));let count=0;
+ for(const [h,cohorts] of Object.entries(d.horizons))for(const [cohort,s] of Object.entries(cohorts)){
+  const bytes=await readFile(new URL('..'+s.policyPathReceipt.path,import.meta.url));assert.equal(createHash('sha256').update(bytes).digest('hex'),s.policyPathReceipt.sha256);
+  const paths=JSON.parse(bytes);assert.equal(paths.horizon,h);assert.equal(paths.cohort,cohort);for(const model of s.models)assert.equal(paths.rows[model].length,s.holdingIntervals);count++;
+ }
+ assert.equal(count,9);assert.equal(d.audit.policyShardChecks,9);
+});

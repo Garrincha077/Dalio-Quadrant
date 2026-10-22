@@ -38,13 +38,26 @@ export function createRecoveryView(){
   const tests=main?risk.primaryComparisons.filter(t=>String(t.horizon)===h):[];
   $('riskTests').innerHTML=tests.length?table('Declared primary loss differences',['Model / reference','Loss reduction','95% interval','Adjusted p','Every fixed fold improves'],tests.map(t=>tr([`${esc(risk.modelLabels[t.model])} / ${esc(risk.modelLabels[t.reference])}`,num(t.difference),`[${num(t.lower95)}, ${num(t.upper95)}]`,num(t.holmP,4),Object.values(t.foldGains).every(v=>v>0)?'Yes':'No']))):'<p>This horizon/cohort is exploratory; no primary significance claim.</p>';
   const selected=$('riskModel').value;$('riskModel').innerHTML=s.models.map(m=>`<option value="${m}">${esc(risk.modelLabels[m])}</option>`).join('');$('riskModel').value=s.models.includes(selected)?selected:'vix';
-  $('riskDate').innerHTML=s.forecasts.slice().reverse().map(r=>`<option value="${r.i}">${recovery.calendar[r.i].week}${r.target===null?' · outcome incomplete':''}</option>`).join('');forecast();
+  $('riskDate').innerHTML=s.forecasts.slice().reverse().map(r=>`<option value="${r.i}">${recovery.calendar[r.i].week}${r.target===null?' · outcome incomplete':''}</option>`).join('');forecast();loadRiskPaths(s);
+ }
+ const pendingPaths=new WeakMap();
+ async function loadRiskPaths(s){
+  if(s.strategies[s.models[0]].rows)return;
+  if(!pendingPaths.has(s))pendingPaths.set(s,(async()=>{
+   const response=await fetch(s.policyPathReceipt.path,{cache:'no-cache'});if(!response.ok)throw Error();
+   const body=await response.text(),digest=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(body)))).map(v=>v.toString(16).padStart(2,'0')).join('');
+   if(digest!==s.policyPathReceipt.sha256)throw Error();const paths=JSON.parse(body);
+   if(paths.version!=='risk-policy-paths-7'||s.models.some(m=>!Array.isArray(paths.rows?.[m])))throw Error();
+   for(const m of s.models)s.strategies[m].rows=paths.rows[m];
+  })());
+  try{await pendingPaths.get(s);if(riskStudy()===s)forecast();}
+  catch{pendingPaths.delete(s);if(riskStudy()===s){$('riskChart').innerHTML='<p>Portfolio paths for this cohort are unavailable. Connect and retry; its verified forecast summaries remain visible.</p><button id="riskPathsRetry">Retry portfolio paths</button>';$('riskPathsRetry').addEventListener('click',()=>loadRiskPaths(s));}}
  }
  function forecast(){
-  const s=riskStudy(),m=$('riskModel').value,row=s.forecasts.find(r=>String(r.i)===$('riskDate').value),clock=recovery.calendar[row.i],holding=policyRows(s.strategies[m],risk).find(r=>r.i===row.i);
+  const s=riskStudy(),m=$('riskModel').value,row=s.forecasts.find(r=>String(r.i)===$('riskDate').value),clock=recovery.calendar[row.i],holding=s.strategies[m].rows?policyRows(s.strategies[m],risk).find(r=>r.i===row.i):null;
   $('riskForecast').innerHTML=`<p class="note"><span class="evidence-badge">Historical reconstruction</span> Input week ${clock.week}; cutoff ${clock.cutoff}; hypothetical execution ${clock.executionDate}. ${row.trainingCount} mature training starts, last outcome known by ${row.lastTrainingMaturity}. This reconstructed estimate was not recorded live at that historical cutoff.</p>`+table('Annualized future risk, not a return forecast',['Forecast volatility','Realized target volatility','Target maturity','Next holding risky allocation','Net holding return'],[tr([pct(Math.sqrt(row.predictions[m])),row.target===null?'Not yet complete':pct(Math.sqrt(row.target)),row.maturityDate||'Beyond available history',holding?pct(holding.weight):'No completed interval',holding?pct(holding.return):'Not yet measured'])]);
   $('riskCalibration').innerHTML=table('Selected model · four retrospective forecast groups',['Group','Starts','Mean predicted risk','Observed annualized risk'],s.summaries[m].buckets.map((b,i)=>tr([i+1,b.n,pct(b.meanPredictedVolatility),pct(b.observedVolatility)])));
-  $('riskChart').innerHTML=chart(s.strategies,[m,'market','past52'],risk,recovery.calendar);
+  $('riskChart').innerHTML=s.strategies[m].rows?chart(s.strategies,[m,'market','past52'],risk,recovery.calendar):'<p role="status">Loading verified portfolio paths for this cohort…</p>';
   $('riskFolds').innerHTML=table('Selected model, same fixed calendar folds',['Period','Mature starts','QLIKE','Risk MAE','Policy net CAGR','Daily max drawdown'],Object.entries(s.summaries[m].folds).map(([label,v])=>tr([esc(label),v.n,num(v.meanQLIKE),pct(v.volatilityMAE),pct(s.strategies[m].folds[label]?.cagr),pct(s.strategies[m].folds[label]?.maxDrawdown)])));
  }
  function forward(){

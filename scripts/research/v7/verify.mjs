@@ -1,5 +1,5 @@
 import {packPolicies,policyRows} from '../../../lib/research-paths.mjs';
-import assert from 'node:assert/strict';import {writeFile,rename} from 'node:fs/promises';
+import assert from 'node:assert/strict';import {createHash} from 'node:crypto';import {writeFile,rename} from 'node:fs/promises';
 import {root,read,hash,finite,mean,sd,same,close,reconstruct,policy,folds,quantile} from '../v6/verify.mjs';
 import {solve} from '../v3/independent-math.mjs';
 export const models={mean:[],past52:[],past13:[],market:[0,1],vix:[2],stress:[0,1,2,3],price:[0,1,2,3,4],full:Array.from({length:10},(_,i)=>i)};
@@ -71,6 +71,14 @@ export async function verify(){
   assert.equal(s.strongerRiskSupport,tests.filter(t=>t.model==='stress'&&t.reference!=='vix').every(strong));assert.equal(s.incrementalHYSupport,tests.filter(t=>t.model==='stress').every(strong));assert.equal(s.vixVsMarketSupport,tests.filter(t=>t.model==='vix').every(strong));}
  assert.equal(audit.procedureChecks,63);data.audit={status:'Independent refits and reconstruction passed',...audit,protocolSha256:data.protocolSha256};
  const packed=packPolicies(data,{risk:true});for(const [h,cohorts] of Object.entries(data.horizons))for(const [cohort,study] of Object.entries(cohorts))for(const key of study.models)assert.deepEqual(policyRows(packed.horizons[h][cohort].strategies[key],packed,cal),study.strategies[key].rows);
+ let shards=0;
+ for(const [h,cohorts] of Object.entries(packed.horizons))for(const [cohort,study] of Object.entries(cohorts)){
+  const path=`data/risk-paths-${h}-${cohort}.json`,payload={version:'risk-policy-paths-7',horizon:h,cohort,rows:Object.fromEntries(study.models.map(m=>[m,study.strategies[m].rows]))};
+  const body=JSON.stringify(payload),digest=createHash('sha256').update(body).digest('hex');
+  const temporary=new URL(path+'.tmp',root);await writeFile(temporary,body);await rename(temporary,new URL(path,root));assert.equal(await hash(path),digest);
+  study.policyPathReceipt={path:'/'+path,sha256:digest};for(const m of study.models)delete study.strategies[m].rows;shards++;
+ }
+ packed.audit.policyShardChecks=shards;data.audit.policyShardChecks=shards;
  const tmp=new URL('data/risk-research.json.tmp',root);await writeFile(tmp,JSON.stringify(packed));await rename(tmp,new URL('data/risk-research.json',root));console.log(JSON.stringify(data.audit));return data;
 }
 if(process.argv[1]&&new URL(process.argv[1],'file://').href===import.meta.url)await verify();

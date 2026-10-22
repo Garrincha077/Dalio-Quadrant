@@ -98,7 +98,7 @@ createServer(async (req, res) => {
       "data/asset-scores.json",
       "data/research-lab.json",
       "data/last-verified.json",
-    ].includes(file)
+    ].includes(file) && !/^data\/risk-paths-(4|13|52)-(main|price|context)\.json$/.test(file)
   ) {
     res.writeHead(404).end("Not found");
     return;

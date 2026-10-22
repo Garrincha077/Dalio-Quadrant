@@ -522,7 +522,7 @@ matches with FRED and extends the separate three-input historical cohort to
 Results include net returns, skipped entries and further losses; predictive edge
 is unconfirmed. See [method, findings and reproduction](scripts/research/v5/README.md).
 
-## Recovery strategies and predictive risk (v2.16.1)
+## Recovery strategies and predictive risk (v2.16.2)
 
 The Recovery & risk tab retains all 51 recovery-policy attempts and 63 forward-
 risk model procedures. Recovery timing did not establish economic improvement.
