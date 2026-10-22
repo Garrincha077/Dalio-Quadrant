@@ -101,7 +101,9 @@ npm test
 atomic publication. `forward.py` retains existing issued records;
 `verify-forward.mjs` checks the issuance snapshot and immutable records. Raw
 provider prices, yields and credentials stay private. Public portfolio rows use
-the explicit `policyColumns` schema.
+the explicit `policyColumns` schema. Duplicate risk-policy costs reconstruct exactly
+as turnover×0.001; event flags are false and core states come from the linked
+verified recovery calendar. The verifier checks the complete lossless roundtrip.
 
 The Recovery & risk tab includes horizon/cohort/model/date controls, every policy,
 calibration, prospective dates, fixed periods, all recovery failures and receipts.

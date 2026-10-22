@@ -70,7 +70,7 @@ export async function verify(){
  for(const h of [4,52]){const tests=comparisons.filter(t=>t.horizon===h),strong=t=>t.available&&t.lower95>0&&t.holmP<.05&&Object.values(t.foldGains).every(v=>v>0),s=data.horizons[h].main;
   assert.equal(s.strongerRiskSupport,tests.filter(t=>t.model==='stress'&&t.reference!=='vix').every(strong));assert.equal(s.incrementalHYSupport,tests.filter(t=>t.model==='stress').every(strong));assert.equal(s.vixVsMarketSupport,tests.filter(t=>t.model==='vix').every(strong));}
  assert.equal(audit.procedureChecks,63);data.audit={status:'Independent refits and reconstruction passed',...audit,protocolSha256:data.protocolSha256};
- const packed=packPolicies(data);for(const [h,cohorts] of Object.entries(data.horizons))for(const [cohort,study] of Object.entries(cohorts))for(const key of study.models)assert.deepEqual(policyRows(packed.horizons[h][cohort].strategies[key],packed),study.strategies[key].rows);
+ const packed=packPolicies(data,{risk:true});for(const [h,cohorts] of Object.entries(data.horizons))for(const [cohort,study] of Object.entries(cohorts))for(const key of study.models)assert.deepEqual(policyRows(packed.horizons[h][cohort].strategies[key],packed,cal),study.strategies[key].rows);
  const tmp=new URL('data/risk-research.json.tmp',root);await writeFile(tmp,JSON.stringify(packed));await rename(tmp,new URL('data/risk-research.json',root));console.log(JSON.stringify(data.audit));return data;
 }
 if(process.argv[1]&&new URL(process.argv[1],'file://').href===import.meta.url)await verify();

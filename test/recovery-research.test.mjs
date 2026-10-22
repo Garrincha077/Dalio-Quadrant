@@ -41,3 +41,8 @@ test('issued forward pilot predates its start, retains twelve forecasts and has 
  const d=JSON.parse(await readFile(new URL('../data/risk-forward-ledger.json',import.meta.url)));assert.equal(d.audit.predictionChecks,12);
  for(const r of d.records){assert.ok(Date.parse(r.issuedAt)<Date.parse(r.plannedStartDate));assert.equal(r.outcomes,null);for(const h of Object.values(r.horizons)){assert.equal(Object.keys(h.varianceForecasts).length,6);assert.ok(h.lastTrainingMaturity<=r.inputCutoff);}}
 });
+
+test('compact risk paths reconstruct exact fees and shared calendar states',()=>{
+ const original={...row,eventActive:false,coreOn:true},d={horizons:{4:{main:{strategies:{vix:{rows:[original]}}}}}},packed=packPolicies(d,{risk:true});
+ assert.equal(packed.policyColumns.length,7);assert.deepEqual(policyRows(packed.horizons[4].main.strategies.vix,packed,[{gap40:.1}]),[original]);
+});
