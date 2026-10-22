@@ -71,6 +71,8 @@ createServer(async (req, res) => {
       "research-lab-view.mjs",
       "bottoming-view.mjs",
       "recovery-view.mjs",
+      "shock-view.mjs",
+      "data/shock-asset-research.json",
       "lib/research-paths.mjs",
       "data/recovery-research.json",
       "data/risk-research.json",

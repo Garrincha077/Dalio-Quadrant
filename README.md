@@ -551,3 +551,21 @@ original Git source snapshot independently reproduce every estimate. Outcomes
 remain pending; this adds no claim of confirmed return alpha. The additional
 research section displays the complete annual ledger alongside the historical
 comparisons; the existing12 risk forecasts remain unchanged.
+
+## Shock levels × macro regime × asset opportunity (v2.18.0)
+
+The new **Shock & assets** tab tests the user's L3 long-horizon hypothesis across
+SPY, IEF, GLD, TIP and DBC. It combines exact levels0–3, static macro states,
+original published three-month impulses, separate dashboard momentum, canonical
+asset value/price z and a separate one-year price z. Targets span13/52/156/260
+weekly intervals. All12 grouping families, first-L3 entries, top-decile antecedents,
+source checks, sparse/missing cells and historical best-entry examples remain
+inspectable. No historical result is called an untouched predictive test.
+
+SPY's five-year level means increase toward L3, while its three-year mean is
+higher at L2. Ten L3 weeks represent only two crises, so significance is withheld.
+First-L3 three-year asset rankings differ dramatically between2008 and2020;
+weekly averages overweight2008–09. Three new daily ETF histories disagree with
+older monthly snapshots and remain visibly flagged for review. No source tolerance
+was relaxed and no prior artifact/issued forecast was changed. See the
+[complete findings, limitations and reproduction](scripts/research/v10/README.md).
