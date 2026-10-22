@@ -4,6 +4,7 @@ import { readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 import dashboard from "../api/dashboard.js";
+import bottoming from "../api/bottoming.js";
 import fred from "../api/fred.js";
 const root = fileURLToPath(new URL("../", import.meta.url)),
   port = Number(process.env.PORT || 4173);
@@ -18,7 +19,7 @@ const types = {
 };
 createServer(async (req, res) => {
   const url = new URL(req.url, "http://localhost");
-  const handler = { "/api/dashboard": dashboard, "/api/fred": fred }[
+  const handler = { "/api/dashboard": dashboard, "/api/bottoming": bottoming, "/api/fred": fred }[
     url.pathname
   ];
   if (handler) {
@@ -65,6 +66,26 @@ createServer(async (req, res) => {
       "quadrant-view.mjs",
       "assets-view.mjs",
       "research-view.mjs",
+      "evidence-view.mjs",
+      "asset-scores-view.mjs",
+      "research-lab-view.mjs",
+      "bottoming-view.mjs",
+      "recovery-view.mjs",
+      "shock-view.mjs",
+      "data/shock-asset-research.json",
+      "lib/research-paths.mjs",
+      "data/recovery-research.json",
+      "data/risk-research.json",
+      "data/risk-forward-ledger.json",
+      "data/risk-guard.json",
+      "data/return-research.json",
+      "data/return-forward-ledger.json",
+      "lib/bottoming.mjs",
+      "data/bottoming.json",
+      "lib/research-lab.mjs",
+      "lib/asset-scores.mjs",
+      "lib/verified-readings.mjs",
+      "lib/research-evidence.mjs",
       "state-view.mjs",
       "state-chart.mjs",
       "forward-view.mjs",
@@ -75,7 +96,14 @@ createServer(async (req, res) => {
       "data/historical-audit.json",
       "data/state-forward.json",
       "data/state-forward.csv",
-    ].includes(file)
+      "data/research-v2.json",
+      "data/research-history.json",
+      "data/evidence-audit.json",
+      "data/forecast-ledger.json",
+      "data/asset-scores.json",
+      "data/research-lab.json",
+      "data/last-verified.json",
+    ].includes(file) && !/^data\/risk-paths-(4|13|52)-(main|price|context)\.json$/.test(file)
   ) {
     res.writeHead(404).end("Not found");
     return;

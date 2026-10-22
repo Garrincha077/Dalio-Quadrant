@@ -25,9 +25,11 @@ export default async function handler(req, res) {
     ),
   );
   const failed = rows.some((row) => row.error);
+  const maintenance = rows.some((row) => row.code === "FRED_MAINTENANCE");
   res.setHeader("Cache-Control", failed ? "no-store" : "public, s-maxage=3600");
+  if (maintenance) res.setHeader("Retry-After", "300");
   return res
-    .status(failed ? 502 : 200)
+    .status(maintenance ? 503 : failed ? 502 : 200)
     .json(
       q.series_ids
         ? Object.fromEntries(ids.map((id, i) => [id, rows[i]]))

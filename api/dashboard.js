@@ -10,10 +10,23 @@ export default async function handler(req, res) {
       .status(503)
       .json({
         error: "FRED is not configured. Add FRED_API_KEY on the server.",
+        errorCode: "FRED_NOT_CONFIGURED",
       });
   }
   try {
     const snapshot = await loadDashboard(process.env.FRED_API_KEY);
+    if (snapshot.fetchStatus.received === 0) {
+      const maintenance = snapshot.fetchStatus.code === "FRED_MAINTENANCE";
+      res.setHeader("Cache-Control", "no-store");
+      res.setHeader("Retry-After", String(snapshot.fetchStatus.retryAfterSeconds));
+      return res.status(maintenance ? 503 : 502).json({ ...snapshot,
+        error: maintenance
+          ? "FRED is undergoing maintenance. Live observations could not be fetched."
+          : "FRED did not return any observations. Live refresh failed.",
+        errorCode: snapshot.fetchStatus.code,
+        retryAfterSeconds: snapshot.fetchStatus.retryAfterSeconds,
+      });
+    }
     res.setHeader(
       "Cache-Control",
       snapshot.errors.length

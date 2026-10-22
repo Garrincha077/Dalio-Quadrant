@@ -1,0 +1,7 @@
+{
+  "version": "forecast-ledger-1",
+  "status": "awaiting-first-pre-execution-forecast",
+  "forecasts": [],
+  "outcomes": [],
+  "note": "Historical backtest forecasts are not recorded live forecasts. The first record must precede its planned execution."
+}

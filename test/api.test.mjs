@@ -58,15 +58,44 @@ test("source failures cannot cache a successful-looking default regime or leak t
   try {
     const res = response();
     await dashboard({ method: "GET" }, res);
-    assert.equal(res.code, 200);
+    assert.equal(res.code, 502);
     assert.equal(res.headers["Cache-Control"], "no-store");
     assert.equal(res.body.errors.length, SERIES.length);
     assert.equal(res.body.regime.id, "unavailable");
+    assert.equal(res.body.fetchStatus.received, 0);
+    assert.equal(res.body.errorCode, "FRED_UNAVAILABLE");
     assert.ok(!JSON.stringify(res.body).includes("test-only-key"));
   } finally {
     globalThis.fetch = fetchSaved;
     if (saved !== undefined) process.env.FRED_API_KEY = saved;
     else delete process.env.FRED_API_KEY;
+  }
+});
+test("maintenance HTML with HTTP 200 becomes a retryable 503, not a successful fetch", async () => {
+  const saved = process.env.FRED_API_KEY, savedFetch = globalThis.fetch;
+  process.env.FRED_API_KEY = "test-only-key";
+  let calls = 0;
+  globalThis.fetch = async () => {
+    calls++;
+    return {ok: true, status: 200, headers: new Headers({"Content-Type": "text/html"}),
+      text: async () => "<html><title>Site Maintenance</title>We'll be back soon!</html>",
+      json: async () => { throw new Error("Maintenance HTML must not be parsed as JSON"); }};
+  };
+  try {
+    const res = response();
+    await dashboard({method: "GET"}, res);
+    assert.equal(res.code, 503);
+    assert.equal(res.headers["Cache-Control"], "no-store");
+    assert.equal(res.headers["Retry-After"], "300");
+    assert.equal(res.body.errorCode, "FRED_MAINTENANCE");
+    assert.match(res.body.error, /maintenance/i);
+    assert.equal(res.body.fetchStatus.received, 0);
+    assert.ok(calls <= 8, `Provider maintenance must stop later requests; got ${calls}`);
+    assert.ok(!JSON.stringify(res.body).includes("test-only-key"));
+  } finally {
+    globalThis.fetch = savedFetch;
+    if (saved === undefined) delete process.env.FRED_API_KEY;
+    else process.env.FRED_API_KEY = saved;
   }
 });
 test("arbitrary series and unsupported methods are rejected", async () => {
