@@ -32,7 +32,7 @@ Use a stable public production origin for permanent installation. Vercel preview
 URLs create distinct installations tied to their particular origin and can need
 authentication; no bypass token or changing preview URL is embedded in the manifest.
 
-`sw.mjs` precaches 36 public shell/research assets atomically. Failed, redirected,
+`sw.mjs` precaches 38 public shell/research assets atomically. Failed, redirected,
 wrong-MIME or wrong-version HTML responses do not replace a working shell. It
 never caches `/api/*`, auth/share-token or third-party requests. Dashboard requests
 use `cache: no-store`; no live API response is reused as an offline reading.
@@ -93,7 +93,7 @@ requests; the longer data supports the state trail and historical distribution.
 ## Observed state, nowcast and investment lenses
 
 The default **Economy now** tab adds a separate static state layer
-(`economic-state-2`); **Momentum & data** retains the original momentum chart.
+(`economic-state-3`); **Momentum & data** retains the original momentum chart.
 State X is published CFNAI-MA3 activity relative to historical growth trend, with
 zero as its anchor. State Y is headline PCE YoY minus the Fed's 2% longer-run
 inflation anchor. This is neither an output gap nor economic surprises versus
@@ -117,7 +117,7 @@ confirmation count. These overlapping diagnostics do not change either axis,
 the original momentum model or the frozen investment backtest.
 
 Both state axes require completed monthly periods, freshness within 90 days of
-period end, and reference months no more than one month apart. No missing values
+period end, and the same reference month for both axes. No missing values
 or year-earlier bases are filled. Descriptive buffers ±0.10 activity units and
 ±0.20 inflation pp flag sensitivity near an anchor; they are not confidence
 intervals, recession thresholds or return-optimised parameters. Values near trend
@@ -128,8 +128,8 @@ monthly/quarterly/annual sampling, arbitrary historical ending month and return 
 latest data. Historical dots require activity and PCE YoY for the exact same
 completed reference month; quarterly/annual prior samples require the bucket's final
 month. The ending sample can be within an unfinished quarter/year. The live final
-dot preserves the current axes' existing one-month alignment allowance and labels
-both actual dates. Its reference month, rather than the fetch month, anchors the
+dot requires matching axis reference months and labels both actual dates.
+Mixed-month joint states are withheld, including old saved pairs. Its reference month, rather than the fetch month, anchors the
 trail. Missing pairs stay as numbered unconnected gaps. Inspect position exposes
 all overlapping points to keyboards and touch users.
 
@@ -437,3 +437,26 @@ See [sources, reproduction and input contracts](scripts/research/EXTENDED_STATE.
 and the [extended protocol](scripts/research/extended-state-protocol.md). Private
 inputs remain under ignored `work/`; CI verifies synthetic causality/execution
 and the published artifacts without provider credentials.
+
+## Which conditions preceded each asset's greatest lift?
+
+The Backtest & prediction tab opens with a conditional-entry explorer covering
+3/12/36-month horizons and state, state + direction, and state + direction +
+distance families. Rank by conditional mean return minus the **same asset's own
+usual return on the same eligible cohort**, after identical entry/exit costs.
+Raw maxima and adequately repeated conditions are separated. Episode dates,
+overlap counts, downside, decade matching, bootstrap intervals, panel-wide Holm
+adjustment and retrospective temporal checks are inspectable and downloadable.
+
+There are 4,804 observed cells; no state + direction + distance cell meets the
+fixed 24-start/six-episode rule, and no adequately repeated positive cell passes
+Holm at 5%. This is exploratory revised-history research, not a validated entry
+signal. See [findings for every asset and horizon](scripts/research/ENTRY_FINDINGS.md)
+and [methods, sources and reproduction](scripts/research/ENTRY_OPPORTUNITIES.md).
+
+The methodology audit also advances the live state layer to `economic-state-3`:
+activity and inflation must describe the same month before a joint quadrant or
+chart point is shown; individual dated readings remain visible. Anchor equality
+uses numerical tolerance 1e-9. Economic anchors remain zero activity and 2% PCE;
+none of the frozen source's historical classifications changes. Earlier published
+momentum and portfolio research is preserved.

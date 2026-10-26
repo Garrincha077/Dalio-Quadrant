@@ -153,9 +153,9 @@ export function createStateView() {
     $("stateQuality").textContent = s?.available
       ? s.regime.nearBoundary
         ? `${s.regime.nearActivity ? "Activity is close to its trend anchor. " : ""}${s.regime.nearInflation ? "Inflation is close to the 2% anchor. " : ""}Small revisions can change the side of a nearby boundary.`
-        : "Both state inputs are fresh and their reference periods are no more than one month apart."
-      : s?.periodGapMonths > 1
-        ? "State withheld: activity and inflation reference months are too far apart."
+        : "Both state inputs are fresh and describe the same completed reference month."
+      : s?.periodGapMonths > 0
+        ? "Joint state withheld: activity and inflation describe different reference months. Individual dated readings remain visible."
         : "State withheld until both inputs are available and fresh. No substitute values are used.";
     const g = next?.growth.score,
       i = next?.inflation.score;

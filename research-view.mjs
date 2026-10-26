@@ -1,4 +1,5 @@
 import { loadExtendedResearch } from "./extended-research-view.mjs";
+import { loadEntryOpportunities } from "./entry-opportunities-view.mjs";
 const $ = (id) => document.getElementById(id);
 const pct = (v, d = 1) =>
   Number.isFinite(v) ? `${(v * 100).toFixed(d)}%` : "—";
@@ -64,6 +65,7 @@ export function createResearchView(onLoaded = () => {}) {
   }
   async function load() {
     const extended = loadExtendedResearch();
+    const entries = loadEntryOpportunities();
     try {
       const response = await fetch("/data/research-summary.json");
       if (!response.ok) throw new Error();
@@ -152,6 +154,7 @@ export function createResearchView(onLoaded = () => {}) {
       $("researchAudit").textContent = "Historical economic audit unavailable.";
     }
     await extended;
+    await entries;
   }
   return { load, redraw };
 }

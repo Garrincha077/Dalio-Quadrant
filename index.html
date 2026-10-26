@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" data-app-shell="2.11.0">
+<html lang="en" data-app-shell="2.12.0">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
@@ -1494,8 +1494,8 @@
             </p>
             <p class="sub">
               Both axes need a completed monthly period and must be no more than
-              90 days beyond period end, with no more than one month between
-              their reference periods. Buffers of ±0.10 activity-index units and
+              90 days beyond period end, and must describe the same reference
+              month. Buffers of ±0.10 activity-index units and
               ±0.20 inflation percentage points are descriptive heuristics. They
               are not fitted to asset returns. GDPNow requires a separately
               verified update within 21 days and a target quarter no more than
@@ -1966,6 +1966,9 @@
           Loading dated research summary…
         </p>
         <div class="research-stack">
+          <article class="panel" id="researchEntryOpportunities" aria-live="polite">
+            Loading asset entry opportunity research…
+          </article>
           <article class="panel" id="researchExtended" aria-live="polite">
             Loading extended state research…
           </article>
