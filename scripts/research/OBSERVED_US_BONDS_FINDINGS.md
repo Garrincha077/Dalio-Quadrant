@@ -8,7 +8,7 @@ User scope is United States only. The data upgrade obtains exact-date issuer hol
 
 - 233 exact-date issuer snapshots from 290 requests; 57 returned the wrong date, frequently today's portfolio, and were rejected despite successful requests.
 - 232 months pass Treasury-sleeve risk gates, spanning September 2006–September 2026. One exact-date month lacks adequate risk fields. Missing 2013/2014/2017 records and early archive unavailability are not backfilled.
-- Dated weighted Treasury-sleeve YTM and duration replace the use of a generic 10Y rate plus an assumed current duration in this new study. They are not official whole-fund SEC yield/effective duration.
+- Dated weighted Treasury-sleeve YTM and duration add fund-specific risk information beyond the earlier generic 10Y yield features. No present-day duration is backfilled. These are not official whole-fund SEC yield/effective duration.
 - Existing adjusted market returns remain primary. Issuer reinvestment-chart NAV returns are a matched sensitivity, on the same eligible dates and the same masks. Across 289 monthly returns, median absolute difference is 5.89 bp, maximum 44.84 bp.
 - Historical issuer as-of records were retrieved now; original publication timestamps are not independently captured. A two-month input buffer is an assumption, including when macro inputs use actual archives.
 
