@@ -65,6 +65,7 @@ createServer(async (req, res) => {
       "quadrant-view.mjs",
       "assets-view.mjs",
       "research-view.mjs",
+      "extended-research-view.mjs",
       "state-view.mjs",
       "state-chart.mjs",
       "forward-view.mjs",
@@ -74,6 +75,8 @@ createServer(async (req, res) => {
       "data/research-summary.json",
       "data/historical-audit.json",
       "data/state-forward.json",
+      "data/extended-state.json",
+      "data/extended-long-state.json",
       "data/state-forward.csv",
     ].includes(file)
   ) {

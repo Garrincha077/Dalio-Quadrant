@@ -32,7 +32,7 @@ Use a stable public production origin for permanent installation. Vercel preview
 URLs create distinct installations tied to their particular origin and can need
 authentication; no bypass token or changing preview URL is embedded in the manifest.
 
-`sw.mjs` precaches 33 public shell/research assets atomically. Failed, redirected,
+`sw.mjs` precaches 36 public shell/research assets atomically. Failed, redirected,
 wrong-MIME or wrong-version HTML responses do not replace a working shell. It
 never caches `/api/*`, auth/share-token or third-party requests. Dashboard requests
 use `cache: no-store`; no live API response is reused as an offline reading.
@@ -413,3 +413,27 @@ Capital allocation and risk allocation are different. Scenario sensitivities
 are illustrative, not allocation recommendations. Every displayed series links
 to its FRED provider and terms; a free API key is not a blanket redistribution
 license, including for CBOE VIX and ICE BofA data. No affiliation or endorsement.
+
+## Extended state + trend validation (26 October 2026)
+
+The Backtest & prediction tab now separates a **long public-proxy study** from a
+**five-ETF revised-history simulation**, with cost selection, same-period growth
+curves, matched unconditional controls, monthly drawdowns and uncertainty.
+Economic state coverage spans May 1967–August 2026 (712 revised states).
+
+The long panel has common inputs January 1973–May 2025 and evaluates January
+1980–May 2025 after initial learning. It uses French US equity returns, Shiller's
+reconstructed bond index, World Bank monthly average gold and AQR commodity
+futures excess returns plus T-bill collateral. It is not a tradable ETF history
+or a publication-vintage backtest. The AQR cutoff prevents extension to 2026.
+
+The ETF panel evaluates January 2013–September 2026. Both panels use the same
+fixed state/trend thresholds and 24-observation pooling, only mature labels and
+12 monthly sleeves held for 12 months. Revised data and researcher hindsight
+remain limitations; no confirmed prospective edge is claimed. Current live asset
+preferences and the original frozen momentum research are unchanged.
+
+See [sources, reproduction and input contracts](scripts/research/EXTENDED_STATE.md)
+and the [extended protocol](scripts/research/extended-state-protocol.md). Private
+inputs remain under ignored `work/`; CI verifies synthetic causality/execution
+and the published artifacts without provider credentials.

@@ -29,6 +29,8 @@ jobs:
         run: python scripts/research/test_backtest.py
       - name: Verify static state forward-return research
         run: python scripts/research/test_state_forward.py
+      - name: Verify extended state research timing, execution and source guards
+        run: python scripts/research/test_extended_state.py
   archive:
     if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
     needs: verify
