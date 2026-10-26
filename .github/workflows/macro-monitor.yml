@@ -47,6 +47,8 @@ jobs:
         run: python scripts/research/test_rates_entry.py
       - name: Verify independent asset coverage and expanded period boundaries
         run: python scripts/research/test_expanded_periods.py
+      - name: Verify dated US issuer risk, missing history and fixed bond rules
+        run: python scripts/research/test_observed_us_bonds.py
   research-vintages:
     if: github.event_name == 'workflow_dispatch' && github.ref != 'refs/heads/main' && inputs.research_target != 'rates'
     needs: verify

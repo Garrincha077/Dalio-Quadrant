@@ -32,7 +32,7 @@ Use a stable public production origin for permanent installation. Vercel preview
 URLs create distinct installations tied to their particular origin and can need
 authentication; no bypass token or changing preview URL is embedded in the manifest.
 
-`sw.mjs` precaches 45 public shell/research assets atomically. Failed, redirected,
+`sw.mjs` precaches 47 public shell/research assets atomically. Failed, redirected,
 wrong-MIME or wrong-version HTML responses do not replace a working shell. It
 never caches `/api/*`, auth/share-token or third-party requests. Dashboard requests
 use `cache: no-store`; no live API response is reused as an offline reading.
@@ -538,3 +538,24 @@ See [expanded findings](scripts/research/EXPANDED_PERIODS_FINDINGS.md),
 [methods](scripts/research/EXPANDED_PERIODS.md),
 [protocol](scripts/research/expanded-periods-protocol.md) and
 [data upgrade priorities](scripts/research/DATA_UPGRADE_PLAN.md).
+
+## Observed US bond data and fixed rules
+
+Current scope is US only. A separate IEF study obtains 233 exact-date issuer
+holdings snapshots; 232 pass Treasury-sleeve yield/duration gates. Wrong-date
+responses, missing risk and archive gaps are explicit. Issuer reinvestment-chart
+NAV returns provide a matched sensitivity to the existing adjusted market series.
+As-of records were retrieved now; original publication timestamps are unverified.
+
+The new fixed rules compare initial yield/duration carry cushion with its prior
+five-year median, then add disinflation and weak activity. No return-fitted
+coefficients or threshold search. Complete 60-month history is primary; an
+explicit observed-48/60 sensitivity measures the effect of archive gaps. Both
+remain visible with temporal checks, costs, support and pooled Holm inference.
+No supported positive result passes Holm 5%; the sensitivity shows a modest
+positive carry pattern with limited independent cycles.
+
+See [US bond findings](scripts/research/OBSERVED_US_BONDS_FINDINGS.md),
+[sources/reproduction](scripts/research/OBSERVED_US_BONDS.md),
+[fixed protocol and source clarifications](scripts/research/observed-us-bonds-protocol.md)
+and [long-history source contract](scripts/research/US_TREASURY_INPUT_CONTRACT.md).

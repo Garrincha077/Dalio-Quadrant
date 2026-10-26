@@ -1,4 +1,4 @@
-export const PWA_VERSION = "2.16.0";
+export const PWA_VERSION = "2.17.0";
 export const CACHE_PREFIX = "dalio-shell-";
 export const CACHE_NAME = CACHE_PREFIX + PWA_VERSION;
 export const SHELL_PATHS = [
@@ -26,6 +26,7 @@ export const SHELL_PATHS = [
   "/learned-entry-view.mjs",
   "/zscore-entry-view.mjs",
   "/rates-entry-view.mjs",
+  "/observed-bonds-view.mjs",
   "/state-view.mjs",
   "/state-chart.mjs",
   "/forward-view.mjs",
@@ -47,8 +48,9 @@ export const SHELL_PATHS = [
   "/data/zscore-entry.json",
   "/data/rates-entry.json",
   "/data/expanded-periods.json",
+  "/data/observed-us-bonds.json",
 ];
 // CSV is cached only after a successful download; no live API response is cached.
-export const OPTIONAL_PATHS = ["/data/state-forward.csv", "/data/entry-opportunities.csv", "/data/learned-entry.csv", "/data/zscore-entry.csv", "/data/rates-entry.csv", "/data/expanded-periods.csv"];
+export const OPTIONAL_PATHS = ["/data/state-forward.csv", "/data/entry-opportunities.csv", "/data/learned-entry.csv", "/data/zscore-entry.csv", "/data/rates-entry.csv", "/data/expanded-periods.csv", "/data/observed-us-bonds.csv"];
 // The shared archive changes daily without a new app release.
 export const DYNAMIC_PATHS = ["/data/history.json"];
