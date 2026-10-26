@@ -89,6 +89,8 @@ createServer(async (req, res) => {
       "data/zscore-entry.csv",
       "data/rates-entry.json",
       "data/rates-entry.csv",
+      "data/expanded-periods.json",
+      "data/expanded-periods.csv",
       "data/state-forward.csv",
     ].includes(file)
   ) {

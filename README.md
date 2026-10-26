@@ -32,7 +32,7 @@ Use a stable public production origin for permanent installation. Vercel preview
 URLs create distinct installations tied to their particular origin and can need
 authentication; no bypass token or changing preview URL is embedded in the manifest.
 
-`sw.mjs` precaches 44 public shell/research assets atomically. Failed, redirected,
+`sw.mjs` precaches 45 public shell/research assets atomically. Failed, redirected,
 wrong-MIME or wrong-version HTML responses do not replace a working shell. It
 never caches `/api/*`, auth/share-token or third-party requests. Dashboard requests
 use `cache: no-store`; no live API response is reused as an offline reading.
@@ -517,3 +517,24 @@ No supported positive incremental result passes Holm 5% in this extension.
 See [yield/trend findings](scripts/research/RATES_FINDINGS.md),
 [sources and reproduction](scripts/research/RATES_ENTRY.md) and
 [extension protocol](scripts/research/rates-entry-protocol.md).
+
+## Expanded independent asset periods
+
+The yield/trend card now defaults to extended per-asset histories and retains an
+original-study selector. Each source keeps its own start/end; no common ETF
+inception or commodity cutoff truncates the other histories. SPY uses a consistent
+Yahoo adjusted series from 1993, cross-checked against the old provider. Other
+ETF sources remain unchanged. Long input prices begin 1960 where useful; gold
+keeps a 1973 start to exclude peg-era price training.
+
+Removing arbitrary 1990/2016 outer floors extends eligible nominal learned tests
+into the 1970s and actual-vintage SPY/IEF tests to 2012. Original training, maturity
+and archive requirements remain. Per-asset coverage, exact-calendar old/new
+comparisons and fixed-era stability tables show what changed. Longer training
+does not preserve the earlier favourable IEF selection; all results remain
+visible. Earlier frozen reports and source hashes are unchanged.
+
+See [expanded findings](scripts/research/EXPANDED_PERIODS_FINDINGS.md),
+[methods](scripts/research/EXPANDED_PERIODS.md),
+[protocol](scripts/research/expanded-periods-protocol.md) and
+[data upgrade priorities](scripts/research/DATA_UPGRADE_PLAN.md).
