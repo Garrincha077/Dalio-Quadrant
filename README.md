@@ -32,7 +32,7 @@ Use a stable public production origin for permanent installation. Vercel preview
 URLs create distinct installations tied to their particular origin and can need
 authentication; no bypass token or changing preview URL is embedded in the manifest.
 
-`sw.mjs` precaches 42 public shell/research assets atomically. Failed, redirected,
+`sw.mjs` precaches 44 public shell/research assets atomically. Failed, redirected,
 wrong-MIME or wrong-version HTML responses do not replace a working shell. It
 never caches `/api/*`, auth/share-token or third-party requests. Dashboard requests
 use `cache: no-store`; no live API response is reused as an offline reading.
@@ -500,3 +500,20 @@ few episodes; adjusted return indices and long proxy limitations are disclosed.
 See [price findings](scripts/research/ZSCORE_FINDINGS.md),
 [methods and reproduction](scripts/research/ZSCORE_ENTRY.md) and
 [extension protocol](scripts/research/zscore-entry-protocol.md).
+
+## Initial yields, real rates and price trend
+
+A further matched extension compares macro + price z-score, then adds initial
+Treasury yields, then the prior 12-month price trend. It reports nominal-only and
+nominal-plus-actual-real-yield cohorts separately. Exact GS10/FII10 monthly yield
+reconstructions were collected for 247 historical cutoffs; no synthetic real-rate
+history fills the pre-2003 gap. Earlier studies and source hashes remain frozen.
+
+The app shows all three stages, paired incremental gains, dated historical entry
+conditions and approximate within-asset training-score ranks. These ranks are
+historical percentiles, not probabilities or current investment recommendations.
+No supported positive incremental result passes Holm 5% in this extension.
+
+See [yield/trend findings](scripts/research/RATES_FINDINGS.md),
+[sources and reproduction](scripts/research/RATES_ENTRY.md) and
+[extension protocol](scripts/research/rates-entry-protocol.md).

@@ -69,6 +69,7 @@ createServer(async (req, res) => {
       "entry-opportunities-view.mjs",
       "learned-entry-view.mjs",
       "zscore-entry-view.mjs",
+      "rates-entry-view.mjs",
       "state-view.mjs",
       "state-chart.mjs",
       "forward-view.mjs",
@@ -86,6 +87,8 @@ createServer(async (req, res) => {
       "data/learned-entry.csv",
       "data/zscore-entry.json",
       "data/zscore-entry.csv",
+      "data/rates-entry.json",
+      "data/rates-entry.csv",
       "data/state-forward.csv",
     ].includes(file)
   ) {
