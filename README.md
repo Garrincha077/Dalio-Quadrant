@@ -559,3 +559,8 @@ See [US bond findings](scripts/research/OBSERVED_US_BONDS_FINDINGS.md),
 [sources/reproduction](scripts/research/OBSERVED_US_BONDS.md),
 [fixed protocol and source clarifications](scripts/research/observed-us-bonds-protocol.md)
 and [long-history source contract](scripts/research/US_TREASURY_INPUT_CONTRACT.md).
+
+The next-phase [US entry research design](scripts/research/US_ENTRY_RESEARCH_DESIGN.md)
+specifies the data gates, fixed yield/macro/z-score comparisons, common-calendar
+baselines, evidence criteria and a separate prospective decision ledger. This is
+a planned experiment; it adds no new measured results or live trading rule.

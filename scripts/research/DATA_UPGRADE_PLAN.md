@@ -3,6 +3,11 @@
 Current scope is the United States only, as subsequently requested by the user.
 International expansion is deferred and is not part of the active work.
 
+The concrete next-phase [US entry research design](US_ENTRY_RESEARCH_DESIGN.md)
+defines source acceptance, fixed bond comparisons, the separate role of quadrants
+and z-score, evidence gates and a prospective decision ledger. It is a design,
+not a claim that the new experiment or prospective collection has run.
+
 The earlier IEF result (+5.45 pp, two episodes) was a worthwhile hypothesis.
 Independent longer ETF histories change training/model choices and do not retain
 that result. Better data should improve comparability and the strength of the
