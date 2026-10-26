@@ -1,6 +1,7 @@
 import { loadExtendedResearch } from "./extended-research-view.mjs";
 import { loadEntryOpportunities } from "./entry-opportunities-view.mjs";
 import { initLearnedResearch } from "./learned-entry-view.mjs";
+import { initZScoreResearch } from "./zscore-entry-view.mjs";
 const $ = (id) => document.getElementById(id);
 const pct = (v, d = 1) =>
   Number.isFinite(v) ? `${(v * 100).toFixed(d)}%` : "—";
@@ -65,6 +66,7 @@ export function createResearchView(onLoaded = () => {}) {
     if (current) $("researchEquity").innerHTML = equityChart(current);
   }
   async function load() {
+    initZScoreResearch();
     initLearnedResearch();
     const extended = loadExtendedResearch();
     const entries = loadEntryOpportunities();
@@ -127,7 +129,7 @@ export function createResearchView(onLoaded = () => {}) {
       $("researchProtocol").innerHTML =
         `<p>Development labels end ${s.developmentLabelsEnd}; December 2020 is embargoed. ${s.candidateCount} predeclared candidates: 9 SPY predictors, 6 asset predictors, 27 quadrant variants. Selection uses development excess Sharpe only. Each monthly refit uses labels that have already matured; minimum 60 training months. Training-only median imputation, winsorisation and standardisation.</p><p>Selected SPY and asset models: macro ridge, λ=100; seven inputs (growth/inflation momentum, GDP and PCE YoY, yield curve, policy change, NFCI). The SPY model switches SPY/cash at a positive excess forecast. Rotation selects the highest positive forecast among SPY, IEF, GLD, TIP, DBC, otherwise cash. These are concentrated research rules, not diversified portfolio recommendations.</p><p>Calibrated quadrant research: scale factors G=${s.selection.quadrants.growthScaleFactor}, I=${s.selection.quadrants.inflationScaleFactor}; transition band ${s.selection.quadrants.transitionBand}. Conditional means require 12 cases and shrink toward training global means with 12 pseudo-observations. These settings were not adopted into the descriptive chart because the reserved test does not support an improvement.</p><p>Original illustrative map: G↑/I↓→SPY; G↑/I↑→DBC; G↓/I↑→GLD; G↓/I↓→IEF; transition→cash. Baselines include monthly-rebalanced 60/40 SPY/IEF and an equal five-asset basket. The 200-day baseline holds SPY only above its trailing adjusted-price average.</p><p>Execution: features available by the calendar day before the traded month-end close; hold one month. Adjusted ETF closes are a dividend-adjusted total-return proxy. Fees: 10 bp for each risky-asset buy/sell leg, 25 bp stress; drifted holdings are rebalanced. No taxes, financing, bid/ask spread model or intramonth path. Drawdowns use monthly closes. ${esc(s.cashAssumption)}.</p><p>Vintage source coverage: ${s.sample.validOriginalQuadrants} original-regime dates, first ${s.sample.firstOriginalQuadrant}, from ${s.sample.featureRows} feature dates. Earlier missing archived series are not backfilled into the original quadrant. ${s.quality.monthlyCrossCheckCount} overlapping SPY monthly returns were reconciled across Alpha Vantage/Yahoo: median difference ${s.quality.medianReturnDifferenceBps.toFixed(3)} bp, maximum ${s.quality.maxReturnDifferenceBps.toFixed(2)} bp.</p><p>Uncertainty: 2,500 paired circular block-bootstrap samples, 12-month blocks. Only one five-year test window; candidate selection, regime imbalance and limited crisis coverage constrain generalisation. No final-window parameter retuning.</p><p>Research compiled ${s.asOf}. ${s.sources.map((r) => `<a href="${r.url}" target="_blank" rel="noopener">${esc(r.name)}</a>`).join(" · ")}. <a href="/data/research-summary.json" download>Download aggregate research JSON</a>.</p>`;
       $("researchStatus").textContent =
-        `Research as of ${s.asOf} · monthly prices complete through September 2026 · reserved test ends December 2025. Separate from live FRED observations.`;
+        `Separate historical studies: each card states its own data window and evidence limits. The original momentum study was compiled ${s.asOf}, with its reserved test ending December 2025. Research is separate from live FRED observations.`;
       onLoaded(s);
     } catch {
       current = null;
@@ -144,7 +146,7 @@ export function createResearchView(onLoaded = () => {}) {
         $(id).replaceChildren();
       onLoaded(null);
       $("researchStatus").textContent =
-        "Research summary unavailable. No performance result or predictive signal is shown.";
+        "Original momentum research summary unavailable. Other research cards report their own availability and evidence limits.";
     }
     try {
       const response = await fetch("/data/historical-audit.json");

@@ -32,7 +32,7 @@ Use a stable public production origin for permanent installation. Vercel preview
 URLs create distinct installations tied to their particular origin and can need
 authentication; no bypass token or changing preview URL is embedded in the manifest.
 
-`sw.mjs` precaches 40 public shell/research assets atomically. Failed, redirected,
+`sw.mjs` precaches 42 public shell/research assets atomically. Failed, redirected,
 wrong-MIME or wrong-version HTML responses do not replace a working shell. It
 never caches `/api/*`, auth/share-token or third-party requests. Dashboard requests
 use `cache: no-store`; no live API response is reused as an offline reading.
@@ -481,3 +481,22 @@ See [findings](scripts/research/LEARNED_FINDINGS.md), [methods and reproduction]
 and [fixed protocol / disclosed exploratory amendment](scripts/research/learned-entry-protocol.md).
 Raw prices and vintages remain in ignored work/; a manual feature-branch Actions
 job can refetch the macro archive using the existing server-side FRED secret.
+
+## Price z-score and macro conditions
+
+An additional matched study asks whether the previous close's trailing log-price
+z-score adds entry information. The primary price window is 36 months, with a
+separate 60-month sensitivity. Every feature excludes the entry-month close.
+Macro-only, price-only, combined and interaction ridge families use the same
+training, validation and scored dates within each experiment. The macro control
+is a matched four-candidate family, distinct from the earlier 17-candidate
+selector. No supported positive incremental comparison passes Holm 5%.
+
+The research tab adds both price windows, all four families, paired incremental
+comparisons, dated entry conditions and JSON/CSV downloads. Price z-score measures
+historical position, not fundamental valuation. Some attractive results have too
+few episodes; adjusted return indices and long proxy limitations are disclosed.
+
+See [price findings](scripts/research/ZSCORE_FINDINGS.md),
+[methods and reproduction](scripts/research/ZSCORE_ENTRY.md) and
+[extension protocol](scripts/research/zscore-entry-protocol.md).
