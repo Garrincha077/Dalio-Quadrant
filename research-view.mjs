@@ -1,5 +1,6 @@
 import { loadExtendedResearch } from "./extended-research-view.mjs";
 import { loadEntryOpportunities } from "./entry-opportunities-view.mjs";
+import { initLearnedResearch } from "./learned-entry-view.mjs";
 const $ = (id) => document.getElementById(id);
 const pct = (v, d = 1) =>
   Number.isFinite(v) ? `${(v * 100).toFixed(d)}%` : "—";
@@ -64,6 +65,7 @@ export function createResearchView(onLoaded = () => {}) {
     if (current) $("researchEquity").innerHTML = equityChart(current);
   }
   async function load() {
+    initLearnedResearch();
     const extended = loadExtendedResearch();
     const entries = loadEntryOpportunities();
     try {

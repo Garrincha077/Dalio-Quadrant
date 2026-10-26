@@ -33,6 +33,8 @@ jobs:
         run: python scripts/research/test_extended_state.py
       - name: Verify conditional entry returns, baselines and temporal separation
         run: python scripts/research/test_entry_opportunities.py
+      - name: Verify learned response fitting and nested chronology
+        run: python scripts/research/test_learned_entry.py
   research-vintages:
     if: github.event_name == 'workflow_dispatch' && github.ref != 'refs/heads/main'
     needs: verify

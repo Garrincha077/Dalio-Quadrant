@@ -32,7 +32,7 @@ Use a stable public production origin for permanent installation. Vercel preview
 URLs create distinct installations tied to their particular origin and can need
 authentication; no bypass token or changing preview URL is embedded in the manifest.
 
-`sw.mjs` precaches 38 public shell/research assets atomically. Failed, redirected,
+`sw.mjs` precaches 40 public shell/research assets atomically. Failed, redirected,
 wrong-MIME or wrong-version HTML responses do not replace a working shell. It
 never caches `/api/*`, auth/share-token or third-party requests. Dashboard requests
 use `cache: no-store`; no live API response is reused as an offline reading.
@@ -460,3 +460,24 @@ chart point is shown; individual dated readings remain visible. Anchor equality
 uses numerical tolerance 1e-9. Economic anchors remain zero activity and 2% PCE;
 none of the frozen source's historical classifications changes. Earlier published
 momentum and portfolio research is preserved.
+
+## Learning investment-response conditions from history
+
+A separate learned-entry view compares fixed quadrants, calibrated boundaries,
+continuous linear/curved responses and two chronological model selectors over
+3/12/36 months. The entry-lift selector targets the user's chosen metric; the
+forecast-error selector remains visible as a distinct experiment. Every refit
+uses matured labels and prior validation, with training-only transforms and
+entry cutoffs. The live economic axes and preference card are unchanged.
+
+This study now includes actual archived macro vintages: 185 complete CFNAI/PCE
+snapshots from May 2011–September 2026, collected in a manual research workflow.
+Vintage models use macro reconstructions available at refit and then-known target
+features; revised results remain a separate panel. No general positive entry
+edge is confirmed. The app shows same-date comparisons, fitted response maps,
+model-choice history, counts/intervals and downloadable dated forecasts.
+
+See [findings](scripts/research/LEARNED_FINDINGS.md), [methods and reproduction](scripts/research/LEARNED_ENTRY.md)
+and [fixed protocol / disclosed exploratory amendment](scripts/research/learned-entry-protocol.md).
+Raw prices and vintages remain in ignored work/; a manual feature-branch Actions
+job can refetch the macro archive using the existing server-side FRED secret.
