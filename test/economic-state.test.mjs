@@ -138,10 +138,16 @@ test("stale, missing or mismatched periods cannot claim a current joint state", 
   assert.equal(buildEconomicState(rows().slice(1)).available, false);
   const mixed = rows();
   mixed[1].date = "2026-07-01";
-  assert.equal(buildEconomicState(mixed).available, true);
+  assert.equal(buildEconomicState(mixed).available, false);
+  assert.equal(buildEconomicState(mixed).regime.id, "unavailable");
   assert.equal(buildEconomicState(mixed).mixedPeriods, true);
   mixed[1].date = "2026-06-01";
   assert.equal(buildEconomicState(mixed).available, false);
+});
+test("arithmetic noise at economic anchors cannot flip a boundary into a quadrant", () => {
+  assert.equal(classifyEconomicState(0.2, 100 * (102 / 100 - 1)).id, "boundary");
+  assert.equal(classifyEconomicState(1e-12, 3).id, "boundary");
+  assert.equal(classifyEconomicState(1e-8, 3).id, "above-above");
 });
 test("snapshot state uses exact headline PCE YoY and leaves the original momentum model separate", () => {
   const s = buildSnapshot(
