@@ -1,0 +1,12 @@
+import { readFile, writeFile, rename } from "node:fs/promises";
+import { createHash } from "node:crypto";
+import { verifiedReadings } from "../lib/verified-readings.mjs";
+const input = process.argv[2];
+if (!input) throw new Error("Provide the private path of a verified successful snapshot");
+const raw = await readFile(input, "utf8");
+const record = verifiedReadings(JSON.parse(raw));
+if (!record) throw new Error("Snapshot is incomplete, future-dated or incompatible; previous published readings retained");
+record.sourceSha256 = createHash("sha256").update(raw).digest("hex");
+await writeFile("data/last-verified.json.tmp", JSON.stringify(record));
+await rename("data/last-verified.json.tmp", "data/last-verified.json");
+console.log(JSON.stringify({fetchedAt: record.fetchedAt, indicators: record.indicators.length}));

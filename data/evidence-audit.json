@@ -1,0 +1,230 @@
+{
+  "version": "evidence-audit-2",
+  "asOf": "2026-10-21",
+  "status": "Checked within stated scope",
+  "independentChecks": {
+    "forecastChecks": 2760,
+    "strategyChecks": 3924,
+    "staticClassificationChecks": 712,
+    "frozenPriceComparisons": 7854,
+    "maxFrozenReturnDifference": 0
+  },
+  "originalHashes": {
+    "data/research-summary.json": "21e47ec5eab1ab4c57fb5fd3cf146f505e7cf1013cf0c2f25ea65ef17ed7a4d5",
+    "data/state-forward.json": "363242ea278febd1c86d73c5b1a2ecc0087955a59cac359adb8afc6277d674f4",
+    "scripts/research/protocol.md": "b06e171fa2cd91ff8c07e3abbe2f197a9906945ac42d6ae41572ce46e53f76f2",
+    "scripts/research/state-forward-protocol.md": "f134fcbe3326fe93ef2dc844d3f59ba74f953e93d79c36810942fc6d8579e914"
+  },
+  "macroSources": [
+    {
+      "id": "GDPC1",
+      "first": "1947-01-01",
+      "last": "2026-04-01",
+      "n": 318,
+      "vintageStart": "1991-12-04",
+      "basis": "FRED/ALFRED",
+      "source": "https://fred.stlouisfed.org/series/GDPC1",
+      "sha256": "3386dad78f7a457acb5431c74de27ba12efea48455e7d0e8ed2f344c9f172af4"
+    },
+    {
+      "id": "INDPRO",
+      "first": "1919-01-01",
+      "last": "2026-09-01",
+      "n": 1293,
+      "vintageStart": "1927-01-26",
+      "basis": "FRED/ALFRED",
+      "source": "https://fred.stlouisfed.org/series/INDPRO",
+      "sha256": "97229a8fbdc34edfbdc83795d9b959831223393b031fd5c40fc1fdedbaf37c0f"
+    },
+    {
+      "id": "AMTMNO",
+      "first": "1992-02-01",
+      "last": "2026-08-01",
+      "n": 415,
+      "vintageStart": "2011-06-24",
+      "basis": "FRED/ALFRED",
+      "source": "https://fred.stlouisfed.org/series/AMTMNO",
+      "sha256": "d31f93198b92d1672c9cd973b9a086f3801f30697227470d3822bd6c0ef150e6"
+    },
+    {
+      "id": "PAYEMS",
+      "first": "1939-01-01",
+      "last": "2026-09-01",
+      "n": 1053,
+      "vintageStart": "1955-05-06",
+      "basis": "FRED/ALFRED",
+      "source": "https://fred.stlouisfed.org/series/PAYEMS",
+      "sha256": "8d78d32bfddae820a832bb21530f0648a7cdfdfc1109c7e76d1846c5ca76d322"
+    },
+    {
+      "id": "TEMPHELPS",
+      "first": "1990-01-01",
+      "last": "2026-09-01",
+      "n": 441,
+      "vintageStart": "2011-01-07",
+      "basis": "FRED/ALFRED",
+      "source": "https://fred.stlouisfed.org/series/TEMPHELPS",
+      "sha256": "8edc9b9b154241c2f7eeadfa5c4481adfdf75847e1c4339055f75fa2d8228a8f"
+    },
+    {
+      "id": "PCEPILFE",
+      "first": "1959-01-01",
+      "last": "2026-08-01",
+      "n": 812,
+      "vintageStart": "2000-08-01",
+      "basis": "FRED/ALFRED",
+      "source": "https://fred.stlouisfed.org/series/PCEPILFE",
+      "sha256": "c9da1c5a5547701470daeead8803476e22ce39fccc87b0fa938b98686a9d3251"
+    },
+    {
+      "id": "CPIAUCSL",
+      "first": "1947-01-01",
+      "last": "2026-09-01",
+      "n": 956,
+      "vintageStart": "1972-07-21",
+      "basis": "FRED/ALFRED",
+      "source": "https://fred.stlouisfed.org/series/CPIAUCSL",
+      "sha256": "6f9d577ea95ee7b9fe75a553cbeb83dbb5a8599a0cd04b2aedd61a8dfb12abc2"
+    },
+    {
+      "id": "CES0500000003",
+      "first": "2006-03-01",
+      "last": "2026-09-01",
+      "n": 247,
+      "vintageStart": "2011-03-04",
+      "basis": "FRED/ALFRED",
+      "source": "https://fred.stlouisfed.org/series/CES0500000003",
+      "sha256": "8fccf81019ac03ea283fffecbe9e4dd3c2092c6e3bfe3eb1ba6dfcbc1077aa35"
+    },
+    {
+      "id": "CUSR0000SAH1",
+      "first": "1953-01-01",
+      "last": "2026-09-01",
+      "n": 884,
+      "vintageStart": "2011-04-15",
+      "basis": "FRED/ALFRED",
+      "source": "https://fred.stlouisfed.org/series/CUSR0000SAH1",
+      "sha256": "5818e611d49fa053866cbc5a1348cd6c5c20ea645f881d8b17c60a6fd8428901"
+    },
+    {
+      "id": "CFNAIMA3",
+      "first": "1967-05-01",
+      "last": "2026-08-01",
+      "n": 712,
+      "vintageStart": "2011-05-23",
+      "basis": "FRED/ALFRED",
+      "source": "https://fred.stlouisfed.org/series/CFNAIMA3",
+      "sha256": "d401cea5318cb337d44f38179bf14bea220257e8c5de0fecaa9489c30406edf8"
+    },
+    {
+      "id": "PCEPI",
+      "first": "1959-01-01",
+      "last": "2026-08-01",
+      "n": 812,
+      "vintageStart": "2000-08-01",
+      "basis": "FRED/ALFRED",
+      "source": "https://fred.stlouisfed.org/series/PCEPI",
+      "sha256": "b7a5ce192332b4d76be9eee47d2f97fbe745a43c26ec81280ec05ec4d9fedf5d"
+    },
+    {
+      "id": "TB3MS",
+      "first": "1934-01-01",
+      "last": "2026-09-01",
+      "n": 1113,
+      "vintageStart": "1996-12-03",
+      "basis": "FRED/ALFRED",
+      "source": "https://fred.stlouisfed.org/series/TB3MS",
+      "sha256": "0338a86480ede96754bf038a118499a521d3ecfc52b31e3337b46d93c41760df"
+    }
+  ],
+  "priceCoverage": {
+    "SPY": {
+      "first": "1999-12",
+      "last": "2026-09",
+      "n": 322,
+      "missing": 0,
+      "source": "Alpha Vantage adjusted monthly",
+      "sha256": "0036ecab98f24d96a5c26c51e8c9e5e30f0d30758e8ce3f01aa2478f9cf2449d"
+    },
+    "IEF": {
+      "first": "2002-08",
+      "last": "2026-09",
+      "n": 290,
+      "missing": 0,
+      "source": "Alpha Vantage adjusted monthly",
+      "sha256": "615795e03c5b1c4588225cce1cb44fc6c452cd0e470726eba6c6a8ec5f9266eb"
+    },
+    "GLD": {
+      "first": "2004-12",
+      "last": "2026-09",
+      "n": 262,
+      "missing": 0,
+      "source": "Alpha Vantage adjusted monthly",
+      "sha256": "e7a0df66469d6d0406b73cc9fd02f115513edc107518d5b6e99745831638bbd3"
+    },
+    "TIP": {
+      "first": "2004-01",
+      "last": "2026-09",
+      "n": 273,
+      "missing": 0,
+      "source": "Alpha Vantage adjusted monthly",
+      "sha256": "4b46706a90723f626c228887537809c5e17d530f20da158347df8c9c019b5064"
+    },
+    "DBC": {
+      "first": "2006-03",
+      "last": "2026-09",
+      "n": 247,
+      "missing": 0,
+      "source": "Alpha Vantage adjusted monthly",
+      "sha256": "665b08182f3dd5610ab0b1e4fc08ef3fa368894405a3b8364f078032b526829a"
+    }
+  },
+  "claims": [
+    {
+      "id": "static-history",
+      "status": "descriptive",
+      "title": "Economic-state history",
+      "first": "1967-05",
+      "last": "2026-08",
+      "n": 712,
+      "caveat": "Latest-revised reference periods. CFNAI was first published in March 2001; the fixed 2% inflation anchor is retrospective before 2012."
+    },
+    {
+      "id": "long-equity",
+      "status": "descriptive",
+      "title": "Long-run equity outcomes",
+      "first": "1926-07",
+      "last": "2026-08",
+      "n": 1202,
+      "caveat": "Fama/French broad-US-market proxy, not SPY. State-conditioned outcomes start in 1967 and use revised macro data."
+    },
+    {
+      "id": "combined-model",
+      "status": "retrospective-walk-forward",
+      "title": "State + momentum model",
+      "first": "2017-03",
+      "last": "2025-09",
+      "n": 103,
+      "caveat": "Overlapping starts are not independent tests. Historical protocol was designed after prior research; the advantage is unconfirmed."
+    },
+    {
+      "id": "state-trend",
+      "status": "descriptive",
+      "title": "Existing live research preference",
+      "caveat": "Frozen revised-data analogues. Its mean and loss frequency are historical estimates, not calibrated future probabilities."
+    },
+    {
+      "id": "forward-ledger",
+      "status": "forward-tracking",
+      "title": "Future forecast tracking",
+      "n": 0,
+      "caveat": "Historical reconstructions are not backfilled into the live ledger."
+    }
+  ],
+  "limitations": [
+    "This verifies computation and source coverage; it does not establish an economic forecasting edge.",
+    "Frozen v1 return differences versus newly downloaded sources are reported as source reconciliation, not silently overwritten.",
+    "SPY provider history begins in December 1999 although the fund launched in 1993; earlier verified adjusted prices remain a source gap.",
+    "JST annual context ends in 2020; it is not a current market reading."
+  ]
+}

@@ -1,5 +1,101 @@
 # Dalio Quadrant — Principles & Evidence
 
+## Causal experiment lab · v2.14
+
+The Backtest & prediction tab now opens a separate research lab. It retains all
+120 predictor configurations and 18 additional portfolio-selection procedures:
+market trend/risk, macro changes, interactions, separate value/price inputs,
+future risk and direct net-utility selection. Settings are selected only from
+earlier outcomes known by each historical decision cutoff. All previous frozen
+studies remain unchanged.
+
+No incremental macro edge is established. The 12M utility interaction policy
+earns 5.88% net CAGR versus 5.76% for the paired market selector, but the matched
+historical-mean policy earns 6.29%; the Sharpe-difference interval crosses zero.
+Some 3M ranking and risk comparisons improve, while simple references remain
+competitive or better. The UI exposes losses as well as improvements, dated
+decisions, actual weights/costs, calendar folds and every configuration.
+
+[Research protocols, complete results and reproduction](scripts/research/v4/README.md)
+describe the separate rounds, source limitations and cumulative multiple-test
+correction. Independent JavaScript verification reconstructs 76,380 estimates,
+4,253 selector decisions and 11,071 monthly policy rows before publication.
+
+## Complete value/price experiment and dated forecasts · v2.13
+
+FRED recovered on 22 October 2026. All seven required original-vintage series
+are now verified, value scores are available for all five assets and the full
+seven-model comparison is published. Its frozen information cutoff remains
+21 October; live dashboard data is fetched separately and works again.
+
+The primary 12M experiment has 93 overlapping starts from January 2018 to
+September 2025. Rank IC is 0.057 for macro + value + price, 0.172 for macro alone
+and 0.183 for historical averages. None of the four primary differences is
+statistically supported after correction. The result does not establish an
+incremental predictive edge. The 20-year sensitivity is retained without changing
+the primary window or tuning parameters after seeing these outcomes.
+
+The tab now exposes dated estimates, their deviation from the historical-mean
+estimate, mature realised outcomes and the actual value/price inputs. Independent
+JavaScript verification also refits every published model estimate from the
+private sources, checks its exact matured training membership and recomputes the
+20-year sensitivity. The forward-ledger command accepts the verified value/price
+artifact and continues to reject historical backfills.
+
+## Provider outage and verified saved readings · v2.12.1
+
+FRED maintenance can return HTML with HTTP 200. The server detects that response,
+stops the remaining request queue and returns HTTP 503 plus `Retry-After: 300`.
+A refresh returning no observations is an error, never a successful-looking
+"Fetched" message. Partial observations are labelled as a partial refresh.
+
+During a failed live refresh, a separate read-only panel loads the last verified
+published readings even on a device with no local history. The initial record is
+the actual successful fetch of 21 October 2026 at 12:04 UTC, with 34 valid
+indicators. It preserves its original time/version and does not populate today's
+live state or asset recommendation. Successful scheduled archives update the
+published fallback; failed sources cannot replace it. Automatic retry respects
+the server delay while the app is visible, and Refresh data retries immediately.
+The same button reloads the published asset research. API responses are never
+served from the PWA cache; saved readings and asset artifacts refresh online.
+
+## Separate value and price scores · v2.12
+
+The **Value & price** tab adds asset-specific valuation/yield proxies alongside
+completed-month log-price z-scores, with separate directions, original source
+dates, native observation counts, a history chart and fixed 20-year sensitivity.
+Both normalisations exclude the current observation from their reference sample.
+Their coefficients are learned from past matured outcomes, never manually
+combined into an overall buy/sell score.
+
+Seven fixed models test the value and price contributions on identical dates.
+A separate four-model exploratory price study uses only verified macro and price
+inputs. Existing frozen v1/v2 results remain unchanged. On 21 October 2026 FRED
+returned HTTP-200 maintenance pages during new source acquisition: the release
+showed missing value sources explicitly and withheld the full experiment.
+Verified price scores for all five ETFs, the gold real-price proxy and the
+exploratory price study remain available. No missing value is filled with zero.
+
+See the [v3 reproduction guide and source limits](scripts/research/v3/README.md).
+
+## State, momentum and maximum-history evidence · v2.11
+
+The **Backtest & prediction** view now opens with a same-date comparison of static
+state, momentum and their combination, alongside a source coverage table and
+independent calculation checks. It separates revised historical associations,
+retrospective point-in-time model checks and genuinely recorded forward forecasts.
+The original frozen research remains available in a labelled expandable section.
+
+Historical context reaches US annual data from 1870 and a separate monthly broad
+equity proxy from 1926. State-conditioned monthly research starts in 1967; original
+CFNAI releases start in 2001. The matched 12M predictive test starts in 2017 after
+training and maturity gates. These histories are not interchangeable.
+
+The combination's predictive advantage remains unconfirmed. See the
+[v2 method, source limits, reproduction and forward ledger](scripts/research/v2/README.md).
+JST-derived annual context is separately attributed under CC BY-NC-SA 4.0;
+no academic proxy is silently spliced into ETF histories.
+
 Independent US macro monitor inspired by the public All Weather framework. Uses
 FRED for the live macro dashboard; no Finviz Elite, public CORS proxy, AI provider
 or browser API key. The separate dated research experiment uses adjusted ETF
@@ -32,7 +128,7 @@ Use a stable public production origin for permanent installation. Vercel preview
 URLs create distinct installations tied to their particular origin and can need
 authentication; no bypass token or changing preview URL is embedded in the manifest.
 
-`sw.mjs` precaches 33 public shell/research assets atomically. Failed, redirected,
+`sw.mjs` precaches the public shell/research assets atomically. Failed, redirected,
 wrong-MIME or wrong-version HTML responses do not replace a working shell. It
 never caches `/api/*`, auth/share-token or third-party requests. Dashboard requests
 use `cache: no-store`; no live API response is reused as an offline reading.
@@ -57,9 +153,12 @@ break online usage. Server-side FRED credentials remain unchanged.
 
 ## Data and calculation
 
-`api/dashboard.js` requests 40 distinct FRED series in five bounded workers,
-plus GDPNow's series metadata to verify the FRED source update timestamp:
-up to 25 years for macro, debt and recession context, and 30 months for supporting static-state,
+`api/dashboard.js` requests 40 distinct FRED series in eight bounded workers,
+plus GDPNow's series metadata to verify the FRED source update timestamp. The
+state anchors and momentum inputs run first. A 45-second overall budget and
+8-second request timeouts leave room under the 60-second function limit; timed-out
+or unrequested series remain explicitly unavailable and prevent success caching.
+The API fetches up to 25 years for macro, debt and recession context, and 30 months for supporting static-state,
 nowcast and daily market/stress series. Daily RRP inputs receive a 10,000-observation limit so the
 long liquidity history is not silently truncated. The response includes
 normalized data, quality flags, statistical profiles and the computed regime.
@@ -413,3 +512,60 @@ Capital allocation and risk allocation are different. Scenario sensitivities
 are illustrative, not allocation recommendations. Every displayed series links
 to its FRED provider and terms; a free API key is not a blanket redistribution
 license, including for CBOE VIX and ICE BofA data. No affiliation or endorsement.
+
+## Bottoming 0–3 and extended HY history (v2.15.0)
+
+The Bottoming tab implements the supplied weekly RSI/VIX/HY severity rules and
+a source-audited event study. The user-provided HY archive has 601 exact daily
+matches with FRED and extends the separate three-input historical cohort to
+2003–2026. Original-vintage coverage and RSI/VIX ablations remain separate.
+Results include net returns, skipped entries and further losses; predictive edge
+is unconfirmed. See [method, findings and reproduction](scripts/research/v5/README.md).
+
+## Recovery strategies and predictive risk (v2.17.0)
+
+The Recovery & risk tab retains all 51 recovery-policy attempts and 63 forward-
+risk model procedures. Recovery timing did not establish economic improvement.
+The four-week VIX risk model reduced forecast loss by 21% versus fitted past
+volatility, with positive gains in every declared period and corrected paired
+block evidence. Incremental HY value, annual-risk superiority and return alpha
+remain unconfirmed. Twelve forecasts are now frozen in a genuinely future pilot
+starting27 October2026, with the older input timing disclosed and no invented
+outcomes. See [recovery research](scripts/research/v6/README.md) and
+[risk forecasts and prospective pilot](scripts/research/v7/README.md).
+
+## Further practical guards and annual-return research
+
+The additional-research section retains six forecast-risk guard policies and
+12 continuous one-year return models with30 matched portfolio paths. The full
+longer-history economic criteria remain unmet. Some shorter2016–2026 price/macro
+comparisons improve but fail the complete reference set and remain exploratory.
+The earlier four-week risk evidence and12 issued future forecasts are preserved.
+See [risk guards](scripts/research/v8/README.md) and
+[annual returns](scripts/research/v9/README.md) for every result and reproduction.
+
+A separate annual pilot now freezes all12 return estimates before its planned
+27 October2026–26 October2027 target. They share one future annual outcome and
+retain the disclosed extra week of input lag. Frozen model parameters and the
+original Git source snapshot independently reproduce every estimate. Outcomes
+remain pending; this adds no claim of confirmed return alpha. The additional
+research section displays the complete annual ledger alongside the historical
+comparisons; the existing12 risk forecasts remain unchanged.
+
+## Shock levels × macro regime × asset opportunity (v2.18.1)
+
+The new **Shock & assets** tab tests the user's L3 long-horizon hypothesis across
+SPY, IEF, GLD, TIP and DBC. It combines exact levels0–3, static macro states,
+original published three-month impulses, separate dashboard momentum, canonical
+asset value/price z and a separate one-year price z. Targets span13/52/156/260
+weekly intervals. All12 grouping families, first-L3 entries, top-decile antecedents,
+source checks, sparse/missing cells and historical best-entry examples remain
+inspectable. No historical result is called an untouched predictive test.
+
+SPY's five-year level means increase toward L3, while its three-year mean is
+higher at L2. Ten L3 weeks represent only two crises, so significance is withheld.
+First-L3 three-year asset rankings differ dramatically between2008 and2020;
+weekly averages overweight2008–09. Three new daily ETF histories disagree with
+older monthly snapshots and remain visibly flagged for review. No source tolerance
+was relaxed and no prior artifact/issued forecast was changed. See the
+[complete findings, limitations and reproduction](scripts/research/v10/README.md).

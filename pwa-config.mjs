@@ -1,4 +1,4 @@
-export const PWA_VERSION = "2.10.0";
+export const PWA_VERSION = "2.18.1";
 export const CACHE_PREFIX = "dalio-shell-";
 export const CACHE_NAME = CACHE_PREFIX + PWA_VERSION;
 export const SHELL_PATHS = [
@@ -21,6 +21,19 @@ export const SHELL_PATHS = [
   "/quadrant-view.mjs",
   "/assets-view.mjs",
   "/research-view.mjs",
+  "/evidence-view.mjs",
+  "/asset-scores-view.mjs",
+  "/research-lab-view.mjs",
+  "/bottoming-view.mjs",
+  "/recovery-view.mjs",
+  "/shock-view.mjs",
+  "/lib/research-paths.mjs",
+  "/lib/bottoming.mjs",
+  "/data/bottoming.json",
+  "/lib/research-lab.mjs",
+  "/lib/asset-scores.mjs",
+  "/lib/verified-readings.mjs",
+  "/lib/research-evidence.mjs",
   "/state-view.mjs",
   "/state-chart.mjs",
   "/forward-view.mjs",
@@ -35,8 +48,16 @@ export const SHELL_PATHS = [
   "/data/research-summary.json",
   "/data/historical-audit.json",
   "/data/state-forward.json",
+  "/data/research-v2.json",
+  "/data/research-history.json",
+  "/data/evidence-audit.json",
+  "/data/forecast-ledger.json",
+  "/data/asset-scores.json",
+  "/data/research-lab.json",
+  "/data/last-verified.json",
 ];
 // CSV is cached only after a successful download; no live API response is cached.
-export const OPTIONAL_PATHS = ["/data/state-forward.csv"];
+const RISK_PATHS = [4,13,52].flatMap(h=>["main","price","context"].map(c=>`/data/risk-paths-${h}-${c}.json`));
+export const OPTIONAL_PATHS = ["/data/state-forward.csv", "/data/recovery-research.json", "/data/risk-research.json", "/data/risk-forward-ledger.json", "/data/risk-guard.json", "/data/return-research.json", "/data/return-forward-ledger.json", "/data/shock-asset-research.json", ...RISK_PATHS];
 // The shared archive changes daily without a new app release.
-export const DYNAMIC_PATHS = ["/data/history.json"];
+export const DYNAMIC_PATHS = ["/data/history.json", "/data/forecast-ledger.json", "/data/last-verified.json", "/data/asset-scores.json", "/data/research-lab.json", "/data/bottoming.json", "/data/recovery-research.json", "/data/risk-research.json", "/data/risk-forward-ledger.json", "/data/risk-guard.json", "/data/return-research.json", "/data/return-forward-ledger.json", "/data/shock-asset-research.json", ...RISK_PATHS];
