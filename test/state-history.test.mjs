@@ -91,14 +91,13 @@ test("unavailable live state stays withheld even when reconstructed historical v
   assert.ok(buildStateTrail(s).at(-2).point);
   assert.throws(() => buildStateTrail(s, { end: "2026-99" }));
 });
-test("live mixed reference months are dated independently while historical pairs always match", () => {
+test("even a saved mixed-month state cannot create a live joint point", () => {
   const s = fixture();
   s.economicState.inflation.date = "2026-09-01";
   const slots = buildStateTrail(s);
   assert.equal(slots.at(-1).date, "2026-09-01");
   assert.equal(slots.at(-2).date, "2026-08-01");
-  assert.equal(slots.at(-1).point.activityDate, "2026-08-01");
-  assert.equal(slots.at(-1).point.inflationDate, "2026-09-01");
+  assert.equal(slots.at(-1).point, null);
   assert.equal(
     slots.at(-2).point.activityDate,
     slots.at(-2).point.inflationDate,

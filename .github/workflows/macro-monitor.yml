@@ -7,6 +7,12 @@ on:
   schedule:
     - cron: "15 23 * * *"
   workflow_dispatch:
+    inputs:
+      research_target:
+        description: Manual research collection
+        type: choice
+        options: [state, rates]
+        default: state
 permissions:
   contents: read
 concurrency:
@@ -29,6 +35,66 @@ jobs:
         run: python scripts/research/test_backtest.py
       - name: Verify static state forward-return research
         run: python scripts/research/test_state_forward.py
+      - name: Verify extended state research timing, execution and source guards
+        run: python scripts/research/test_extended_state.py
+      - name: Verify conditional entry returns, baselines and temporal separation
+        run: python scripts/research/test_entry_opportunities.py
+      - name: Verify learned response fitting and nested chronology
+        run: python scripts/research/test_learned_entry.py
+      - name: Verify lagged price signals and paired entry comparisons
+        run: python scripts/research/test_zscore_entry.py
+      - name: Verify dated yield inputs, nested stages and historical ranks
+        run: python scripts/research/test_rates_entry.py
+      - name: Verify independent asset coverage and expanded period boundaries
+        run: python scripts/research/test_expanded_periods.py
+      - name: Verify dated US issuer risk, missing history and fixed bond rules
+        run: python scripts/research/test_observed_us_bonds.py
+  research-vintages:
+    if: github.event_name == 'workflow_dispatch' && github.ref != 'refs/heads/main' && inputs.research_target != 'rates'
+    needs: verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: "24"
+      - name: Fetch dated CFNAI and PCE information sets for research
+        run: node scripts/research/fetch-state-vintage-snapshots.mjs
+        env:
+          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
+      - name: Retain attributed macro snapshots and coverage manifest
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: state-vintage-snapshots
+          path: work/research/state-vintages/
+          retention-days: 7
+  research-rates:
+    if: github.event_name == 'workflow_dispatch' && github.ref != 'refs/heads/main' && inputs.research_target == 'rates'
+    needs: verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: "24"
+      - name: Fetch dated nominal and real Treasury yields
+        run: node scripts/research/fetch-rate-vintages.mjs --as-of=2026-10-26
+        env:
+          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
+      - name: Retain attributed Treasury yield reconstructions
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: rate-vintages
+          path: work/research/rate-vintages/
+          retention-days: 7
   archive:
     if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
     needs: verify

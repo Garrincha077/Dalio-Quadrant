@@ -32,7 +32,7 @@ Use a stable public production origin for permanent installation. Vercel preview
 URLs create distinct installations tied to their particular origin and can need
 authentication; no bypass token or changing preview URL is embedded in the manifest.
 
-`sw.mjs` precaches 33 public shell/research assets atomically. Failed, redirected,
+`sw.mjs` precaches 47 public shell/research assets atomically. Failed, redirected,
 wrong-MIME or wrong-version HTML responses do not replace a working shell. It
 never caches `/api/*`, auth/share-token or third-party requests. Dashboard requests
 use `cache: no-store`; no live API response is reused as an offline reading.
@@ -93,7 +93,7 @@ requests; the longer data supports the state trail and historical distribution.
 ## Observed state, nowcast and investment lenses
 
 The default **Economy now** tab adds a separate static state layer
-(`economic-state-2`); **Momentum & data** retains the original momentum chart.
+(`economic-state-3`); **Momentum & data** retains the original momentum chart.
 State X is published CFNAI-MA3 activity relative to historical growth trend, with
 zero as its anchor. State Y is headline PCE YoY minus the Fed's 2% longer-run
 inflation anchor. This is neither an output gap nor economic surprises versus
@@ -117,7 +117,7 @@ confirmation count. These overlapping diagnostics do not change either axis,
 the original momentum model or the frozen investment backtest.
 
 Both state axes require completed monthly periods, freshness within 90 days of
-period end, and reference months no more than one month apart. No missing values
+period end, and the same reference month for both axes. No missing values
 or year-earlier bases are filled. Descriptive buffers ±0.10 activity units and
 ±0.20 inflation pp flag sensitivity near an anchor; they are not confidence
 intervals, recession thresholds or return-optimised parameters. Values near trend
@@ -128,8 +128,8 @@ monthly/quarterly/annual sampling, arbitrary historical ending month and return 
 latest data. Historical dots require activity and PCE YoY for the exact same
 completed reference month; quarterly/annual prior samples require the bucket's final
 month. The ending sample can be within an unfinished quarter/year. The live final
-dot preserves the current axes' existing one-month alignment allowance and labels
-both actual dates. Its reference month, rather than the fetch month, anchors the
+dot requires matching axis reference months and labels both actual dates.
+Mixed-month joint states are withheld, including old saved pairs. Its reference month, rather than the fetch month, anchors the
 trail. Missing pairs stay as numbered unconnected gaps. Inspect position exposes
 all overlapping points to keyboards and touch users.
 
@@ -413,3 +413,154 @@ Capital allocation and risk allocation are different. Scenario sensitivities
 are illustrative, not allocation recommendations. Every displayed series links
 to its FRED provider and terms; a free API key is not a blanket redistribution
 license, including for CBOE VIX and ICE BofA data. No affiliation or endorsement.
+
+## Extended state + trend validation (26 October 2026)
+
+The Backtest & prediction tab now separates a **long public-proxy study** from a
+**five-ETF revised-history simulation**, with cost selection, same-period growth
+curves, matched unconditional controls, monthly drawdowns and uncertainty.
+Economic state coverage spans May 1967–August 2026 (712 revised states).
+
+The long panel has common inputs January 1973–May 2025 and evaluates January
+1980–May 2025 after initial learning. It uses French US equity returns, Shiller's
+reconstructed bond index, World Bank monthly average gold and AQR commodity
+futures excess returns plus T-bill collateral. It is not a tradable ETF history
+or a publication-vintage backtest. The AQR cutoff prevents extension to 2026.
+
+The ETF panel evaluates January 2013–September 2026. Both panels use the same
+fixed state/trend thresholds and 24-observation pooling, only mature labels and
+12 monthly sleeves held for 12 months. Revised data and researcher hindsight
+remain limitations; no confirmed prospective edge is claimed. Current live asset
+preferences and the original frozen momentum research are unchanged.
+
+See [sources, reproduction and input contracts](scripts/research/EXTENDED_STATE.md)
+and the [extended protocol](scripts/research/extended-state-protocol.md). Private
+inputs remain under ignored `work/`; CI verifies synthetic causality/execution
+and the published artifacts without provider credentials.
+
+## Which conditions preceded each asset's greatest lift?
+
+The Backtest & prediction tab opens with a conditional-entry explorer covering
+3/12/36-month horizons and state, state + direction, and state + direction +
+distance families. Rank by conditional mean return minus the **same asset's own
+usual return on the same eligible cohort**, after identical entry/exit costs.
+Raw maxima and adequately repeated conditions are separated. Episode dates,
+overlap counts, downside, decade matching, bootstrap intervals, panel-wide Holm
+adjustment and retrospective temporal checks are inspectable and downloadable.
+
+There are 4,804 observed cells; no state + direction + distance cell meets the
+fixed 24-start/six-episode rule, and no adequately repeated positive cell passes
+Holm at 5%. This is exploratory revised-history research, not a validated entry
+signal. See [findings for every asset and horizon](scripts/research/ENTRY_FINDINGS.md)
+and [methods, sources and reproduction](scripts/research/ENTRY_OPPORTUNITIES.md).
+
+The methodology audit also advances the live state layer to `economic-state-3`:
+activity and inflation must describe the same month before a joint quadrant or
+chart point is shown; individual dated readings remain visible. Anchor equality
+uses numerical tolerance 1e-9. Economic anchors remain zero activity and 2% PCE;
+none of the frozen source's historical classifications changes. Earlier published
+momentum and portfolio research is preserved.
+
+## Learning investment-response conditions from history
+
+A separate learned-entry view compares fixed quadrants, calibrated boundaries,
+continuous linear/curved responses and two chronological model selectors over
+3/12/36 months. The entry-lift selector targets the user's chosen metric; the
+forecast-error selector remains visible as a distinct experiment. Every refit
+uses matured labels and prior validation, with training-only transforms and
+entry cutoffs. The live economic axes and preference card are unchanged.
+
+This study now includes actual archived macro vintages: 185 complete CFNAI/PCE
+snapshots from May 2011–September 2026, collected in a manual research workflow.
+Vintage models use macro reconstructions available at refit and then-known target
+features; revised results remain a separate panel. No general positive entry
+edge is confirmed. The app shows same-date comparisons, fitted response maps,
+model-choice history, counts/intervals and downloadable dated forecasts.
+
+See [findings](scripts/research/LEARNED_FINDINGS.md), [methods and reproduction](scripts/research/LEARNED_ENTRY.md)
+and [fixed protocol / disclosed exploratory amendment](scripts/research/learned-entry-protocol.md).
+Raw prices and vintages remain in ignored work/; a manual feature-branch Actions
+job can refetch the macro archive using the existing server-side FRED secret.
+
+## Price z-score and macro conditions
+
+An additional matched study asks whether the previous close's trailing log-price
+z-score adds entry information. The primary price window is 36 months, with a
+separate 60-month sensitivity. Every feature excludes the entry-month close.
+Macro-only, price-only, combined and interaction ridge families use the same
+training, validation and scored dates within each experiment. The macro control
+is a matched four-candidate family, distinct from the earlier 17-candidate
+selector. No supported positive incremental comparison passes Holm 5%.
+
+The research tab adds both price windows, all four families, paired incremental
+comparisons, dated entry conditions and JSON/CSV downloads. Price z-score measures
+historical position, not fundamental valuation. Some attractive results have too
+few episodes; adjusted return indices and long proxy limitations are disclosed.
+
+See [price findings](scripts/research/ZSCORE_FINDINGS.md),
+[methods and reproduction](scripts/research/ZSCORE_ENTRY.md) and
+[extension protocol](scripts/research/zscore-entry-protocol.md).
+
+## Initial yields, real rates and price trend
+
+A further matched extension compares macro + price z-score, then adds initial
+Treasury yields, then the prior 12-month price trend. It reports nominal-only and
+nominal-plus-actual-real-yield cohorts separately. Exact GS10/FII10 monthly yield
+reconstructions were collected for 247 historical cutoffs; no synthetic real-rate
+history fills the pre-2003 gap. Earlier studies and source hashes remain frozen.
+
+The app shows all three stages, paired incremental gains, dated historical entry
+conditions and approximate within-asset training-score ranks. These ranks are
+historical percentiles, not probabilities or current investment recommendations.
+No supported positive incremental result passes Holm 5% in this extension.
+
+See [yield/trend findings](scripts/research/RATES_FINDINGS.md),
+[sources and reproduction](scripts/research/RATES_ENTRY.md) and
+[extension protocol](scripts/research/rates-entry-protocol.md).
+
+## Expanded independent asset periods
+
+The yield/trend card now defaults to extended per-asset histories and retains an
+original-study selector. Each source keeps its own start/end; no common ETF
+inception or commodity cutoff truncates the other histories. SPY uses a consistent
+Yahoo adjusted series from 1993, cross-checked against the old provider. Other
+ETF sources remain unchanged. Long input prices begin 1960 where useful; gold
+keeps a 1973 start to exclude peg-era price training.
+
+Removing arbitrary 1990/2016 outer floors extends eligible nominal learned tests
+into the 1970s and actual-vintage SPY/IEF tests to 2012. Original training, maturity
+and archive requirements remain. Per-asset coverage, exact-calendar old/new
+comparisons and fixed-era stability tables show what changed. Longer training
+does not preserve the earlier favourable IEF selection; all results remain
+visible. Earlier frozen reports and source hashes are unchanged.
+
+See [expanded findings](scripts/research/EXPANDED_PERIODS_FINDINGS.md),
+[methods](scripts/research/EXPANDED_PERIODS.md),
+[protocol](scripts/research/expanded-periods-protocol.md) and
+[data upgrade priorities](scripts/research/DATA_UPGRADE_PLAN.md).
+
+## Observed US bond data and fixed rules
+
+Current scope is US only. A separate IEF study obtains 233 exact-date issuer
+holdings snapshots; 232 pass Treasury-sleeve yield/duration gates. Wrong-date
+responses, missing risk and archive gaps are explicit. Issuer reinvestment-chart
+NAV returns provide a matched sensitivity to the existing adjusted market series.
+As-of records were retrieved now; original publication timestamps are unverified.
+
+The new fixed rules compare initial yield/duration carry cushion with its prior
+five-year median, then add disinflation and weak activity. No return-fitted
+coefficients or threshold search. Complete 60-month history is primary; an
+explicit observed-48/60 sensitivity measures the effect of archive gaps. Both
+remain visible with temporal checks, costs, support and pooled Holm inference.
+No supported positive result passes Holm 5%; the sensitivity shows a modest
+positive carry pattern with limited independent cycles.
+
+See [US bond findings](scripts/research/OBSERVED_US_BONDS_FINDINGS.md),
+[sources/reproduction](scripts/research/OBSERVED_US_BONDS.md),
+[fixed protocol and source clarifications](scripts/research/observed-us-bonds-protocol.md)
+and [long-history source contract](scripts/research/US_TREASURY_INPUT_CONTRACT.md).
+
+The next-phase [US entry research design](scripts/research/US_ENTRY_RESEARCH_DESIGN.md)
+specifies the data gates, fixed yield/macro/z-score comparisons, common-calendar
+baselines, evidence criteria and a separate prospective decision ledger. This is
+a planned experiment; it adds no new measured results or live trading rule.
