@@ -26199,5 +26199,1794 @@
         "source": "https://fred.stlouisfed.org/series/FYOINT"
       }
     ]
+  },
+  {
+    "version": "2.10.0",
+    "modelVersion": "momentum-1",
+    "fetchedAt": "2026-11-07T02:50:56.029Z",
+    "signature": "[[\"gdp\",\"2026-07-01\",2.0657392375537764,2.1915745328897174,\"ok\"],[\"production\",\"2026-09-01\",2.2451508832670886,1.4609005848529533,\"ok\"],[\"orders\",\"2026-09-01\",10.503464007283725,7.575011733998838,\"ok\"],[\"payrolls\",\"2026-10-01\",0.5586839048532966,0.21445421402530584,\"ok\"],[\"temp\",\"2026-10-01\",3.026347989232403,0.1323069521289355,\"ok\"],[\"pce\",\"2026-09-01\",3.1211596029620203,3.041234252733216,\"ok\"],[\"cpi\",\"2026-09-01\",3.7172508442689933,3.463530729385411,\"ok\"],[\"wages\",\"2026-10-01\",3.1207598371777445,3.208116259939686,\"ok\"],[\"shelter\",\"2026-09-01\",3.2230618848913206,3.2579804858535732,\"ok\"],[\"loans\",\"2026-10-28\",7.893785011247179,7.164191208482151,\"ok\"],[\"nfci\",\"2026-10-30\",-0.459,-0.538,\"ok\"],[\"policy\",\"2026-10-01\",3.88,3.63,\"ok\"],[\"householdService\",\"2026-04-01\",11.111439,11.158929,\"ok\"],[\"lendingStandards\",\"2026-10-01\",1.7,0,\"ok\"],[\"governmentDebt\",\"2026-04-01\",121.18773,122.43805,\"ok\"],[\"liquidity\",\"2026-11-04\",3.057623512196894,-4.7037990911633525,\"ok\"],[\"fiscalInterest\",\"2026-09-30\",25.168813845313174,23.222596271472774,\"ok\"]]|context:72d81db98f3a7071|pressure:long-run-pressure-1|state:{\"method\":\"economic-state-2\",\"rules\":{\"activityAnchor\":0,\"inflationAnchor\":2,\"activityBuffer\":0.1,\"inflationBuffer\":0.2,\"maxPeriodGapMonths\":1,\"minBreadthInputs\":4,\"maxBreadthPeriodGapMonths\":2},\"activity\":{\"id\":\"activityState\",\"series\":\"CFNAIMA3\",\"name\":\"Activity relative to trend (CFNAI-MA3)\",\"frequency\":\"monthly\",\"unit\":\"index\",\"date\":\"2026-09-01\",\"value\":0.03,\"status\":\"ok\",\"source\":\"https://fred.stlouisfed.org/series/CFNAIMA3\"},\"inflation\":{\"id\":\"headlinePce\",\"series\":\"PCEPI\",\"name\":\"Headline PCE inflation\",\"frequency\":\"monthly\",\"unit\":\"% YoY\",\"date\":\"2026-09-01\",\"value\":3.648874225123633,\"status\":\"ok\",\"source\":\"https://fred.stlouisfed.org/series/PCEPI\"},\"available\":true,\"periodGapMonths\":0,\"mixedPeriods\":false,\"inflationGap\":1.6488742251236328,\"regime\":{\"id\":\"above-above\",\"name\":\"Activity near trend · Inflation above 2%\",\"nearBoundary\":true,\"nearActivity\":true,\"nearInflation\":false},\"nowcast\":{\"series\":\"GDPNOW\",\"name\":\"Atlanta Fed GDPNow\",\"source\":\"https://fred.stlouisfed.org/series/GDPNOW\",\"value\":3.4408,\"date\":\"2026-10-01\",\"unit\":\"% q/q annualised (SAAR)\",\"updatedAt\":\"2026-11-04T17:03:44.000Z\",\"updateBasis\":\"FRED series metadata last_updated; not an independently verified publisher release timestamp\",\"status\":\"ok\"},\"evidence\":[{\"name\":\"Quadrant anchors\",\"indicators\":[{\"id\":\"activityState\",\"series\":\"CFNAIMA3\",\"name\":\"Activity relative to trend (CFNAI-MA3)\",\"frequency\":\"monthly\",\"unit\":\"index\",\"date\":\"2026-09-01\",\"value\":0.03,\"status\":\"ok\",\"source\":\"https://fred.stlouisfed.org/series/CFNAIMA3\"},{\"id\":\"headlinePce\",\"series\":\"PCEPI\",\"name\":\"Headline PCE inflation\",\"frequency\":\"monthly\",\"unit\":\"% YoY\",\"date\":\"2026-09-01\",\"value\":3.648874225123633,\"status\":\"ok\",\"source\":\"https://fred.stlouisfed.org/series/PCEPI\"}]},{\"name\":\"Output, income & demand\",\"indicators\":[{\"id\":\"gdp\",\"series\":\"GDPC1\",\"name\":\"Real GDP\",\"frequency\":\"quarterly\",\"unit\":\"% YoY\",\"date\":\"2026-07-01\",\"value\":2.0657392375537764,\"status\":\"ok\",\"source\":\"https://fred.stlouisfed.org/series/GDPC1\"},{\"id\":\"production\",\"series\":\"INDPRO\",\"name\":\"Industrial production\",\"frequency\":\"monthly\",\"unit\":\"% YoY\",\"date\":\"2026-09-01\",\"value\":2.2451508832670886,\"status\":\"ok\",\"source\":\"https://fred.stlouisfed.org/series/INDPRO\"},{\"id\":\"realIncome\",\"series\":\"W875RX1\",\"name\":\"Real income excluding transfers\",\"frequency\":\"monthly\",\"unit\":\"% YoY\",\"date\":\"2026-09-01\",\"value\":0.5442265306002003,\"status\":\"ok\",\"source\":\"https://fred.stlouisfed.org/series/W875RX1\"},{\"id\":\"realConsumption\",\"series\":\"PCEC96\",\"name\":\"Real personal consumption\",\"frequency\":\"monthly\",\"unit\":\"% YoY\",\"date\":\"2026-09-01\",\"value\":2.5365995071749525,\"status\":\"ok\",\"source\":\"https://fred.stlouisfed.org/series/PCEC96\"},{\"id\":\"realSales\",\"series\":\"CMRMTSPL\",\"name\":\"Real manufacturing & trade sales\",\"frequency\":\"monthly\",\"unit\":\"% YoY\",\"date\":\"2026-08-01\",\"value\":2.5105554604757607,\"status\":\"ok\",\"source\":\"https://fred.stlouisfed.org/series/CMRMTSPL\"}]},{\"name\":\"Labour market\",\"indicators\":[{\"id\":\"payrolls\",\"series\":\"PAYEMS\",\"name\":\"Nonfarm payrolls\",\"frequency\":\"monthly\",\"unit\":\"% YoY\",\"date\":\"2026-10-01\",\"value\":0.5586839048532966,\"status\":\"ok\",\"source\":\"https://fred.stlouisfed.org/series/PAYEMS\"},{\"id\":\"householdEmployment\",\"series\":\"CE16OV\",\"name\":\"Household-survey employment\",\"frequency\":\"monthly\",\"unit\":\"% YoY\",\"date\":\"2026-10-01\",\"value\":null,\"status\":\"missing\",\"source\":\"https://fred.stlouisfed.org/series/CE16OV\"},{\"id\":\"unemployment\",\"series\":\"UNRATE\",\"name\":\"Unemployment\",\"frequency\":\"monthly\",\"unit\":\"%\",\"date\":null,\"value\":null,\"status\":\"missing\",\"source\":\"https://fred.stlouisfed.org/series/UNRATE\"}]},{\"name\":\"Inflation & wages\",\"indicators\":[{\"id\":\"pce\",\"series\":\"PCEPILFE\",\"name\":\"Core PCE\",\"frequency\":\"monthly\",\"unit\":\"% YoY\",\"date\":\"2026-09-01\",\"value\":3.1211596029620203,\"status\":\"ok\",\"source\":\"https://fred.stlouisfed.org/series/PCEPILFE\"},{\"id\":\"trimmedPce\",\"series\":\"PCETRIM12M159SFRBDAL\",\"name\":\"Dallas Fed trimmed-mean PCE\",\"frequency\":\"monthly\",\"unit\":\"% YoY\",\"date\":\"2026-09-01\",\"value\":2.26,\"status\":\"ok\",\"source\":\"https://fred.stlouisfed.org/series/PCETRIM12M159SFRBDAL\"},{\"id\":\"cpi\",\"series\":\"CPIAUCSL\",\"name\":\"Consumer prices\",\"frequency\":\"monthly\",\"unit\":\"% YoY\",\"date\":\"2026-09-01\",\"value\":3.7172508442689933,\"status\":\"ok\",\"source\":\"https://fred.stlouisfed.org/series/CPIAUCSL\"},{\"id\":\"coreCpi\",\"series\":\"CPILFESL\",\"name\":\"Core CPI\",\"frequency\":\"monthly\",\"unit\":\"% YoY\",\"date\":\"2026-09-01\",\"value\":2.565840844021827,\"status\":\"ok\",\"source\":\"https://fred.stlouisfed.org/series/CPILFESL\"},{\"id\":\"shelter\",\"series\":\"CUSR0000SAH1\",\"name\":\"Shelter CPI\",\"frequency\":\"monthly\",\"unit\":\"% YoY\",\"date\":\"2026-09-01\",\"value\":3.2230618848913206,\"status\":\"ok\",\"source\":\"https://fred.stlouisfed.org/series/CUSR0000SAH1\"},{\"id\":\"wages\",\"series\":\"CES0500000003\",\"name\":\"Hourly earnings\",\"frequency\":\"monthly\",\"unit\":\"% YoY\",\"date\":\"2026-10-01\",\"value\":3.1207598371777445,\"status\":\"ok\",\"source\":\"https://fred.stlouisfed.org/series/CES0500000003\"}]}],\"activityBreadth\":{\"available\":true,\"positive\":5,\"negative\":0,\"unchanged\":0,\"count\":5,\"total\":6,\"earliest\":\"2026-08-01\",\"latest\":\"2026-10-01\",\"indicators\":[{\"id\":\"production\",\"series\":\"INDPRO\",\"name\":\"Industrial production\",\"frequency\":\"monthly\",\"unit\":\"% YoY\",\"date\":\"2026-09-01\",\"value\":2.2451508832670886,\"status\":\"ok\",\"source\":\"https://fred.stlouisfed.org/series/INDPRO\"},{\"id\":\"realIncome\",\"series\":\"W875RX1\",\"name\":\"Real income excluding transfers\",\"frequency\":\"monthly\",\"unit\":\"% YoY\",\"date\":\"2026-09-01\",\"value\":0.5442265306002003,\"status\":\"ok\",\"source\":\"https://fred.stlouisfed.org/series/W875RX1\"},{\"id\":\"realConsumption\",\"series\":\"PCEC96\",\"name\":\"Real personal consumption\",\"frequency\":\"monthly\",\"unit\":\"% YoY\",\"date\":\"2026-09-01\",\"value\":2.5365995071749525,\"status\":\"ok\",\"source\":\"https://fred.stlouisfed.org/series/PCEC96\"},{\"id\":\"realSales\",\"series\":\"CMRMTSPL\",\"name\":\"Real manufacturing & trade sales\",\"frequency\":\"monthly\",\"unit\":\"% YoY\",\"date\":\"2026-08-01\",\"value\":2.5105554604757607,\"status\":\"ok\",\"source\":\"https://fred.stlouisfed.org/series/CMRMTSPL\"},{\"id\":\"payrolls\",\"series\":\"PAYEMS\",\"name\":\"Nonfarm payrolls\",\"frequency\":\"monthly\",\"unit\":\"% YoY\",\"date\":\"2026-10-01\",\"value\":0.5586839048532966,\"status\":\"ok\",\"source\":\"https://fred.stlouisfed.org/series/PAYEMS\"},{\"id\":\"householdEmployment\",\"series\":\"CE16OV\",\"name\":\"Household-survey employment\",\"frequency\":\"monthly\",\"unit\":\"% YoY\",\"date\":\"2026-10-01\",\"value\":null,\"status\":\"missing\",\"source\":\"https://fred.stlouisfed.org/series/CE16OV\"}]}}",
+    "growth": {
+      "coverage": 1,
+      "count": 5,
+      "total": 5,
+      "score": 0.6147566559747415
+    },
+    "inflation": {
+      "coverage": 1,
+      "count": 4,
+      "total": 4,
+      "score": 0.15943672786659566
+    },
+    "regime": {
+      "id": "overheating",
+      "name": "Growth ↑ · Inflation ↑"
+    },
+    "economicState": {
+      "method": "economic-state-2",
+      "rules": {
+        "activityAnchor": 0,
+        "inflationAnchor": 2,
+        "activityBuffer": 0.1,
+        "inflationBuffer": 0.2,
+        "maxPeriodGapMonths": 1,
+        "minBreadthInputs": 4,
+        "maxBreadthPeriodGapMonths": 2
+      },
+      "activity": {
+        "id": "activityState",
+        "series": "CFNAIMA3",
+        "name": "Activity relative to trend (CFNAI-MA3)",
+        "frequency": "monthly",
+        "unit": "index",
+        "date": "2026-09-01",
+        "value": 0.03,
+        "status": "ok",
+        "source": "https://fred.stlouisfed.org/series/CFNAIMA3"
+      },
+      "inflation": {
+        "id": "headlinePce",
+        "series": "PCEPI",
+        "name": "Headline PCE inflation",
+        "frequency": "monthly",
+        "unit": "% YoY",
+        "date": "2026-09-01",
+        "value": 3.648874225123633,
+        "status": "ok",
+        "source": "https://fred.stlouisfed.org/series/PCEPI"
+      },
+      "available": true,
+      "periodGapMonths": 0,
+      "mixedPeriods": false,
+      "inflationGap": 1.6488742251236328,
+      "regime": {
+        "id": "above-above",
+        "name": "Activity near trend · Inflation above 2%",
+        "nearBoundary": true,
+        "nearActivity": true,
+        "nearInflation": false
+      },
+      "nowcast": {
+        "series": "GDPNOW",
+        "name": "Atlanta Fed GDPNow",
+        "source": "https://fred.stlouisfed.org/series/GDPNOW",
+        "value": 3.4408,
+        "date": "2026-10-01",
+        "unit": "% q/q annualised (SAAR)",
+        "updatedAt": "2026-11-04T17:03:44.000Z",
+        "updateBasis": "FRED series metadata last_updated; not an independently verified publisher release timestamp",
+        "status": "ok"
+      },
+      "evidence": [
+        {
+          "name": "Quadrant anchors",
+          "indicators": [
+            {
+              "id": "activityState",
+              "series": "CFNAIMA3",
+              "name": "Activity relative to trend (CFNAI-MA3)",
+              "frequency": "monthly",
+              "unit": "index",
+              "date": "2026-09-01",
+              "value": 0.03,
+              "status": "ok",
+              "source": "https://fred.stlouisfed.org/series/CFNAIMA3"
+            },
+            {
+              "id": "headlinePce",
+              "series": "PCEPI",
+              "name": "Headline PCE inflation",
+              "frequency": "monthly",
+              "unit": "% YoY",
+              "date": "2026-09-01",
+              "value": 3.648874225123633,
+              "status": "ok",
+              "source": "https://fred.stlouisfed.org/series/PCEPI"
+            }
+          ]
+        },
+        {
+          "name": "Output, income & demand",
+          "indicators": [
+            {
+              "id": "gdp",
+              "series": "GDPC1",
+              "name": "Real GDP",
+              "frequency": "quarterly",
+              "unit": "% YoY",
+              "date": "2026-07-01",
+              "value": 2.0657392375537764,
+              "status": "ok",
+              "source": "https://fred.stlouisfed.org/series/GDPC1"
+            },
+            {
+              "id": "production",
+              "series": "INDPRO",
+              "name": "Industrial production",
+              "frequency": "monthly",
+              "unit": "% YoY",
+              "date": "2026-09-01",
+              "value": 2.2451508832670886,
+              "status": "ok",
+              "source": "https://fred.stlouisfed.org/series/INDPRO"
+            },
+            {
+              "id": "realIncome",
+              "series": "W875RX1",
+              "name": "Real income excluding transfers",
+              "frequency": "monthly",
+              "unit": "% YoY",
+              "date": "2026-09-01",
+              "value": 0.5442265306002003,
+              "status": "ok",
+              "source": "https://fred.stlouisfed.org/series/W875RX1"
+            },
+            {
+              "id": "realConsumption",
+              "series": "PCEC96",
+              "name": "Real personal consumption",
+              "frequency": "monthly",
+              "unit": "% YoY",
+              "date": "2026-09-01",
+              "value": 2.5365995071749525,
+              "status": "ok",
+              "source": "https://fred.stlouisfed.org/series/PCEC96"
+            },
+            {
+              "id": "realSales",
+              "series": "CMRMTSPL",
+              "name": "Real manufacturing & trade sales",
+              "frequency": "monthly",
+              "unit": "% YoY",
+              "date": "2026-08-01",
+              "value": 2.5105554604757607,
+              "status": "ok",
+              "source": "https://fred.stlouisfed.org/series/CMRMTSPL"
+            }
+          ]
+        },
+        {
+          "name": "Labour market",
+          "indicators": [
+            {
+              "id": "payrolls",
+              "series": "PAYEMS",
+              "name": "Nonfarm payrolls",
+              "frequency": "monthly",
+              "unit": "% YoY",
+              "date": "2026-10-01",
+              "value": 0.5586839048532966,
+              "status": "ok",
+              "source": "https://fred.stlouisfed.org/series/PAYEMS"
+            },
+            {
+              "id": "householdEmployment",
+              "series": "CE16OV",
+              "name": "Household-survey employment",
+              "frequency": "monthly",
+              "unit": "% YoY",
+              "date": "2026-10-01",
+              "value": null,
+              "status": "missing",
+              "source": "https://fred.stlouisfed.org/series/CE16OV"
+            },
+            {
+              "id": "unemployment",
+              "series": "UNRATE",
+              "name": "Unemployment",
+              "frequency": "monthly",
+              "unit": "%",
+              "date": null,
+              "value": null,
+              "status": "missing",
+              "source": "https://fred.stlouisfed.org/series/UNRATE"
+            }
+          ]
+        },
+        {
+          "name": "Inflation & wages",
+          "indicators": [
+            {
+              "id": "pce",
+              "series": "PCEPILFE",
+              "name": "Core PCE",
+              "frequency": "monthly",
+              "unit": "% YoY",
+              "date": "2026-09-01",
+              "value": 3.1211596029620203,
+              "status": "ok",
+              "source": "https://fred.stlouisfed.org/series/PCEPILFE"
+            },
+            {
+              "id": "trimmedPce",
+              "series": "PCETRIM12M159SFRBDAL",
+              "name": "Dallas Fed trimmed-mean PCE",
+              "frequency": "monthly",
+              "unit": "% YoY",
+              "date": "2026-09-01",
+              "value": 2.26,
+              "status": "ok",
+              "source": "https://fred.stlouisfed.org/series/PCETRIM12M159SFRBDAL"
+            },
+            {
+              "id": "cpi",
+              "series": "CPIAUCSL",
+              "name": "Consumer prices",
+              "frequency": "monthly",
+              "unit": "% YoY",
+              "date": "2026-09-01",
+              "value": 3.7172508442689933,
+              "status": "ok",
+              "source": "https://fred.stlouisfed.org/series/CPIAUCSL"
+            },
+            {
+              "id": "coreCpi",
+              "series": "CPILFESL",
+              "name": "Core CPI",
+              "frequency": "monthly",
+              "unit": "% YoY",
+              "date": "2026-09-01",
+              "value": 2.565840844021827,
+              "status": "ok",
+              "source": "https://fred.stlouisfed.org/series/CPILFESL"
+            },
+            {
+              "id": "shelter",
+              "series": "CUSR0000SAH1",
+              "name": "Shelter CPI",
+              "frequency": "monthly",
+              "unit": "% YoY",
+              "date": "2026-09-01",
+              "value": 3.2230618848913206,
+              "status": "ok",
+              "source": "https://fred.stlouisfed.org/series/CUSR0000SAH1"
+            },
+            {
+              "id": "wages",
+              "series": "CES0500000003",
+              "name": "Hourly earnings",
+              "frequency": "monthly",
+              "unit": "% YoY",
+              "date": "2026-10-01",
+              "value": 3.1207598371777445,
+              "status": "ok",
+              "source": "https://fred.stlouisfed.org/series/CES0500000003"
+            }
+          ]
+        }
+      ],
+      "activityBreadth": {
+        "available": true,
+        "positive": 5,
+        "negative": 0,
+        "unchanged": 0,
+        "count": 5,
+        "total": 6,
+        "earliest": "2026-08-01",
+        "latest": "2026-10-01",
+        "indicators": [
+          {
+            "id": "production",
+            "series": "INDPRO",
+            "name": "Industrial production",
+            "frequency": "monthly",
+            "unit": "% YoY",
+            "date": "2026-09-01",
+            "value": 2.2451508832670886,
+            "status": "ok",
+            "source": "https://fred.stlouisfed.org/series/INDPRO"
+          },
+          {
+            "id": "realIncome",
+            "series": "W875RX1",
+            "name": "Real income excluding transfers",
+            "frequency": "monthly",
+            "unit": "% YoY",
+            "date": "2026-09-01",
+            "value": 0.5442265306002003,
+            "status": "ok",
+            "source": "https://fred.stlouisfed.org/series/W875RX1"
+          },
+          {
+            "id": "realConsumption",
+            "series": "PCEC96",
+            "name": "Real personal consumption",
+            "frequency": "monthly",
+            "unit": "% YoY",
+            "date": "2026-09-01",
+            "value": 2.5365995071749525,
+            "status": "ok",
+            "source": "https://fred.stlouisfed.org/series/PCEC96"
+          },
+          {
+            "id": "realSales",
+            "series": "CMRMTSPL",
+            "name": "Real manufacturing & trade sales",
+            "frequency": "monthly",
+            "unit": "% YoY",
+            "date": "2026-08-01",
+            "value": 2.5105554604757607,
+            "status": "ok",
+            "source": "https://fred.stlouisfed.org/series/CMRMTSPL"
+          },
+          {
+            "id": "payrolls",
+            "series": "PAYEMS",
+            "name": "Nonfarm payrolls",
+            "frequency": "monthly",
+            "unit": "% YoY",
+            "date": "2026-10-01",
+            "value": 0.5586839048532966,
+            "status": "ok",
+            "source": "https://fred.stlouisfed.org/series/PAYEMS"
+          },
+          {
+            "id": "householdEmployment",
+            "series": "CE16OV",
+            "name": "Household-survey employment",
+            "frequency": "monthly",
+            "unit": "% YoY",
+            "date": "2026-10-01",
+            "value": null,
+            "status": "missing",
+            "source": "https://fred.stlouisfed.org/series/CE16OV"
+          }
+        ]
+      }
+    },
+    "pressure": {
+      "modelVersion": "long-run-pressure-1",
+      "format": "compact",
+      "scores": [
+        {
+          "years": 5,
+          "estimator": "standard",
+          "score": 47.22068092557256,
+          "coverage": 1,
+          "momentumZ": -0.4229131897887332,
+          "momentumCoverage": 1,
+          "pillars": [
+            {
+              "id": "growth",
+              "score": 46.824044736638776,
+              "coverage": 1,
+              "momentumZ": -1.017398681490484,
+              "momentumCoverage": 1
+            },
+            {
+              "id": "inflation",
+              "score": 33.82089342335382,
+              "coverage": 1,
+              "momentumZ": 0.13062383421971788,
+              "momentumCoverage": 1
+            },
+            {
+              "id": "financial",
+              "score": 40.6262601333893,
+              "coverage": 1,
+              "momentumZ": -0.3664610725870582,
+              "momentumCoverage": 1
+            },
+            {
+              "id": "debt",
+              "score": 67.61152540890832,
+              "coverage": 1,
+              "momentumZ": -0.4384168392971087,
+              "momentumCoverage": 1
+            }
+          ]
+        },
+        {
+          "years": 5,
+          "estimator": "robust",
+          "score": 46.97872837135726,
+          "coverage": 1,
+          "momentumZ": -0.46304372576703234,
+          "momentumCoverage": 1,
+          "pillars": [
+            {
+              "id": "growth",
+              "score": 43.766483526327264,
+              "coverage": 1,
+              "momentumZ": -1.2975953183143154,
+              "momentumCoverage": 1
+            },
+            {
+              "id": "inflation",
+              "score": 40.70815267103747,
+              "coverage": 1,
+              "momentumZ": 0.27366318628462455,
+              "momentumCoverage": 1
+            },
+            {
+              "id": "financial",
+              "score": 38.74055735317124,
+              "coverage": 1,
+              "momentumZ": -0.3675568968483889,
+              "momentumCoverage": 1
+            },
+            {
+              "id": "debt",
+              "score": 64.69971993489308,
+              "coverage": 1,
+              "momentumZ": -0.46068587419004975,
+              "momentumCoverage": 1
+            }
+          ]
+        },
+        {
+          "years": 10,
+          "estimator": "standard",
+          "score": 51.1847947627714,
+          "coverage": 1,
+          "momentumZ": -0.0971806750713138,
+          "momentumCoverage": 1,
+          "pillars": [
+            {
+              "id": "growth",
+              "score": 45.81745694675652,
+              "coverage": 1,
+              "momentumZ": -0.1868821541414672,
+              "momentumCoverage": 1
+            },
+            {
+              "id": "inflation",
+              "score": 46.64709634822294,
+              "coverage": 1,
+              "momentumZ": 0.03455916033648447,
+              "momentumCoverage": 1
+            },
+            {
+              "id": "financial",
+              "score": 45.016417430979516,
+              "coverage": 1,
+              "momentumZ": -0.23129469786757897,
+              "momentumCoverage": 1
+            },
+            {
+              "id": "debt",
+              "score": 67.25820832512665,
+              "coverage": 1,
+              "momentumZ": -0.005105008612693511,
+              "momentumCoverage": 1
+            }
+          ]
+        },
+        {
+          "years": 10,
+          "estimator": "robust",
+          "score": 51.68215736128062,
+          "coverage": 1,
+          "momentumZ": -0.31348518506526446,
+          "momentumCoverage": 1,
+          "pillars": [
+            {
+              "id": "growth",
+              "score": 45.05211487740853,
+              "coverage": 1,
+              "momentumZ": -0.9295097352580651,
+              "momentumCoverage": 1
+            },
+            {
+              "id": "inflation",
+              "score": 50.342802811145525,
+              "coverage": 1,
+              "momentumZ": 0.12069358336334442,
+              "momentumCoverage": 1
+            },
+            {
+              "id": "financial",
+              "score": 42.4483356116249,
+              "coverage": 1,
+              "momentumZ": -0.291162305342212,
+              "momentumCoverage": 1
+            },
+            {
+              "id": "debt",
+              "score": 68.88537614494354,
+              "coverage": 1,
+              "momentumZ": -0.15396228302412515,
+              "momentumCoverage": 1
+            }
+          ]
+        },
+        {
+          "years": 20,
+          "estimator": "standard",
+          "score": 53.26159223095492,
+          "coverage": 0.875,
+          "momentumZ": -0.08375679210578015,
+          "momentumCoverage": 0.875,
+          "pillars": [
+            {
+              "id": "growth",
+              "score": 45.50954731104298,
+              "coverage": 1,
+              "momentumZ": -0.23104361086722722,
+              "momentumCoverage": 1
+            },
+            {
+              "id": "inflation",
+              "score": 58.19907384861304,
+              "coverage": 0.75,
+              "momentumZ": 0.12667250454389323,
+              "momentumCoverage": 0.75
+            },
+            {
+              "id": "financial",
+              "score": 42.66302083789846,
+              "coverage": 0.75,
+              "momentumZ": -0.25377395109331174,
+              "momentumCoverage": 0.75
+            },
+            {
+              "id": "debt",
+              "score": 66.6747269262652,
+              "coverage": 1,
+              "momentumZ": 0.023117888993525144,
+              "momentumCoverage": 1
+            }
+          ]
+        },
+        {
+          "years": 20,
+          "estimator": "robust",
+          "score": 57.63819567821304,
+          "coverage": 0.875,
+          "momentumZ": -0.2804670931369721,
+          "momentumCoverage": 0.875,
+          "pillars": [
+            {
+              "id": "growth",
+              "score": 49.301339272764615,
+              "coverage": 1,
+              "momentumZ": -0.9120419813842288,
+              "momentumCoverage": 1
+            },
+            {
+              "id": "inflation",
+              "score": 70.87050847769876,
+              "coverage": 0.75,
+              "momentumZ": 0.22535385027652158,
+              "momentumCoverage": 0.75
+            },
+            {
+              "id": "financial",
+              "score": 45.46476798696167,
+              "coverage": 0.75,
+              "momentumZ": -0.20719233927171574,
+              "momentumCoverage": 0.75
+            },
+            {
+              "id": "debt",
+              "score": 64.9161669754271,
+              "coverage": 1,
+              "momentumZ": -0.22798790216846535,
+              "momentumCoverage": 1
+            }
+          ]
+        }
+      ]
+    },
+    "context": [
+      {
+        "id": "gdp",
+        "date": "2026-07-01",
+        "scores": [
+          {
+            "years": 5,
+            "level": [
+              -0.8064285480589658,
+              -1.0485793203669789,
+              10,
+              20
+            ],
+            "momentum": [
+              0.2239050757963443,
+              0.10965966379118328,
+              50,
+              20
+            ]
+          },
+          {
+            "years": 10,
+            "level": [
+              -0.1761898010700259,
+              -0.4648245648505781,
+              22.5,
+              40
+            ],
+            "momentum": [
+              -0.05125056936500146,
+              -0.44514177890690115,
+              37.5,
+              40
+            ]
+          },
+          {
+            "years": 20,
+            "level": [
+              0.008025673387730558,
+              -0.2810241047057016,
+              37.5,
+              80
+            ],
+            "momentum": [
+              -0.05555859617310566,
+              -0.12866219458138425,
+              46.25,
+              80
+            ]
+          }
+        ]
+      },
+      {
+        "id": "production",
+        "date": "2026-09-01",
+        "scores": [
+          {
+            "years": 5,
+            "level": [
+              1.0533207434139042,
+              0.9929551393742028,
+              86.66666666666667,
+              60
+            ],
+            "momentum": [
+              0.7408937167625219,
+              0.9218115109477402,
+              76.66666666666667,
+              60
+            ]
+          },
+          {
+            "years": 10,
+            "level": [
+              0.4699357266118748,
+              0.6501431472157086,
+              76.66666666666667,
+              120
+            ],
+            "momentum": [
+              0.16841395367048367,
+              0.6518918582449759,
+              71.66666666666667,
+              120
+            ]
+          },
+          {
+            "years": 20,
+            "level": [
+              0.4207479954216977,
+              0.37478569553308444,
+              62.5,
+              240
+            ],
+            "momentum": [
+              0.231028165199549,
+              0.6370528825407087,
+              74.16666666666667,
+              240
+            ]
+          }
+        ]
+      },
+      {
+        "id": "orders",
+        "date": "2026-09-01",
+        "scores": [
+          {
+            "years": 5,
+            "level": [
+              0.7878481467635877,
+              1.3274559372434085,
+              78.33333333333333,
+              60
+            ],
+            "momentum": [
+              1.068913020358553,
+              1.3326390865933768,
+              86.66666666666667,
+              60
+            ]
+          },
+          {
+            "years": 10,
+            "level": [
+              0.7171504464292857,
+              1.3429029261233711,
+              84.16666666666667,
+              120
+            ],
+            "momentum": [
+              0.37967560554989177,
+              0.7199074527123303,
+              75.83333333333333,
+              120
+            ]
+          },
+          {
+            "years": 20,
+            "level": [
+              0.7518773386337788,
+              1.0172128936373492,
+              81.66666666666667,
+              240
+            ],
+            "momentum": [
+              0.41527446579920857,
+              0.7610795881073391,
+              79.16666666666667,
+              240
+            ]
+          }
+        ]
+      },
+      {
+        "id": "payrolls",
+        "date": "2026-10-01",
+        "scores": [
+          {
+            "years": 5,
+            "level": [
+              -0.813759667172264,
+              -0.5390383061380848,
+              26.666666666666668,
+              60
+            ],
+            "momentum": [
+              1.6698509868747766,
+              2.657851248295483,
+              95,
+              60
+            ]
+          },
+          {
+            "years": 10,
+            "level": [
+              -0.14632041975853663,
+              -0.837832897750857,
+              24.166666666666668,
+              120
+            ],
+            "momentum": [
+              0.11934723932113094,
+              2.138696135380496,
+              90,
+              120
+            ]
+          },
+          {
+            "years": 20,
+            "level": [
+              -0.093429543940764,
+              -1.2270150884474185,
+              25.833333333333332,
+              240
+            ],
+            "momentum": [
+              0.15704181130171782,
+              1.6538460563996817,
+              86.25,
+              240
+            ]
+          }
+        ]
+      },
+      {
+        "id": "temp",
+        "date": "2026-10-01",
+        "scores": [
+          {
+            "years": 5,
+            "level": [
+              0.7318059040621059,
+              1.1372614919892727,
+              80,
+              60
+            ],
+            "momentum": [
+              1.3834306076602236,
+              1.4660150819437943,
+              100,
+              60
+            ]
+          },
+          {
+            "years": 10,
+            "level": [
+              0.3901869637604443,
+              0.7939769260397962,
+              85,
+              120
+            ],
+            "momentum": [
+              0.318224541530831,
+              1.5821950088594243,
+              90,
+              120
+            ]
+          },
+          {
+            "years": 20,
+            "level": [
+              0.2599143431846633,
+              0.32563882215330126,
+              63.75,
+              240
+            ],
+            "momentum": [
+              0.40743220820876647,
+              1.636893574454799,
+              90,
+              240
+            ]
+          }
+        ]
+      },
+      {
+        "id": "pce",
+        "date": "2026-09-01",
+        "scores": [
+          {
+            "years": 5,
+            "level": [
+              -0.6172189613322203,
+              -0.08462898137531036,
+              46.666666666666664,
+              60
+            ],
+            "momentum": [
+              0.30145400763813424,
+              0.44572240653801054,
+              68.33333333333333,
+              60
+            ]
+          },
+          {
+            "years": 10,
+            "level": [
+              0.25382359228051493,
+              0.21195290940247036,
+              70,
+              120
+            ],
+            "momentum": [
+              0.10488497551993785,
+              0.3079423647519539,
+              60.833333333333336,
+              120
+            ]
+          },
+          {
+            "years": 20,
+            "level": [
+              0.8108853913115016,
+              2.471606842051716,
+              85,
+              240
+            ],
+            "momentum": [
+              0.20992895873589137,
+              0.3979086241747698,
+              64.58333333333333,
+              240
+            ]
+          }
+        ]
+      },
+      {
+        "id": "cpi",
+        "date": "2026-09-01",
+        "scores": [
+          {
+            "years": 5,
+            "level": [
+              -0.3431457444751908,
+              0.38193273773504455,
+              59.32203389830509,
+              59
+            ],
+            "momentum": [
+              0.3815715706149327,
+              0.46342843848918264,
+              65.51724137931035,
+              58
+            ]
+          },
+          {
+            "years": 10,
+            "level": [
+              0.20977587174203388,
+              0.9569215686571866,
+              75.63025210084034,
+              119
+            ],
+            "momentum": [
+              0.20738344161407496,
+              0.22879311464946211,
+              60.16949152542373,
+              118
+            ]
+          },
+          {
+            "years": 20,
+            "level": [
+              0.6177094351682028,
+              1.2342183857170947,
+              82.00836820083683,
+              239
+            ],
+            "momentum": [
+              0.24461818180407258,
+              0.33008153142491065,
+              63.865546218487395,
+              238
+            ]
+          }
+        ]
+      },
+      {
+        "id": "wages",
+        "date": "2026-10-01",
+        "scores": [
+          {
+            "years": 5,
+            "level": [
+              -1.734993923324557,
+              -1.611487932624068,
+              1.6666666666666667,
+              60
+            ],
+            "momentum": [
+              -0.053300301263804604,
+              -0.029246843225910882,
+              48.333333333333336,
+              60
+            ]
+          },
+          {
+            "years": 10,
+            "level": [
+              -0.7401117314743795,
+              -0.7305872543676226,
+              24.166666666666668,
+              120
+            ],
+            "momentum": [
+              -0.10324568216430141,
+              -0.14823309776486454,
+              43.333333333333336,
+              120
+            ]
+          },
+          {
+            "years": 20,
+            "level": [
+              null,
+              null,
+              null,
+              235
+            ],
+            "momentum": [
+              null,
+              null,
+              null,
+              232
+            ]
+          }
+        ]
+      },
+      {
+        "id": "shelter",
+        "date": "2026-09-01",
+        "scores": [
+          {
+            "years": 5,
+            "level": [
+              -1.187626949263113,
+              -0.9158591826866737,
+              13.559322033898304,
+              59
+            ],
+            "momentum": [
+              -0.10722994011039087,
+              0.2147487433372159,
+              60.3448275862069,
+              58
+            ]
+          },
+          {
+            "years": 10,
+            "level": [
+              -0.5281846089746646,
+              -0.35601454901710805,
+              28.571428571428573,
+              119
+            ],
+            "momentum": [
+              -0.07078609362377354,
+              0.09427195181682611,
+              55.08474576271186,
+              118
+            ]
+          },
+          {
+            "years": 20,
+            "level": [
+              0.047238466270642814,
+              0.05086629821696745,
+              56.06694560669456,
+              239
+            ],
+            "momentum": [
+              -0.07452962690828427,
+              -0.051928604770115634,
+              47.89915966386555,
+              238
+            ]
+          }
+        ]
+      },
+      {
+        "id": "loans",
+        "date": "2026-10-01",
+        "scores": [
+          {
+            "years": 5,
+            "level": [
+              0.6949224411406478,
+              0.8547457656659566,
+              80,
+              60
+            ],
+            "momentum": [
+              0.16491961739315583,
+              0.19137368625159967,
+              58.333333333333336,
+              60
+            ]
+          },
+          {
+            "years": 10,
+            "level": [
+              0.9239226820250062,
+              1.447918307322195,
+              86.66666666666667,
+              120
+            ],
+            "momentum": [
+              0.331413991696217,
+              0.5002351166684239,
+              71.66666666666667,
+              120
+            ]
+          },
+          {
+            "years": 20,
+            "level": [
+              0.7554588472642435,
+              0.9310324987761187,
+              79.58333333333333,
+              240
+            ],
+            "momentum": [
+              0.3482690861699962,
+              0.4501474709283087,
+              68.75,
+              240
+            ]
+          }
+        ]
+      },
+      {
+        "id": "nfci",
+        "date": "2026-10-01",
+        "scores": [
+          {
+            "years": 5,
+            "level": [
+              -0.4930836732151106,
+              -0.29896347176800453,
+              40.833333333333336,
+              60
+            ],
+            "momentum": [
+              0.8325836986155255,
+              0.8338192853372084,
+              80,
+              60
+            ]
+          },
+          {
+            "years": 10,
+            "level": [
+              -0.008200160464092015,
+              0.40732234176183996,
+              63.75,
+              120
+            ],
+            "momentum": [
+              0.532548084770745,
+              1.2217191115047763,
+              85,
+              120
+            ]
+          },
+          {
+            "years": 20,
+            "level": [
+              -0.27318145618623085,
+              0.11469073642921841,
+              53.75,
+              240
+            ],
+            "momentum": [
+              0.23524260942839118,
+              0.8129623723492737,
+              77.5,
+              240
+            ]
+          }
+        ]
+      },
+      {
+        "id": "policy",
+        "date": "2026-10-01",
+        "scores": [
+          {
+            "years": 5,
+            "level": [
+              0.06976125208475009,
+              -0.4245046737964588,
+              40.833333333333336,
+              60
+            ],
+            "momentum": [
+              0.12871413466806034,
+              0.9635582278237059,
+              71.66666666666667,
+              60
+            ]
+          },
+          {
+            "years": 10,
+            "level": [
+              0.7699917951445311,
+              0.6463086943174059,
+              70.41666666666667,
+              120
+            ],
+            "momentum": [
+              0.35023867939212117,
+              0.8431134493457443,
+              76.25,
+              120
+            ]
+          },
+          {
+            "years": 20,
+            "level": [
+              1.134256393630882,
+              7.11281164538955,
+              78.54166666666667,
+              240
+            ],
+            "momentum": [
+              0.6116050982654165,
+              5.620756328971627,
+              87.70833333333333,
+              240
+            ]
+          }
+        ]
+      },
+      {
+        "id": "householdService",
+        "date": "2026-04-01",
+        "scores": [
+          {
+            "years": 5,
+            "level": [
+              0.7633568729651785,
+              0.5793696972326621,
+              70,
+              20
+            ],
+            "momentum": [
+              -0.7144580489485697,
+              -0.8536747276462411,
+              15,
+              20
+            ]
+          },
+          {
+            "years": 10,
+            "level": [
+              0.0821161713360002,
+              -0.025778594908424855,
+              45,
+              40
+            ],
+            "momentum": [
+              -0.07842384494741735,
+              -0.4453031486746731,
+              22.5,
+              40
+            ]
+          },
+          {
+            "years": 20,
+            "level": [
+              -0.6591247039868704,
+              -0.6631074463480201,
+              22.5,
+              80
+            ],
+            "momentum": [
+              0.0011960122102073624,
+              -0.2826655255892508,
+              38.75,
+              80
+            ]
+          }
+        ]
+      },
+      {
+        "id": "lendingStandards",
+        "date": "2026-07-01",
+        "scores": [
+          {
+            "years": 5,
+            "level": [
+              -0.6008443510514827,
+              -0.5935518683394039,
+              22.5,
+              20
+            ],
+            "momentum": [
+              -0.7811359509468498,
+              -0.6951384357871033,
+              20,
+              20
+            ]
+          },
+          {
+            "years": 10,
+            "level": [
+              -0.3950152114416084,
+              -0.3644975316363418,
+              37.5,
+              40
+            ],
+            "momentum": [
+              -0.5425714828075183,
+              -0.7500337245379739,
+              17.5,
+              40
+            ]
+          },
+          {
+            "years": 20,
+            "level": [
+              -0.2920159457278029,
+              0,
+              50,
+              80
+            ],
+            "momentum": [
+              -0.6482953765383302,
+              -0.9843919192361121,
+              17.5,
+              80
+            ]
+          }
+        ]
+      },
+      {
+        "id": "governmentDebt",
+        "date": "2026-04-01",
+        "scores": [
+          {
+            "years": 5,
+            "level": [
+              1.0070030389669138,
+              1.0077174746662783,
+              85,
+              20
+            ],
+            "momentum": [
+              -0.7390219401647079,
+              -0.9033903896804231,
+              25,
+              20
+            ]
+          },
+          {
+            "years": 10,
+            "level": [
+              0.8338320396828623,
+              0.42514630099826173,
+              82.5,
+              40
+            ],
+            "momentum": [
+              -0.3762937294599296,
+              -0.9526229720887412,
+              22.5,
+              40
+            ]
+          },
+          {
+            "years": 20,
+            "level": [
+              1.1268241272143413,
+              0.9219449820777341,
+              91.25,
+              80
+            ],
+            "momentum": [
+              -0.5901474189603926,
+              -1.2734846138557634,
+              13.75,
+              80
+            ]
+          }
+        ]
+      },
+      {
+        "id": "fiscalInterest",
+        "date": "2026-09-30",
+        "scores": [
+          {
+            "years": 5,
+            "level": [
+              1.3997146616714053,
+              1.0588624163818148,
+              100,
+              5
+            ],
+            "momentum": [
+              0.13822947122195153,
+              0.37500749475651485,
+              60,
+              5
+            ]
+          },
+          {
+            "years": 10,
+            "level": [
+              2.1905292875039324,
+              4.004108653845721,
+              100,
+              10
+            ],
+            "momentum": [
+              0.4394025485692664,
+              0.936039271691039,
+              80,
+              10
+            ]
+          },
+          {
+            "years": 20,
+            "level": [
+              2.533751423500263,
+              2.4260725198471653,
+              100,
+              20
+            ],
+            "momentum": [
+              0.6583050737307606,
+              0.8721864329396181,
+              85,
+              20
+            ]
+          }
+        ]
+      },
+      {
+        "id": "liquidity",
+        "date": "2026-10-01",
+        "scores": [
+          {
+            "years": 5,
+            "level": [
+              0.4608471025793267,
+              0.9550051294655372,
+              85,
+              60
+            ],
+            "momentum": [
+              1.3523724206237526,
+              1.417534750692061,
+              96.66666666666667,
+              60
+            ]
+          },
+          {
+            "years": 10,
+            "level": [
+              -0.1310782373657911,
+              0.40730595601332714,
+              70,
+              120
+            ],
+            "momentum": [
+              0.5837414017373256,
+              1.1360994916672265,
+              89.16666666666667,
+              120
+            ]
+          },
+          {
+            "years": 20,
+            "level": [
+              null,
+              null,
+              null,
+              147
+            ],
+            "momentum": [
+              null,
+              null,
+              null,
+              143
+            ]
+          }
+        ]
+      }
+    ],
+    "indicators": [
+      {
+        "id": "gdp",
+        "series": "GDPC1",
+        "name": "Real GDP",
+        "group": "growth",
+        "frequency": "quarterly",
+        "transform": "yoy",
+        "unit": "% YoY",
+        "weight": 1,
+        "scale": 0.75,
+        "maxAge": 130,
+        "value": 2.0657392375537764,
+        "previous": 2.1915745328897174,
+        "delta": -0.12583529533594096,
+        "date": "2026-07-01",
+        "status": "ok",
+        "score": -0.16778039378125462,
+        "deltaMonths": 3,
+        "source": "https://fred.stlouisfed.org/series/GDPC1"
+      },
+      {
+        "id": "production",
+        "series": "INDPRO",
+        "name": "Industrial production",
+        "group": "growth",
+        "frequency": "monthly",
+        "transform": "yoy",
+        "unit": "% YoY",
+        "weight": 1,
+        "scale": 1,
+        "maxAge": 80,
+        "value": 2.2451508832670886,
+        "previous": 1.4609005848529533,
+        "delta": 0.7842502984141353,
+        "date": "2026-09-01",
+        "status": "ok",
+        "score": 0.7842502984141353,
+        "deltaMonths": 3,
+        "source": "https://fred.stlouisfed.org/series/INDPRO"
+      },
+      {
+        "id": "orders",
+        "series": "AMTMNO",
+        "name": "Nominal manufacturing orders",
+        "group": "growth",
+        "frequency": "monthly",
+        "transform": "yoy",
+        "unit": "% YoY",
+        "weight": 0.8,
+        "scale": 2,
+        "maxAge": 100,
+        "value": 10.503464007283725,
+        "previous": 7.575011733998838,
+        "delta": 2.928452273284887,
+        "date": "2026-09-01",
+        "status": "ok",
+        "score": 1,
+        "deltaMonths": 3,
+        "source": "https://fred.stlouisfed.org/series/AMTMNO"
+      },
+      {
+        "id": "payrolls",
+        "series": "PAYEMS",
+        "name": "Nonfarm payrolls",
+        "group": "growth",
+        "frequency": "monthly",
+        "transform": "yoy",
+        "unit": "% YoY",
+        "weight": 1,
+        "scale": 0.5,
+        "maxAge": 80,
+        "value": 0.5586839048532966,
+        "previous": 0.21445421402530584,
+        "delta": 0.3442296908279907,
+        "date": "2026-10-01",
+        "status": "ok",
+        "score": 0.6884593816559814,
+        "deltaMonths": 3,
+        "source": "https://fred.stlouisfed.org/series/PAYEMS"
+      },
+      {
+        "id": "temp",
+        "series": "TEMPHELPS",
+        "name": "Temporary employment",
+        "group": "growth",
+        "frequency": "monthly",
+        "transform": "yoy",
+        "unit": "% YoY",
+        "weight": 0.6,
+        "scale": 2,
+        "maxAge": 80,
+        "value": 3.026347989232403,
+        "previous": 0.1323069521289355,
+        "delta": 2.8940410371034675,
+        "date": "2026-10-01",
+        "status": "ok",
+        "score": 1,
+        "deltaMonths": 3,
+        "source": "https://fred.stlouisfed.org/series/TEMPHELPS"
+      },
+      {
+        "id": "pce",
+        "series": "PCEPILFE",
+        "name": "Core PCE",
+        "group": "inflation",
+        "frequency": "monthly",
+        "transform": "yoy",
+        "unit": "% YoY",
+        "weight": 1.3,
+        "scale": 0.5,
+        "maxAge": 100,
+        "value": 3.1211596029620203,
+        "previous": 3.041234252733216,
+        "delta": 0.07992535022880443,
+        "date": "2026-09-01",
+        "status": "ok",
+        "score": 0.15985070045760885,
+        "deltaMonths": 3,
+        "source": "https://fred.stlouisfed.org/series/PCEPILFE"
+      },
+      {
+        "id": "cpi",
+        "series": "CPIAUCSL",
+        "name": "Consumer prices",
+        "group": "inflation",
+        "frequency": "monthly",
+        "transform": "yoy",
+        "unit": "% YoY",
+        "weight": 1,
+        "scale": 0.5,
+        "maxAge": 80,
+        "value": 3.7172508442689933,
+        "previous": 3.463530729385411,
+        "delta": 0.25372011488358215,
+        "date": "2026-09-01",
+        "status": "ok",
+        "score": 0.5074402297671643,
+        "deltaMonths": 3,
+        "source": "https://fred.stlouisfed.org/series/CPIAUCSL"
+      },
+      {
+        "id": "wages",
+        "series": "CES0500000003",
+        "name": "Hourly earnings",
+        "group": "inflation",
+        "frequency": "monthly",
+        "transform": "yoy",
+        "unit": "% YoY",
+        "weight": 0.7,
+        "scale": 0.5,
+        "maxAge": 80,
+        "value": 3.1207598371777445,
+        "previous": 3.208116259939686,
+        "delta": -0.08735642276194167,
+        "date": "2026-10-01",
+        "status": "ok",
+        "score": -0.17471284552388333,
+        "deltaMonths": 3,
+        "source": "https://fred.stlouisfed.org/series/CES0500000003"
+      },
+      {
+        "id": "shelter",
+        "series": "CUSR0000SAH1",
+        "name": "Shelter CPI",
+        "group": "inflation",
+        "frequency": "monthly",
+        "transform": "yoy",
+        "unit": "% YoY",
+        "weight": 0.5,
+        "scale": 0.5,
+        "maxAge": 80,
+        "value": 3.2230618848913206,
+        "previous": 3.2579804858535732,
+        "delta": -0.03491860096225263,
+        "date": "2026-09-01",
+        "status": "ok",
+        "score": -0.06983720192450527,
+        "deltaMonths": 3,
+        "source": "https://fred.stlouisfed.org/series/CUSR0000SAH1"
+      },
+      {
+        "id": "loans",
+        "series": "TOTLL",
+        "name": "Bank lending",
+        "group": "credit",
+        "frequency": "weekly",
+        "transform": "yoy",
+        "unit": "% YoY",
+        "maxAge": 28,
+        "value": 7.893785011247179,
+        "previous": 7.164191208482151,
+        "delta": 0.7295938027650273,
+        "date": "2026-10-28",
+        "status": "ok",
+        "score": null,
+        "deltaMonths": 3,
+        "source": "https://fred.stlouisfed.org/series/TOTLL"
+      },
+      {
+        "id": "nfci",
+        "series": "NFCI",
+        "name": "Financial conditions",
+        "group": "credit",
+        "frequency": "weekly",
+        "transform": "level",
+        "unit": "index",
+        "maxAge": 28,
+        "value": -0.459,
+        "previous": -0.538,
+        "delta": 0.07900000000000001,
+        "date": "2026-10-30",
+        "status": "ok",
+        "score": null,
+        "deltaMonths": 3,
+        "source": "https://fred.stlouisfed.org/series/NFCI"
+      },
+      {
+        "id": "policy",
+        "series": "FEDFUNDS",
+        "name": "Fed funds rate",
+        "group": "credit",
+        "frequency": "monthly",
+        "transform": "level",
+        "unit": "%",
+        "maxAge": 80,
+        "value": 3.88,
+        "previous": 3.63,
+        "delta": 0.25,
+        "date": "2026-10-01",
+        "status": "ok",
+        "score": null,
+        "deltaMonths": 3,
+        "source": "https://fred.stlouisfed.org/series/FEDFUNDS"
+      },
+      {
+        "id": "householdService",
+        "series": "TDSP",
+        "name": "Household debt service / disposable income",
+        "group": "debt",
+        "frequency": "quarterly",
+        "transform": "level",
+        "unit": "%",
+        "maxAge": 160,
+        "note": "Required household debt payments as a share of disposable personal income.",
+        "value": 11.111439,
+        "previous": 11.158929,
+        "delta": -0.04748999999999981,
+        "date": "2026-04-01",
+        "status": "ok",
+        "score": null,
+        "deltaMonths": 3,
+        "source": "https://fred.stlouisfed.org/series/TDSP"
+      },
+      {
+        "id": "lendingStandards",
+        "series": "DRTSCILM",
+        "name": "Banks tightening business lending standards",
+        "group": "debt",
+        "frequency": "quarterly",
+        "transform": "level",
+        "unit": "net %",
+        "maxAge": 130,
+        "note": "Net share tightening C&I standards for large and middle-market firms. Positive = net tightening; negative = net easing.",
+        "value": 1.7,
+        "previous": 0,
+        "delta": 1.7,
+        "date": "2026-10-01",
+        "status": "ok",
+        "score": null,
+        "deltaMonths": 3,
+        "source": "https://fred.stlouisfed.org/series/DRTSCILM"
+      },
+      {
+        "id": "governmentDebt",
+        "series": "GFDEGDQ188S",
+        "name": "Gross federal debt / GDP",
+        "group": "debt",
+        "frequency": "quarterly",
+        "transform": "level",
+        "unit": "% GDP",
+        "maxAge": 160,
+        "note": "Gross federal debt, including intragovernmental holdings. A debt ratio, not a default probability.",
+        "value": 121.18773,
+        "previous": 122.43805,
+        "delta": -1.250320000000002,
+        "date": "2026-04-01",
+        "status": "ok",
+        "score": null,
+        "deltaMonths": 3,
+        "source": "https://fred.stlouisfed.org/series/GFDEGDQ188S"
+      },
+      {
+        "id": "liquidity",
+        "series": "WALCL",
+        "name": "Fed net liquidity proxy",
+        "group": "credit",
+        "frequency": "weekly",
+        "transform": "yoy",
+        "unit": "% YoY",
+        "maxAge": 28,
+        "value": 3.057623512196894,
+        "previous": -4.7037990911633525,
+        "delta": 7.761422603360247,
+        "date": "2026-11-04",
+        "status": "ok",
+        "score": null,
+        "deltaMonths": 3,
+        "level": 5790.745,
+        "note": "(WALCL − WTREGEN) / 1000 − RRPONTSYD; USD billions. Weekly TGA average, Wednesday assets and aligned daily RRP: an approximate balance-sheet proxy.",
+        "source": "https://fred.stlouisfed.org/series/WALCL"
+      },
+      {
+        "id": "fiscalInterest",
+        "series": "FYOINT",
+        "name": "Federal interest outlays / receipts",
+        "group": "debt",
+        "frequency": "annual",
+        "transform": "level",
+        "unit": "% receipts",
+        "maxAge": 550,
+        "note": "100 × FYOINT / FYFR, matching fiscal-year end dates. Annual data; the change is over one year.",
+        "value": 25.168813845313174,
+        "previous": 23.222596271472774,
+        "delta": 1.9462175738404,
+        "date": "2026-09-30",
+        "status": "ok",
+        "score": null,
+        "deltaMonths": 12,
+        "source": "https://fred.stlouisfed.org/series/FYOINT"
+      }
+    ]
   }
 ]
