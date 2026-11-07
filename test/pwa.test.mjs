@@ -318,3 +318,12 @@ test("corrupt, future and unavailable storage is handled without inventing data"
   assert.equal(saveOfflineSummary(snapshot(), broken), false);
   assert.equal(readOfflineSummary(broken), null);
 });
+
+test("live refresh invalidates shared History so installed apps can show new daily observations", () => {
+  const source = fs.readFileSync("app.mjs", "utf8");
+  assert.match(source, /fetch\("\/data\/history\.json", \{ cache: "no-store" \}\)/);
+  assert.match(
+    source,
+    /render\(\);\s*\/\/ The server archive[\s\S]*?sharedLoaded = false;\s*if \(\$\("tab-history"\)\.getAttribute\("aria-selected"\) === "true"\) \{\s*void loadSharedHistory\(\);/,
+  );
+});

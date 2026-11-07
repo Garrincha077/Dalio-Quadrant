@@ -223,7 +223,7 @@ function renderHistory() {
 async function loadSharedHistory() {
   if (sharedLoaded) return;
   try {
-    const response = await fetch("/data/history.json");
+    const response = await fetch("/data/history.json", { cache: "no-store" });
     if (!response.ok) throw new Error();
     const records = await response.json();
     if (!Array.isArray(records)) throw new Error();
@@ -298,6 +298,12 @@ async function refresh() {
       }
     }
     render();
+    // The server archive may change while the PWA remains open on the phone.
+    // Invalidate the one-time History load after each successful live refresh.
+    sharedLoaded = false;
+    if ($("tab-history").getAttribute("aria-selected") === "true") {
+      void loadSharedHistory();
+    }
     const usable = s.indicators.filter((d) => d.status === "ok").length;
     text(
       "status",
