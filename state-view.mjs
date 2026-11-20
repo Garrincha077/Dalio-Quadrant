@@ -43,8 +43,11 @@ const updated = (s) =>
       }) + " UTC"
     : "Update date unavailable";
 function observation(d) {
+  const note = d?.latestSourceDate
+    ? `<small>${month(d.latestSourceDate)} comparison unavailable</small>`
+    : "";
   return d
-    ? `<tr><th scope="row">${d.source ? `<a href="${esc(d.source)}" target="_blank" rel="noopener">${esc(d.name)}</a>` : esc(d.name)}</th><td>${fmt(d.value)} ${esc(d.unit)}</td><td>${d.frequency === "quarterly" ? quarter(d.date) : month(d.date)}</td><td><span class="pill ${d.status === "ok" ? "ok" : "stale"}">${esc(d.status)}</span></td></tr>`
+    ? `<tr><th scope="row">${d.source ? `<a href="${esc(d.source)}" target="_blank" rel="noopener">${esc(d.name)}</a>` : esc(d.name)}</th><td>${fmt(d.value)} ${esc(d.unit)}</td><td>${d.frequency === "quarterly" ? quarter(d.date) : month(d.date)}</td><td><span class="pill ${d.status === "ok" ? "ok" : "stale"}">${esc(d.status)}</span>${note}</td></tr>`
     : "";
 }
 export function createStateView() {
