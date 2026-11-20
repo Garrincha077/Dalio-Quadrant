@@ -73,6 +73,11 @@ requests; the longer data supports the state trail and historical distribution.
 - Real GDP uses `GDPC1` levels and the matching quarter a year earlier.
 - Monthly series require matching year-earlier months. Weekly `TOTLL` uses 52
   weeks with a bounded as-of match. Missing YoY comparisons stay missing.
+- If the latest comparison is unavailable for CPI, shelter CPI, core CPI or
+  household employment, the live view can use the immediately preceding month
+  if its comparison is available and within the same freshness limit. The
+  row gives the month used and identifies the newer month with the missing
+  comparison. Historical series retain the original gaps.
 - Net liquidity: `(WALCL - WTREGEN) / 1000 - RRPONTSYD`, USD billions. No future
   observation is selected to align dates. This combines a TGA weekly average
   with point observations and is explicitly labelled an approximate proxy.

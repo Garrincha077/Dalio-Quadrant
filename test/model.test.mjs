@@ -34,6 +34,76 @@ test("missing year-earlier month cannot borrow a nearby month or become a level"
   assert.equal(result.status, "missing");
   assert.equal(result.score, null);
 });
+test("live CPI gaps use a complete comparison from the preceding fresh month", () => {
+  const observations = [
+    { date: "2025-06-01", value: "100" },
+    { date: "2025-09-01", value: "100" },
+    { date: "2025-10-01", value: "." },
+    { date: "2026-06-01", value: "103" },
+    { date: "2026-09-01", value: "104" },
+    { date: "2026-10-01", value: "105" },
+  ];
+  const series = [
+    "CPIAUCSL",
+    "CUSR0000SAH1",
+    "CPILFESL",
+    "CE16OV",
+    "PCEPILFE",
+  ];
+  const raw = Object.fromEntries(series.map((id) => [id, { observations }]));
+  const snapshot = buildSnapshot(raw, new Date("2026-11-20"));
+  for (const row of snapshot.indicators.filter((d) => series.includes(d.series))) {
+    if (row.series === "PCEPILFE") {
+      assert.equal(row.status, "missing");
+      assert.equal(row.date, "2026-10-01");
+    } else {
+      assert.equal(row.status, "ok");
+      assert.equal(row.date, "2026-09-01");
+      assert.equal(row.latestSourceDate, "2026-10-01");
+      approx(row.value, 4);
+    }
+  }
+  assert.equal(snapshot.indicators.find((d) => d.id === "cpi").score, 1);
+  assert.equal(snapshot.profiles.find((p) => p.id === "cpi").current.value, null);
+  const evidence = snapshot.economicState.evidence.flatMap((g) => g.indicators);
+  assert.equal(
+    evidence.find((d) => d.id === "coreCpi").latestSourceDate,
+    "2026-10-01",
+  );
+
+  const older = buildSnapshot(raw, new Date("2026-12-22"));
+  assert.equal(older.indicators.find((d) => d.id === "cpi").score, null);
+
+  const gap = buildSnapshot(
+    {
+      CPIAUCSL: {
+        observations: observations.filter((o) => o.date !== "2026-09-01"),
+      },
+    },
+    new Date("2026-11-20"),
+  );
+  assert.equal(
+    gap.indicators.find((d) => d.id === "cpi").latestSourceDate,
+    undefined,
+  );
+
+  const complete = buildSnapshot(
+    {
+      CPIAUCSL: {
+        observations: [
+          ...observations.filter((o) => o.date !== "2025-10-01"),
+          { date: "2025-10-01", value: "100" },
+          { date: "2025-07-01", value: "100" },
+          { date: "2026-07-01", value: "103" },
+        ],
+      },
+    },
+    new Date("2026-11-20"),
+  ).indicators.find((d) => d.id === "cpi");
+  assert.equal(complete.date, "2026-10-01");
+  assert.equal(complete.latestSourceDate, undefined);
+  approx(complete.value, 5);
+});
 test("quarterly freshness starts at quarter end, so the normal published quarter is retained", () => {
   const points = clean([
     { date: "2025-01-01", value: "100" },

@@ -123,7 +123,14 @@ function badge(d) {
   return `<span class="pill ${d.status}">${d.status === "ok" ? "Dated" : d.status}</span>`;
 }
 function table(items) {
-  return `<table><thead><tr><th>Indicator / observation period</th><th>Latest</th><th>Change</th><th>Status</th></tr></thead><tbody>${items.map((d) => `<tr><td><a href="https://fred.stlouisfed.org/series/${d.series}" target="_blank" rel="noopener">${d.name}</a><small>${date(d.date, d.frequency)} · ${d.frequency}</small></td><td>${fmt(d.value)} <small>${d.unit}</small></td><td>${signed(d.delta)} <small>${d.unit === "index" ? "points" : "pp"} / ${d.deltaMonths === 12 ? "1Y" : "3M"}</small></td><td>${badge(d)}${d.value !== null && d.previous === null ? "<small>No comparison</small>" : ""}</td></tr>`).join("")}</tbody></table>`;
+  return `<table><thead><tr><th>Indicator / observation period</th><th>Reading</th><th>Change</th><th>Status</th></tr></thead><tbody>${items.map((d) => {
+    const note = d.latestSourceDate
+      ? `<small>${date(d.latestSourceDate, d.frequency)} comparison unavailable</small>`
+      : d.value !== null && d.previous === null
+        ? "<small>No comparison</small>"
+        : "";
+    return `<tr><td><a href="https://fred.stlouisfed.org/series/${d.series}" target="_blank" rel="noopener">${d.name}</a><small>${date(d.date, d.frequency)} · ${d.frequency}</small></td><td>${fmt(d.value)} <small>${d.unit}</small></td><td>${signed(d.delta)} <small>${d.unit === "index" ? "points" : "pp"} / ${d.deltaMonths === 12 ? "1Y" : "3M"}</small></td><td>${badge(d)}${note}</td></tr>`;
+  }).join("")}</tbody></table>`;
 }
 const sensitivity = {
   goldilocks:
@@ -305,9 +312,10 @@ async function refresh() {
       void loadSharedHistory();
     }
     const usable = s.indicators.filter((d) => d.status === "ok").length;
+    const previousMonth = s.indicators.filter((d) => d.latestSourceDate).length;
     text(
       "status",
-      `Fetched ${when(s.fetchedAt)} · ${usable}/${s.indicators.length} indicators within freshness limits${s.errors?.length ? ` · Unavailable series: ${s.errors.join(", ")}` : ""}. Observation periods are shown per row.`,
+      `Fetched ${when(s.fetchedAt)} · ${usable}/${s.indicators.length} indicators within freshness limits${previousMonth ? ` · ${previousMonth} using the prior comparable month` : ""}${s.errors?.length ? ` · Unavailable series: ${s.errors.join(", ")}` : ""}. Observation periods are shown per row.`,
     );
     $("status").className =
       `status ${s.errors?.length || s.regime.id === "unavailable" ? "error" : "ok"}`;
